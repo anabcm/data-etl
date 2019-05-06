@@ -11,11 +11,12 @@ Since we'll be working in a large team it'll be important for us to always be wo
 Once you have a local copy of the repository on your machine, the following steps will enable you to commit code to the repository:
 
 Create a new branch:
+
 ```commandline
 $ git checkout -b new-feature
 ```
 
-~~~ do your work, edit files, add new ones etc ~~~
+...do your work, edit files, add new ones etc...
 
 Update, add, commit, and push changes:
 ```commandline
