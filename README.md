@@ -31,9 +31,38 @@ Push feature branch to remote when all changes are commited
 git push -u origin new-feature
 ```
 
-## Setup
+## Setup for running Jupyter Notebooks locally
 
-*incomplete! ...*
+Create a new virtual environment:
+
+```commandline
+$ python -m venv datamexico
+```
+
+Then activate it:
+
+```commandline
+$ source datamexico/bin/activate
+```
+
+Now, from inside the environment install ipykernel using pip:
+
+```commandline
+$ pip install ipykernel
+```
+
+Also install requirements:
+
+```commandline
+$ pip install -r requirements
+```
+
+Lastly install a new kernel for jupyter (with all of our virtualenv libraries installed):
+
+```commandline
+$ ipython kernel install --user --name=datamexico
+```
+
 
 ### 1. Clone the repo
 
