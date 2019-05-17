@@ -56,53 +56,114 @@ Zero padded 2 digit numeric ID of state
 
 Data type: int
 
-Growth...?
+Natural Growth 
 
 `CRE_SOC`
 
 Data type: int
 
-Another type of growth...?
+Social Growth
 
 `CRE_TOT`
 
 Data type: int
 
-Another type of growth...?
+Total Growth
 
 `DEF`
 
 Data type: int
 
+Number of deaths
+
 `EDAD_MED`
+Data type: int
+
+Age median
 
 `EMI_EST`
 
+Data type: int
+
+Interstate emmigrants
+
 `EMI_INT`
+
+Data type: int
+
+International emmigrants
 
 `EVH`
 
+Data type: int
+
+Life expectancy at birth for men
+
 `EVM`
+
+Data type: int
+
+Life expectancy at birth for women
 
 `EV`
 
+Data type: int
+
+Life expectancy at birth in general
+
 `HOM_MIT_AÑO`
+
+Data type: int
+
+Total men population at midyear
 
 `IND_ENV`
 
+Data type: int
+
+Aging index
+
 `INM_EST`
+
+Data type: int
+
+Interstate immigrants
 
 `INM_INT`
 
+Data type: int
+
+International immigrants
+
 `MIG_NET_EST`
+
+Data type: int
+
+Interstate net migration
 
 `MIG_NET_INT`
 
+Data type: int
+
+International net migration
+
 `MUJ_MIT_AÑO`
+
+Data type: int
+
+Total women population at midyear
 
 `NAC`
 
+Data type: int
+
+Births
+
 `POB_MIT_AÑO`
+
+Data type: int
+
+Total population at midyear
 
 `MUJ_12_14`
 
@@ -112,162 +173,294 @@ Female population age 12 - 14
 
 `MUJ_15_17`
 
+Data type: int
+
 Female population age 15 - 17
 
 `MUJ_15_19`
+
+Data type:int
 
 Female population age 15 - 19
 
 `MUJ_15_29`
 
+Data type: int
+
 Female population age 15 - 29
 
 `MUJ_15_49`
+
+Data type: int
 
 Female population age 15 - 49
 
 `MUJ_18_24`
 
+Data type: int
+
 Female population age 18 - 24
 
 `MUJ_20_24`
+
+Data type: int
 
 Female population age 20 - 24
 
 `MUJ_3_5`
 
+Data type: int
+
 Female population age 3 - 5
 
 `MUJ_30_64`
+
+Data type: int
 
 Female population age 30 - 64
 
 `MUJ_6_11`
 
+Data type: int
+
 Female population age 6 - 11
 
 `MUJ_65_MAS`
+
+Data type: int
 
 Female population age 65 and older
 
 `HOM_12_14`
 
+Data type: int
+
 Male population age 12 - 14
 
 `HOM_15_17`
+
+Data type: int
 
 Male population age 15 - 17
 
 `HOM_15_19`
 
+Data type: int
+
 Male population age 15 - 19
 
 `HOM_15_29`
+
+Data type: int
 
 Male population age 15 - 29
 
 `HOM_15_49`
 
+Data type: int
+
 Male population age 15 - 49
 
 `HOM_18_24`
+
+Data type: int
 
 Male population age 18 - 24
 
 `HOM_20_24`
 
+Data type: int
+
 Male population age 20 - 24
 
 `HOM_3_5`
+
+Data type: int
 
 Male population age 3 - 5
 
 `HOM_30_64`
 
+Data type: int
+
 Male population age 30 - 64
 
 `HOM_6_11`
+
+Data type: int
 
 Male population age 6 - 11
 
 `HOM_65_MAS`
 
+Data type: int
+
 Male population age 65 and older
 
 `POB_12_14`
+
+Data type: int
 
 Poor population age 12 - 14
 
 `POB_15_17`
 
+Data type: int
+
 Poor population age 15 - 17
 
 `POB_15_19`
+
+Data type: int
 
 Poor population age 15 - 19
 
 `POB_15_29`
 
+Data type: int
+
 Poor population age 15 - 29
 
 `POB_15_49`
+
+Data type: int
 
 Poor population age 15 - 49
 
 `POB_18_24`
 
+Data type: int
+
 Poor population age 18 - 24
 
 `POB_20_24`
+
+Data type: int
 
 Poor population age 20 - 24
 
 `POB_3_5`
 
+Data type: int
+
 Poor population age 3 - 5
 
 `POB_30_64`
+
+Data type: int
 
 Poor population age 30 - 64
 
 `POB_6_11`
 
+Data type: int
+
 Poor population age 6 - 11
 
 `POB_65_MAS`
+
+Data type: int
 
 Poor population age 65 and older
 
 `RAZ_DEP_ADU`
 
+Data type: float
+
+Adult dependency ratio
+
 `RAZ_DEP_INF`
+
+Data type: float
+
+Child dependency ration
 
 `RAZ_DEP`
 
+Data type: float
+
+Total dependency ratio
+
 `T_BRU_MOR`
+
+Data type: float
+
+Gross mortality rate
 
 `T_BRU_NAT`
 
+Data type: float
+
+Gross birth rate
+
 `T_CRE_NAT`
+
+Data type: float
+
+Natural growth rate
 
 `T_CRE_SOC`
 
+Data type: float
+
+Total social growth rate
+
 `T_CRE_TOT`
+
+Data type: float
+
+Total growth rate
 
 `T_EMI_EST`
 
+Data type: float
+
+Net interstate emigration rate
+
 `T_INM_EST`
+
+Data type: float
+
+Net interstate immigration rate
 
 `T_MIG_NET_EST`
 
+Data type: float
+
+Net interstate migration rate
+
 `T_MIG_NET_INT`
+
+Data type: float
+
+Net international migration rate
 
 `TMIH`
 
+Data type: float
+
+Child mortality rate in men
+
 `TMIM`
+
+Data type: float
+
+Child mortality rate in women
 
 `TMI`
 
+Data type: float
+
+Child mortality rate
+
 `TEF_ADO`
 
+Data type: float
+
+Rate of adolescent fertility
+
 `TGF`
+
+Data type: float
+
+Total fertitlity rate
