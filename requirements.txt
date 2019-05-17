@@ -1,2 +1,4 @@
 pandas
 jupyter
+Jinja2
+matplotlib
