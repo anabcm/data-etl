@@ -31,7 +31,7 @@ Format:
 | loc_id | `integer` | 10010096 |
 | loc_name | `string` | Agua Azul |
 
-![Format ID][format_id.svg]
+![Format ID](format_id.svg)
 
 Example:
 
