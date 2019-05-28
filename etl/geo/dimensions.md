@@ -1,11 +1,12 @@
 # Data México Dimensión Geografía
 
-The National Institute of Statistics and Geography (INEGI) provides through its official website the Unique Catalog of IDs of Geostatistical, State, Municipal and Local Areas, which allows to reference locations ([https://www.inegi.org.mx/app/ageeml/] (https://www.inegi.org.mx/app/ageeml/)).
+The National Institute of Statistics and Geography (INEGI) provides the Unique Catalog of IDs of Geostatistical, State, Municipal and Local Areas through its official website. For reference the original files can be found here:
+- [https://www.inegi.org.mx/app/ageeml/](https://www.inegi.org.mx/app/ageeml/) (Using the April 2019 standard)
 
-This standard is used as the reference for the construction of Geography Dimension in DataMéxico. However, to ensure a good performance of the site, the IDs must following two criteria:
+This standard is used as the reference for the construction of all shared Geography Dimensions in DataMéxico. However, to ensure a good performance of the site, the IDs must following two criteria:
 
-- To be integer numbers
-- There must not be two identical identifiers, although these belong to a different depth level (ie, the municipality ID must be different to entity ID or location ID)
+- Be integer numbers
+- There must not be two identical identifiers, unless these belong to a different depth level (ie, there municipality ID must be different to entity ID or location ID)
 
 We preprocessed the INEGI IDs, using the following methodology:
 
@@ -45,4 +46,4 @@ Example:
 
 You can find the ID list in [geo_mx.csv](geo_mx.csv).
 
-We suggest to everyone that participate in the ETL process, to use this standard for  avoiding duplication of geographical dimensions.
+We recommend that everyone who participates in the ETL process uses this standard for avoiding duplication of geographical dimensions.
