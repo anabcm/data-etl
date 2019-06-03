@@ -3,3 +3,8 @@
 
 # ignore jupyter notebook checkpoints
 .ipynb_checkpoints
+
+__pycache__/
+venv/
+.env
+.envrc

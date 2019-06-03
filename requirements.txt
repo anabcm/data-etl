@@ -1,2 +1,6 @@
 pandas
 jupyter
+bs4
+requests
+bamboo-lib
+xlrd
