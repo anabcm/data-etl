@@ -13,9 +13,8 @@ class TransformStep(PipelineStep):
 
         df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1')
         df.columns = df.columns.str.lower()
-        df.rename(columns={'factor': 'population'}, inplace=True)
 
-        primary_cols = ["ent", "mun", "population"] + df_labels.sheet_names
+        primary_cols = ["ent", "mun", "factor", "sexo"]
 
         final_df = df[primary_cols]
         final_df["mun_id"] = final_df["ent"].astype(str) + final_df["mun"].astype(str).str.zfill(3)
@@ -23,14 +22,16 @@ class TransformStep(PipelineStep):
         final_df = final_df.drop(columns=["ent", "mun"])
 
         # Add new label columns to final_df
-        for label in df_labels.sheet_names:
+        for label in ["sexo"]:
             d = pd.read_excel(df_labels, label)
             final_df[label] = final_df[label].replace(dict(zip(d.prev_id, d.id)))
 
         # Group rows to get final population sum
         grouped = list(final_df)
-        grouped.remove("population")
+        grouped.remove("factor")
         final_df = final_df.groupby(grouped).sum().reset_index()
+
+        final_df.rename(columns={'factor': 'population', 'sexo': 'sex'}, inplace=True)
 
         return final_df
 
@@ -46,10 +47,19 @@ class PopulationPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open("etl/conns.yaml"))
 
+        dtype = {
+            'sex':          'UInt8',
+            'mun_id':       'UInt32',
+            'population':   'UInt32',
+        }
+
         download_step = DownloadStep(
             connector='population-data',
             connector_path='etl/inegi_intercensal_census/conns.yaml'
         )
         transform_step = TransformStep()
+        load_step = LoadStep(
+            "inegi_population", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
+        )
 
-        return [download_step, transform_step]
+        return [download_step, transform_step, load_step]
