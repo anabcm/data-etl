@@ -1,3 +1,7 @@
 population-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/inegi_intercensal_census/TR_PERSONA<index>.CSV
+
+housing-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/inegi_intercensal_census/TR_VIVIENDA<index>.CSV
