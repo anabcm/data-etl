@@ -28,7 +28,7 @@ class DimSexPipeline(EasyPipeline):
 
         extract_step = ExtractStep()
         load_step = LoadStep(
-            "dim_inegi_sex", db_connector, if_exists="append", dtype=dtype,
+            "dim_shared_sex", db_connector, if_exists="append", dtype=dtype,
             pk=['id']
         )
 

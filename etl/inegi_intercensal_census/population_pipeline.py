@@ -62,4 +62,4 @@ class PopulationPipeline(EasyPipeline):
             "inegi_population", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
         )
 
-        return [download_step, transform_step]#, load_step]
+        return [download_step, transform_step, load_step]
