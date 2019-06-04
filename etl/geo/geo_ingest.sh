@@ -1,0 +1,1 @@
+bamboo-cli --folder etl/geo --entry dim_geography_pipeline
