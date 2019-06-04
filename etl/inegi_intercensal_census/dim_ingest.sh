@@ -1,0 +1,1 @@
+bamboo-cli --folder etl/inegi_intercensal_census --entry dim_sex_pipeline

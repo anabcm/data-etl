@@ -1,0 +1,3 @@
+clickhouse-database:
+  driver: bamboo_lib.connectors.drivers.clickhouse.ClickhouseDriver
+  uri: clickhouse://$CLICKHOUSE_URL/$CLICKHOUSE_DATABASE

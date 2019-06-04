@@ -2,8 +2,9 @@
 .DS_Store
 
 # ignore jupyter notebook checkpoints
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
+__pycache__/
 venv/
 .env
 .envrc

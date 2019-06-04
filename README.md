@@ -77,22 +77,6 @@ $ git checkout -b new-feature
 Use the following as a guide/template for a `.env` file:
 
 ```
-
-```
-
-### 3. Create the database
-
-
-### 4. Run the pipelines
-
-To run all of the pipelines defined under `/etl`:
-
-```commandline
-$ python pipelines.py
-```
-
-You can also choose to run each of them individually. For example:
-
-```commandline
-$ python etl/geos/geos.py
+export CLICKHOUSE_URL="127.0.0.1"
+export CLICKHOUSE_DATABASE="default"
 ```
