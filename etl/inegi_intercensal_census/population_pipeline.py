@@ -14,21 +14,21 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1')
         df.columns = df.columns.str.lower()
 
-        primary_cols = ["ent", "mun", "factor", "sexo"]
+        primary_cols = ['ent', 'mun', 'factor', 'sexo']
 
+        # Condense municipality and state IDs into a single column
         final_df = df[primary_cols]
-        final_df["mun_id"] = final_df["ent"].astype(str) + final_df["mun"].astype(str).str.zfill(3)
-        final_df["mun_id"] = final_df["mun_id"].astype(int)
-        final_df = final_df.drop(columns=["ent", "mun"])
+        final_df['mun_id'] = final_df['ent'].astype(str) + final_df['mun'].astype(str).str.zfill(3)
+        final_df['mun_id'] = final_df['mun_id'].astype(int)
+        final_df = final_df.drop(columns=['ent', 'mun'])
 
         # Add new label columns to final_df
-        for label in ["sexo"]:
-            d = pd.read_excel(df_labels, label)
-            final_df[label] = final_df[label].replace(dict(zip(d.prev_id, d.id)))
+        df_l = pd.read_excel(df_labels, 'sexo')
+        final_df['sexo'] = final_df['sexo'].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         # Group rows to get final population sum
         grouped = list(final_df)
-        grouped.remove("factor")
+        grouped.remove('factor')
         final_df = final_df.groupby(grouped).sum().reset_index()
 
         final_df.rename(columns={'factor': 'population', 'sexo': 'sex'}, inplace=True)
@@ -62,4 +62,4 @@ class PopulationPipeline(EasyPipeline):
             "inegi_population", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
         )
 
-        return [download_step, transform_step, load_step]
+        return [download_step, transform_step]#, load_step]
