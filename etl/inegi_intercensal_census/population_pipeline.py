@@ -49,7 +49,7 @@ class PopulationPipeline(EasyPipeline):
 
         dtype = {
             'sex':          'UInt8',
-            'mun_id':       'UInt32',
+            'mun_id':       'UInt16',
             'population':   'UInt32',
         }
 
