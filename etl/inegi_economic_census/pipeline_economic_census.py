@@ -22,7 +22,7 @@ class MultiStep(PipelineStep):
         #  Renames columns, keeping measure code
         temp = list(df.columns[:4])
         for i in range(4, len(df.columns)):
-            temp.append(df.columns[i].split(" ")[0])
+            temp.append(df.columns[i].split(" ")[0].lower())
         df.columns = temp
 
         # Creates mun_id
@@ -61,7 +61,7 @@ class MultiStep(PipelineStep):
 class EconomicCensusPipeline(BasePipeline):
     @staticmethod
     def pipeline_id():
-        return "economic-census-pipeline"
+        return "pipeline_economic_census"
 
     @staticmethod
     def name():
@@ -73,7 +73,7 @@ class EconomicCensusPipeline(BasePipeline):
 
     @staticmethod
     def website():
-        return "http://datawheel.us"
+        return "https://www.inegi.org.mx/app/saic/default.aspx"
 
     @staticmethod
     def parameter_list():
@@ -83,17 +83,25 @@ class EconomicCensusPipeline(BasePipeline):
 
     @staticmethod
     def run(params, **kwargs):
-        # Use of connectors specified in the conns.yaml file
-        #source_connector = grab_connector(__file__, params.get("source-connector"))
-        postgres_connector = grab_connector(__file__, "postgres")
+        db_connector = Connector.fetch("clickhouse-database", open("etl/conns.yaml"))
+
+        dtype = {
+            'class_id':     'UInt16',
+            'mun_id':       'UInt16',
+            'year':         'UInt8',
+            'ue':           'UInt32',
+            'a111a':        'UFloat32'
+        }
 
         # Definition of each step
         step1 = MultiStep()
-        step2 = LoadStep("inegi_economic_census", postgres_connector, if_exists="replace", schema = "coverage_schema")
+        load_step = LoadStep(
+            "inegi_economic_census", db_connector, if_exists="replace", pk=["class_id", "mun_id", "year"], dtype=dtype
+        )
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(step1).next(step2)
+        pipeline = pipeline.next(step1).next(load_step)
         return pipeline.run_pipeline()
 
 def run_coverage(params, **kwargs):
