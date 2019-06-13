@@ -22,7 +22,7 @@ class MultiStep(PipelineStep):
         #  Renames columns, keeping measure code
         temp = list(df.columns[:4])
         for i in range(4, len(df.columns)):
-            temp.append(df.columns[i].split(" ")[0].lower())
+            temp.append(df.columns[i].split(" ")[0])
         df.columns = temp
 
         # Creates mun_id
