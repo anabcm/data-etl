@@ -1,0 +1,3 @@
+postgres:
+  driver: bamboo_lib.connectors.drivers.postgres.PostgresDriver
+  uri: postgresql://mexico:mexico@localhost:5432/mexico_database
