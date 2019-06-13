@@ -12,39 +12,47 @@ class MultiStep(PipelineStep):
             encoding="latin-1", 
             low_memory=False)
 
+        # Drops `Total` rows and empty columns
         df.drop(["Unnamed: 118"], axis=1, inplace=True)
+        df.drop(df.loc[df["Actividad Económica"].str.match("Total nacional") | df["Actividad Económica"].str.match("Total estatal") | df["Actividad Económica"].str.match("Total municipal")].index, inplace=True)
+        df.drop(df[df["Entidad"]=="00 Total Nacional"].index, inplace=True)
+        df = df[~df["Año Censal"].isnull()]
+        df = df[pd.notnull(df["Municipio"])]
         
+        #  Renames columns, keeping measure code
         temp = list(df.columns[:4])
         for i in range(4, len(df.columns)):
             temp.append(df.columns[i].split(" ")[0])
         df.columns = temp
 
-        df.drop(df.loc[df["Actividad Económica"].str.match("Total nacional") | df["Actividad Económica"].str.match("Total estatal") | df["Actividad Económica"].str.match("Total municipal")].index, inplace=True)
-        df.drop(df[df["Entidad"]=="00 Total Nacional"].index, inplace=True)
-        df = df[~df["Año Censal"].isnull()]
-        df = df[pd.notnull(df["Municipio"])]
-
+        # Creates mun_id
         piv_ent = df["Entidad"].str.split(" ", n=1, expand=True)
         piv_mun = df["Municipio"].str.split(" ", n=1, expand=True)
         df["Entidad"] = piv_ent[0] + piv_mun[0]
 
+        # Updates column names
         params = {
           "Año Censal":"year",
           "Entidad":"mun_id",
           "Actividad Económica":"class_id"
-          }
+        }
         df.rename(index=str, columns=params, inplace=True)
 
+        # Deletes duplicates columns
         df = df.loc[:, ~df.columns.duplicated()]
 
+        # Keeps class_id
         piv_class = df["class_id"].str.split(" ", n=1, expand=True)
         df["class_id"] = piv_class[0]
 
+        # Deletes Municio column
         df.drop(["Municipio"], axis=1, inplace=True)
 
+        # Converts mun_id and year columns to integer variables
         df["mun_id"] = df["mun_id"].astype(int)
         df["year"] = df["year"].astype(int)
 
+        # Reset indexes
         df.drop(df.columns[[-1,-2,-3]], axis=1, inplace=True)
         df.reset_index(drop=True, inplace=True)
 
