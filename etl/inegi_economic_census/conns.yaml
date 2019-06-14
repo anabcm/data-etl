@@ -1,3 +1,3 @@
-postgres:
-  driver: bamboo_lib.connectors.drivers.postgres.PostgresDriver
-  uri: postgresql://mexico:mexico@localhost:5432/mexico_database
+dataset:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/inegi_economic_census/economic_census.csv

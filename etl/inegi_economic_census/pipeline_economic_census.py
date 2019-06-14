@@ -8,7 +8,7 @@ from bamboo_lib.helpers import grab_connector
 class MultiStep(PipelineStep):
     def run_step(self, prev, params):
         df = pd.read_csv(
-            "https://storage.googleapis.com/datamexico-data/inegi_economic_census/economic_census.csv", 
+            prev, 
             encoding="latin-1", 
             low_memory=False)
 
@@ -85,120 +85,21 @@ class EconomicCensusPipeline(BasePipeline):
     @staticmethod
     def run(params, **kwargs):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
-        dtype = {
-            "class_id":     "String",
-            "mun_id":       "UInt16",
-            "year":         "UInt8",
-            "ue":           "Float64",
-            "a111a":        "Float32",
-            "h001a":        "UInt16",
-            "h000a":        "Float64",
-            "h010a":        "UInt16",
-            "h020a":        "UInt16",
-            "i000a":        "Float64",
-            "j000a":        "Float64",
-            "k000a":        "Float64",
-            "m000a":        "Nullable(Float64)",
-            "a111a":        "Float64",
-            "a121a":        "Float64",
-            "a131a":        "Float64",
-            "a211a":        "Float64",
-            "a221a":        "Float64",
-            "p000c":        "Nullable(Float64)",
-            "q000a":        "Float64",
-            "q000b":        "Float64",
-            "a700a":        "Float64",
-            "a800a":        "Nullable(Float64)",
-            "q000c":        "Float64",
-            "q000d":        "Nullable(Float64)",
-            "p000a":        "Nullable(Float64)",
-            "p000b":        "Nullable(Float64)",
-            "o010a":        "Float64",
-            "o020a":        "Float64",
-            "m700a":        "Float64",
-            "p030c":        "Nullable(Float64)",
-            "a511a":        "Nullable(Float64)",
-            "m020a":        "Float64",
-            "m050a":        "Nullable(Float64)",
-            "m091a":        "Float64",
-            "h001b":        "UInt16",
-            "h001c":        "UInt16",
-            "h001d":        "Float64",
-            "h000b":        "Float64",
-            "h000c":        "Float64",
-            "h000d":        "Float64",
-            "h010b":        "UInt16",
-            "h010c":        "UInt16",
-            "h010d":        "Float64",
-            "h101a":        "Float64",
-            "h101b":        "Float64",
-            "h101c":        "Float64",
-            "h101d":        "Float64",
-            "h203a":        "Float64",
-            "h203b":        "Float64",
-            "h203c":        "Float64",
-            "h203d":        "Float64",
-            "h020b":        "UInt16",
-            "h020c":        "UInt16",
-            "h020d":        "Float64",
-            "i000b":        "Float64",
-            "i000c":        "Float64",
-            "i000d":        "Float64",
-            "i100a":        "Float64",
-            "i100b":        "Float64",
-            "i100c":        "Float64",
-            "i100d":        "Float64",
-            "i200a":        "UInt16",
-            "i200b":        "UInt16",
-            "i200c":        "UInt16",
-            "i200d":        "Float64",
-            "j010a":        "Float64",
-            "j203a":        "Nullable(Float64)",
-            "j300a":        "Nullable(Float64)",
-            "j400a":        "Nullable(Float64)",
-            "j500a":        "Nullable(Float64)",
-            "j600a":        "Nullable(Float64)",
-            "k010a":        "Nullable(Float64)",
-            "k020a":        "Nullable(Float64)",
-            "k030a":        "Nullable(Float64)",
-            "k311a":        "Nullable(Float64)",
-            "k040a":        "Float64",
-            "k041a":        "Nullable(Float64)",
-            "k050a":        "Float64",
-            "k610a":        "Nullable(Float64)",
-            "k620a":        "Nullable(Float64)",
-            "k060a":        "Nullable(Float64)",
-            "k070a":        "Nullable(Float64)",
-            "k810a":        "Nullable(Float64)",
-            "k820a":        "Float64",
-            "k910a":        "Nullable(Float64)",
-            "k950a":        "Nullable(Float64)",
-            "k096a":        "Nullable(Float64)",
-            "k976a":        "Nullable(Float64)",
-            "k090a":        "Float64",
-            "m010a":        "Nullable(Float64)",
-            "m030a":        "Nullable(Float64)",
-            "m090a":        "Nullable(Float64)",
-            "p100a":        "Nullable(Float64)",
-            "p100b":        "Nullable(Float64)",
-            "p030a":        "Nullable(Float64)",
-            "p030b":        "Nullable(Float64)",
-            "q010a":        "Nullable(Float64)",
-            "q020a":        "Nullable(Float64)",
-            "q030a":        "Nullable(Float64)",
-            "q400a":        "Nullable(Float64)",
-            "q900a":        "Nullable(Float64)",
-        }
+        dl_step = DownloadStep(connector="dataset", connector_path=__file__)
 
         # Definition of each step
-        step1 = MultiStep()
+        transform_step = MultiStep()
         load_step = LoadStep(
-            "inegi_economic_census", db_connector, if_exists="replace", pk=["class_id", "mun_id", "year"], dtype=dtype
+            "inegi_economic_census", 
+            db_connector, 
+            if_exists="append", 
+            pk=["class_id", "mun_id", "year"], 
+            nullable_list=["m000a", "p000c", "a800a", "q000d", "p000a", "p000b", "p030c", "a511a", "m050a", "j203a", "j300a","j400a","j500a","j600a","k010a","k020a","k030a","k311a","k041a","k610a","k620a","k060a","k070a","k810a","k910a","k950a","k096a","k976a","m010a","m030a","m090a","p100a","p100b","p030a","p030b","q010a","q020a","q030a","q400a","q900a"]
         )
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(step1).next(load_step)
+        pipeline = pipeline.next(dl_step).next(transform_step).next(load_step)
         return pipeline.run_pipeline()
 
 def run_coverage(params, **kwargs):
