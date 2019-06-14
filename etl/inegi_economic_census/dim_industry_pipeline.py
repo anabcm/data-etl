@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 def split_code(df):
     df.code = df.code.astype('str')
     temp = df.loc[df.code.str.contains('-')].to_dict(orient='records')
@@ -17,7 +11,7 @@ def split_code(df):
 
         for n in range(ran[0],ran[-1]+1):
             add = {
-                'code': n,
+                'code': str(n),
                 'title': record['title']
             }
             new_records.append(add)
@@ -38,10 +32,10 @@ class ReadStep(PipelineStep):
     # read data
     def run_step(self, prev, params):
         url = 'https://storage.googleapis.com/datamexico-data/inegi_economic_census/NAICS2017.xlsx'
-        df_us = pd.read_excel(url)
+        df_us = pd.read_excel(url, dtype='str')
 
         url = 'https://storage.googleapis.com/datamexico-data/inegi_economic_census/SCIAN2018.xlsx'
-        df_mx = pd.read_excel(url, header=1)
+        df_mx = pd.read_excel(url, header=1, dtype='str')
         return df_mx, df_us
 
 class DropFirstColStep(PipelineStep):
@@ -63,12 +57,6 @@ class RenameStep(PipelineStep):
         df_mx, df_us = prev[0], prev[1]
         df_mx.columns = ['code', 'title']
         df_us.columns = ['code', 'title']
-        df_mx.code = df_mx.code.astype('str')
-        df_us.code = df_us.code.astype('str')
-        df_mx.code = df_mx.code.str.strip()
-        df_us.code = df_us.code.str.strip()
-        df_mx.title = df_mx.title.str.strip()
-        df_us.title = df_us.title.str.strip()
         return df_mx, df_us
 
 class DropNaStep(PipelineStep):
@@ -80,25 +68,27 @@ class DropNaStep(PipelineStep):
             df.dropna(how='any', subset=[df.columns[0]], inplace=True)
         return df_mx, df_us
 
-class TransformStep(PipelineStep):
+class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df_mx, df_us = prev[0], prev[1]
-        # more than one sector
-        df_mx = df_mx.append(split_code(df_mx))
-        df_us = df_us.append(split_code(df_us))
-        df_mx.code = df_mx.code.astype('str')
-        df_us.code = df_us.code.astype('str')
         df_mx.code = df_mx.code.str.strip()
         df_us.code = df_us.code.str.strip()
         df_mx.title = df_mx.title.str.strip()
         df_us.title = df_us.title.str.strip()
         return df_mx, df_us
 
+class TransformStep(PipelineStep):
+    def run_step(self, prev, params):
+        df_mx, df_us = prev[0], prev[1]
+        # more than one sector
+        df_mx = df_mx.append(split_code(df_mx))
+        df_us = df_us.append(split_code(df_us))
+        return df_mx, df_us
+
 class SpecialCharacterStep(PipelineStep):
     def run_step(self, prev, params):
         df_mx, df_us = prev[0], prev[1]
         # character
-        df_mx.title = df_mx.title.astype('str')
         temp = list(df_mx.loc[df_mx.title.str.contains('T'), 'title'].unique())
 
         for ele in temp:
@@ -111,7 +101,6 @@ class JoinStep(PipelineStep):
         df_mx, df_us = prev[0], prev[1]
         data = list(df_mx.loc[df_mx.code.str.len() == 6, 'code']) + list(df_us.loc[df_us.code.str.len() == 6, 'code'])
         df = pd.DataFrame(data, columns=['code'])
-        df.code = df.code.str.strip()
         df['sector_es'] = df.code.str[:2]
         df['subsector_es'] = df.code.str[:3]
         df['branch_es'] = df.code.str[:4]
@@ -186,18 +175,19 @@ class CoveragePipeline(BasePipeline):
         step2 = SelectStep()
         step3 = RenameStep()
         step4 = DropNaStep()
-        step5 = TransformStep()
-        step6 = SpecialCharacterStep()
-        step7 = JoinStep()
-        step8 = ReplaceStep()
-        step9 = DropDuplicatesStep()
+        step5 = CleanStep()
+        step6 = TransformStep()
+        step7 = SpecialCharacterStep()
+        step8 = JoinStep()
+        step9 = ReplaceStep()
+        step10 = DropDuplicatesStep()
         # 'temp' == nombre de la tabla
         # 'coverage_schema' == nombre del esquema
-        step10 = LoadStep("temp", postgres_connector, if_exists="replace", schema = "coverage_schema")
+        step11 = LoadStep("temp", postgres_connector, if_exists="replace", schema = "coverage_schema")
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(step0).next(step1).next(step2).next(step3).next(step4).next(step5).next(step6).next(step7).next(step8).next(step9).next(step10)
+        pipeline = pipeline.next(step0).next(step1).next(step2).next(step3).next(step4).next(step5).next(step6).next(step7).next(step8).next(step9).next(step10).next(step11)
         
         return pipeline.run_pipeline()
 
