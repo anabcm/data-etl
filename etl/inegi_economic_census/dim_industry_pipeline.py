@@ -209,7 +209,7 @@ class CoveragePipeline(BasePipeline):
         step8 = JoinStep()
         step9 = ReplaceStep()
         step10 = DropDuplicatesStep()
-        step11 = LoadStep('dim_shared_industry', db_connector, if_exists='drop', pk=['class_id'], dtype=dtype)
+        step11 = LoadStep('dim_shared_industry', db_connector, if_exists='drop', pk=['national_industry_id'], dtype=dtype)
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
