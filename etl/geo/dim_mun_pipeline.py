@@ -84,7 +84,7 @@ class DimMunicipalityGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_mun", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude']
+            pk=["ent_id", "mun_id"]
         )
 
         return [download_step, transform_step, load_step]
