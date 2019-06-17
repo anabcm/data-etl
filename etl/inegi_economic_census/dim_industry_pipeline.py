@@ -101,17 +101,27 @@ class JoinStep(PipelineStep):
         df_mx, df_us = prev[0], prev[1]
         data = list(df_mx.loc[df_mx.code.str.len() == 6, 'code']) + list(df_us.loc[df_us.code.str.len() == 6, 'code'])
         df = pd.DataFrame(data, columns=['code'])
+
+        df['sector_id'] = df.code.str[:2]
         df['sector_es'] = df.code.str[:2]
-        df['subsector_es'] = df.code.str[:3]
-        df['branch_es'] = df.code.str[:4]
-        df['subbranch_es'] = df.code.str[:5]
-        df['class_es'] = df.code.str[:]
         df['sector_en'] = df.code.str[:2]
+
+        df['subsector_id'] = df.code.str[:3]
+        df['subsector_es'] = df.code.str[:3]
         df['subsector_en'] = df.code.str[:3]
-        df['branch_en'] = df.code.str[:4]
-        df['subbranch_en'] = df.code.str[:5]
-        df['class_en'] = df.code.str[:]        
+
+        df['industry_group_id'] = df.code.str[:4]
+        df['industry_group_es'] = df.code.str[:4]
+        df['industry_group_en'] = df.code.str[:4]
         
+        df['naics_industry_id'] = df.code.str[:5]
+        df['naics_industry_es'] = df.code.str[:5]
+        df['naics_industry_en'] = df.code.str[:5]
+
+        df['national_industry_id'] = df.code.str[:]
+        df['national_industry_es'] = df.code.str[:]     
+        df['national_industry_en'] = df.code.str[:]
+         
         return df, df_mx, df_us
 
 class ReplaceStep(PipelineStep):
@@ -120,16 +130,16 @@ class ReplaceStep(PipelineStep):
         
         df.sector_es.replace(list(df_mx.loc[df_mx.code.str.len() == 2, 'code']), list(df_mx.loc[df_mx.code.str.len() == 2, 'title']), inplace=True)
         df.subsector_es.replace(list(df_mx.loc[df_mx.code.str.len() == 3, 'code']), list(df_mx.loc[df_mx.code.str.len() == 3, 'title']), inplace=True)
-        df.branch_es.replace(list(df_mx.loc[df_mx.code.str.len() == 4, 'code']), list(df_mx.loc[df_mx.code.str.len() == 4, 'title']), inplace=True)
-        df.subbranch_es.replace(list(df_mx.loc[df_mx.code.str.len() == 5, 'code']), list(df_mx.loc[df_mx.code.str.len() == 5, 'title']), inplace=True)
-        df.class_es.replace(list(df_mx.loc[df_mx.code.str.len() == 6, 'code']), list(df_mx.loc[df_mx.code.str.len() == 6, 'title']), inplace=True)
+        df.industry_group_es.replace(list(df_mx.loc[df_mx.code.str.len() == 4, 'code']), list(df_mx.loc[df_mx.code.str.len() == 4, 'title']), inplace=True)
+        df.naics_industry_es.replace(list(df_mx.loc[df_mx.code.str.len() == 5, 'code']), list(df_mx.loc[df_mx.code.str.len() == 5, 'title']), inplace=True)
+        df.national_industry_es.replace(list(df_mx.loc[df_mx.code.str.len() == 6, 'code']), list(df_mx.loc[df_mx.code.str.len() == 6, 'title']), inplace=True)
 
         df.sector_en.replace(list(df_us.loc[df_us.code.str.len() == 2, 'code']), list(df_us.loc[df_us.code.str.len() == 2, 'title']), inplace=True)
         df.subsector_en.replace(list(df_us.loc[df_us.code.str.len() == 3, 'code']), list(df_us.loc[df_us.code.str.len() == 3, 'title']), inplace=True)
-        df.branch_en.replace(list(df_us.loc[df_us.code.str.len() == 4, 'code']), list(df_us.loc[df_us.code.str.len() == 4, 'title']), inplace=True)
-        df.subbranch_en.replace(list(df_us.loc[df_us.code.str.len() == 5, 'code']), list(df_us.loc[df_us.code.str.len() == 5, 'title']), inplace=True)
-        df.class_en.replace(list(df_us.loc[df_us.code.str.len() == 6, 'code']), list(df_us.loc[df_us.code.str.len() == 6, 'title']), inplace=True)
-        df.rename(columns={'code': 'class_id'}, inplace=True)
+        df.industry_group_en.replace(list(df_us.loc[df_us.code.str.len() == 4, 'code']), list(df_us.loc[df_us.code.str.len() == 4, 'title']), inplace=True)
+        df.naics_industry_en.replace(list(df_us.loc[df_us.code.str.len() == 5, 'code']), list(df_us.loc[df_us.code.str.len() == 5, 'title']), inplace=True)
+        df.national_industry_en.replace(list(df_us.loc[df_us.code.str.len() == 6, 'code']), list(df_us.loc[df_us.code.str.len() == 6, 'title']), inplace=True)
+        df.drop(columns=['code'], inplace=True)
 
         return df
 
@@ -168,19 +178,23 @@ class CoveragePipeline(BasePipeline):
     @staticmethod
     def run(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
-        db_connector = Connector.fetch('clickhouse-database', open('conns.yaml'))
+        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'class_id':     'String',
-            'sector_es':    'String',
-            'subsector_es': 'String',
-            'branch_es':    'String',
-            'subbranch_es': 'String',
-            'class_es':     'String',
-            'sector_en':    'String',
-            'subsector_es': 'String',
-            'branch_en':    'String',
-            'subbranch_en': 'String',
-            'class':        'String'
+            'sector_id':            'String',
+            'sector_es':            'String',
+            'sector_en':            'String',
+            'subsector_id':         'String',
+            'subsector_es':         'String',
+            'subsector_en':         'String',
+            'industry_group_id':    'String',
+            'industry_group_es':    'String',
+            'industry_group_en':    'String',
+            'naics_industry_id':    'String',
+            'naics_industry_es':    'String',
+            'naics_industry_en':    'String',
+            'national_industry_id': 'String',
+            'national_industry_es': 'String',
+            'national_industry_en': 'String'
         }
 
         # Definition of each step
@@ -195,7 +209,7 @@ class CoveragePipeline(BasePipeline):
         step8 = JoinStep()
         step9 = ReplaceStep()
         step10 = DropDuplicatesStep()
-        step11 = LoadStep('dim_industry', db_connector, if_exists='replace', pk=['class_id'], dtype=dtype)
+        step11 = LoadStep('dim_shared_industry', db_connector, if_exists='drop', pk=['class_id'], dtype=dtype)
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
