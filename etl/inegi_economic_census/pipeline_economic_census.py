@@ -2,7 +2,7 @@ import pandas as pd
 from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
 from bamboo_lib.models import Parameter, BasePipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 from bamboo_lib.helpers import grab_connector
 
 class MultiStep(PipelineStep):
