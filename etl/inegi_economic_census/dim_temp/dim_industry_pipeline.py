@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 def split_code(df):
     df.code = df.code.astype('str')
     temp = df.loc[df.code.str.contains('-')].to_dict(orient='records')
