@@ -54,39 +54,36 @@ class TransformStep(PipelineStep):
 
         df["altitude"] = df["altitude"].astype(int)
 
+        df = df.drop(columns=[
+            "loc_id", "cve_loc", "loc_name", "zone_id", "cve_loc_full", "latitude", "longitude", "altitude"
+        ])
+        df = df.drop_duplicates(subset=["mun_id"]).reset_index().drop(columns="index")
+
         return df
 
 
 class DimGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("etl/conns.yaml"))
+        db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
 
         dtype = {
             'cve_ent':           'String',
             'cve_mun':           'String',
-            'cve_loc':           'String',
             'cve_mun_full':      'String',
-            'cve_loc_full':      'String',
             'ent_name':          'String',
             'mun_name':          'String',
-            'loc_name':          'String',
-            'zone_id':           'UInt8',
-            'latitude':          'Float64',
-            'longitude':         'Float64',
-            'altitude':          'Int32',
             'ent_id':            'UInt8',
-            'mun_id':            'UInt16',
-            'loc_id':            'UInt32',
+            'mun_id':            'UInt16'
         }
 
         download_step = DownloadStep(
             connector='geo-data',
-            connector_path='etl/geo/conns.yaml'
+            connector_path='conns.yaml'
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dim_shared_geography", db_connector, if_exists="append", dtype=dtype,
+            "dim_shared_geography_mun", db_connector, if_exists="drop", dtype=dtype,
             pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude']
         )
 
