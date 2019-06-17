@@ -129,6 +129,7 @@ class ReplaceStep(PipelineStep):
         df.branch_en.replace(list(df_us.loc[df_us.code.str.len() == 4, 'code']), list(df_us.loc[df_us.code.str.len() == 4, 'title']), inplace=True)
         df.subbranch_en.replace(list(df_us.loc[df_us.code.str.len() == 5, 'code']), list(df_us.loc[df_us.code.str.len() == 5, 'title']), inplace=True)
         df.class_en.replace(list(df_us.loc[df_us.code.str.len() == 6, 'code']), list(df_us.loc[df_us.code.str.len() == 6, 'title']), inplace=True)
+        df.rename(columns={'code': 'class_id'}, inplace=True)
 
         return df
 
@@ -161,13 +162,26 @@ class CoveragePipeline(BasePipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Source connector", name="source-connector", dtype=str, source=Connector)
+            Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
         ]
 
     @staticmethod
     def run(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
-        postgres_connector = grab_connector(__file__, params.get("database-connector"))
+        db_connector = Connector.fetch('clickhouse-database', open('conns.yaml'))
+        dtype = {
+            'class_id':     'String',
+            'sector_es':    'String',
+            'subsector_es': 'String',
+            'branch_es':    'String',
+            'subbranch_es': 'String',
+            'class_es':     'String',
+            'sector_en':    'String',
+            'subsector_es': 'String',
+            'branch_en':    'String',
+            'subbranch_en': 'String',
+            'class':        'String'
+        }
 
         # Definition of each step
         step0 = ReadStep()
@@ -181,9 +195,7 @@ class CoveragePipeline(BasePipeline):
         step8 = JoinStep()
         step9 = ReplaceStep()
         step10 = DropDuplicatesStep()
-        # 'temp' == nombre de la tabla
-        # 'coverage_schema' == nombre del esquema
-        step11 = LoadStep("temp", postgres_connector, if_exists="replace", schema = "coverage_schema")
+        step11 = LoadStep('dim_industry', db_connector, if_exists='replace', pk=['class_id'], dtype=dtype)
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
@@ -199,5 +211,5 @@ def run_coverage(params, **kwargs):
 
 if __name__ == '__main__':
     run_coverage({
-        "database-connector": "postgres"
+        'database-connector': 'clickhouse'
     })
