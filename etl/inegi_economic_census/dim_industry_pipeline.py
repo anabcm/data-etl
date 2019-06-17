@@ -110,17 +110,17 @@ class JoinStep(PipelineStep):
         df['subsector_es'] = df.code.str[:3]
         df['subsector_en'] = df.code.str[:3]
 
-        df['branch_id'] = df.code.str[:4]
-        df['branch_es'] = df.code.str[:4]
-        df['branch_en'] = df.code.str[:4]
+        df['industry_group_id'] = df.code.str[:4]
+        df['industry_group_es'] = df.code.str[:4]
+        df['industry_group_en'] = df.code.str[:4]
         
-        df['subbranch_id'] = df.code.str[:5]
-        df['subbranch_es'] = df.code.str[:5]
-        df['subbranch_en'] = df.code.str[:5]
+        df['naics_industry_id'] = df.code.str[:5]
+        df['naics_industry_es'] = df.code.str[:5]
+        df['naics_industry_en'] = df.code.str[:5]
 
-        df['class_id'] = df.code.str[:]
-        df['class_es'] = df.code.str[:]     
-        df['class_en'] = df.code.str[:]
+        df['national_industry_id'] = df.code.str[:]
+        df['national_industry_es'] = df.code.str[:]     
+        df['national_industry_en'] = df.code.str[:]
          
         return df, df_mx, df_us
 
@@ -130,15 +130,15 @@ class ReplaceStep(PipelineStep):
         
         df.sector_es.replace(list(df_mx.loc[df_mx.code.str.len() == 2, 'code']), list(df_mx.loc[df_mx.code.str.len() == 2, 'title']), inplace=True)
         df.subsector_es.replace(list(df_mx.loc[df_mx.code.str.len() == 3, 'code']), list(df_mx.loc[df_mx.code.str.len() == 3, 'title']), inplace=True)
-        df.branch_es.replace(list(df_mx.loc[df_mx.code.str.len() == 4, 'code']), list(df_mx.loc[df_mx.code.str.len() == 4, 'title']), inplace=True)
-        df.subbranch_es.replace(list(df_mx.loc[df_mx.code.str.len() == 5, 'code']), list(df_mx.loc[df_mx.code.str.len() == 5, 'title']), inplace=True)
-        df.class_es.replace(list(df_mx.loc[df_mx.code.str.len() == 6, 'code']), list(df_mx.loc[df_mx.code.str.len() == 6, 'title']), inplace=True)
+        df.industry_group_es.replace(list(df_mx.loc[df_mx.code.str.len() == 4, 'code']), list(df_mx.loc[df_mx.code.str.len() == 4, 'title']), inplace=True)
+        df.naics_industry_es.replace(list(df_mx.loc[df_mx.code.str.len() == 5, 'code']), list(df_mx.loc[df_mx.code.str.len() == 5, 'title']), inplace=True)
+        df.national_industry_es.replace(list(df_mx.loc[df_mx.code.str.len() == 6, 'code']), list(df_mx.loc[df_mx.code.str.len() == 6, 'title']), inplace=True)
 
         df.sector_en.replace(list(df_us.loc[df_us.code.str.len() == 2, 'code']), list(df_us.loc[df_us.code.str.len() == 2, 'title']), inplace=True)
         df.subsector_en.replace(list(df_us.loc[df_us.code.str.len() == 3, 'code']), list(df_us.loc[df_us.code.str.len() == 3, 'title']), inplace=True)
-        df.branch_en.replace(list(df_us.loc[df_us.code.str.len() == 4, 'code']), list(df_us.loc[df_us.code.str.len() == 4, 'title']), inplace=True)
-        df.subbranch_en.replace(list(df_us.loc[df_us.code.str.len() == 5, 'code']), list(df_us.loc[df_us.code.str.len() == 5, 'title']), inplace=True)
-        df.class_en.replace(list(df_us.loc[df_us.code.str.len() == 6, 'code']), list(df_us.loc[df_us.code.str.len() == 6, 'title']), inplace=True)
+        df.industry_group_en.replace(list(df_us.loc[df_us.code.str.len() == 4, 'code']), list(df_us.loc[df_us.code.str.len() == 4, 'title']), inplace=True)
+        df.naics_industry_en.replace(list(df_us.loc[df_us.code.str.len() == 5, 'code']), list(df_us.loc[df_us.code.str.len() == 5, 'title']), inplace=True)
+        df.national_industry_en.replace(list(df_us.loc[df_us.code.str.len() == 6, 'code']), list(df_us.loc[df_us.code.str.len() == 6, 'title']), inplace=True)
         df.drop(columns=['code'], inplace=True)
 
         return df
@@ -180,21 +180,21 @@ class CoveragePipeline(BasePipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'sectpr_id':        'String',
-            'sector_es':        'String',
-            'sector_en':        'String',
-            'subsector_id':     'String',
-            'subsector_es':     'String',
-            'subsector_en':     'String',
-            'branch_id':        'String',
-            'branch_es':        'String',
-            'branch_en':        'String',
-            'subbranch_id':     'String',
-            'subbranch_es':     'String',
-            'subbranch_en':     'String',
-            'class_id':         'String',
-            'class_es':         'String',
-            'class_en':         'String'
+            'sector_id':            'String',
+            'sector_es':            'String',
+            'sector_en':            'String',
+            'subsector_id':         'String',
+            'subsector_es':         'String',
+            'subsector_en':         'String',
+            'industry_group_id':    'String',
+            'industry_group_es':    'String',
+            'industry_group_en':    'String',
+            'naics_industry_id':    'String',
+            'naics_industry_es':    'String',
+            'naics_industry_en':    'String',
+            'national_industry_id': 'String',
+            'national_industry_es': 'String',
+            'national_industry_en': 'String'
         }
 
         # Definition of each step
