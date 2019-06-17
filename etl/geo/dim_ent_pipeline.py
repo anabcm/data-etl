@@ -62,7 +62,7 @@ class TransformStep(PipelineStep):
         return df
 
 
-class DimGeographyPipeline(EasyPipeline):
+class DimEntityGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
