@@ -178,23 +178,23 @@ class CoveragePipeline(BasePipeline):
     @staticmethod
     def run(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
-        db_connector = Connector.fetch('clickhouse-database', open('conns.yaml'))
+        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'sectpr_id':    'String',
-            'sector_es':    'String',
-            'sector_en':    'String',
-            'subsector_id': 'String',
-            'subsector_es': 'String',
-            'subsector_en': 'String',
-            'branch_id':    'String',
-            'branch_es':    'String',
-            'branch_en':    'String',
-            'subbranch_id': 'String',
-            'subbranch_es': 'String',
-            'subbranch_en': 'String',
-            'class_id':     'String',
-            'class_es':     'String',
-            'class_en':     'String'
+            'sectpr_id':        'String',
+            'sector_es':        'String',
+            'sector_en':        'String',
+            'subsector_id':     'String',
+            'subsector_es':     'String',
+            'subsector_en':     'String',
+            'branch_id':        'String',
+            'branch_es':        'String',
+            'branch_en':        'String',
+            'subbranch_id':     'String',
+            'subbranch_es':     'String',
+            'subbranch_en':     'String',
+            'class_id':         'String',
+            'class_es':         'String',
+            'class_en':         'String'
         }
 
         # Definition of each step
@@ -209,7 +209,7 @@ class CoveragePipeline(BasePipeline):
         step8 = JoinStep()
         step9 = ReplaceStep()
         step10 = DropDuplicatesStep()
-        step11 = LoadStep('dim_industry', db_connector, if_exists='replace', pk=['class_id'], dtype=dtype)
+        step11 = LoadStep('dim_industry', db_connector, if_exists='drop', pk=['class_id'], dtype=dtype)
 
         # Definition of the pipeline and its steps
         pipeline = AdvancedPipelineExecutor(params)
