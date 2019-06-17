@@ -62,27 +62,15 @@ class TransformStep(PipelineStep):
         return df
 
 
-class DimGeographyPipeline(EasyPipeline):
+class DimEntityGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
 
         dtype = {
             'cve_ent':           'String',
-            'cve_mun':           'String',
-            'cve_loc':           'String',
-            'cve_mun_full':      'String',
-            'cve_loc_full':      'String',
             'ent_name':          'String',
-            'mun_name':          'String',
-            'loc_name':          'String',
-            'zone_id':           'UInt8',
-            'latitude':          'Float64',
-            'longitude':         'Float64',
-            'altitude':          'Int32',
-            'ent_id':            'UInt8',
-            'mun_id':            'UInt16',
-            'loc_id':            'UInt32',
+            'ent_id':            'UInt8'
         }
 
         download_step = DownloadStep(
@@ -92,7 +80,7 @@ class DimGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_ent", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude']
+            pk=['ent_id']
         )
 
         return [download_step, transform_step, load_step]
