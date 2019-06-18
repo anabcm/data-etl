@@ -92,9 +92,10 @@ class EconomicCensusPipeline(BasePipeline):
         load_step = LoadStep(
             "inegi_economic_census", 
             db_connector, 
-            if_exists="append", 
+            if_exists="drop", 
             pk=["national_industry_id", "mun_id", "year"], 
-            nullable_list=["m000a", "p000c", "a800a", "q000d", "p000a", "p000b", "p030c", "a511a", "m050a", "j203a", "j300a","j400a","j500a","j600a","k010a","k020a","k030a","k311a","k041a","k610a","k620a","k060a","k070a","k810a","k910a","k950a","k096a","k976a","m010a","m030a","m090a","p100a","p100b","p030a","p030b","q010a","q020a","q030a","q400a","q900a"]
+            nullable_list=["m000a", "p000c", "a800a", "q000d", "p000a", "p000b", "p030c", "a511a", "m050a", "j203a", "j300a","j400a","j500a","j600a","k010a","k020a","k030a","k311a","k041a","k610a","k620a","k060a","k070a","k810a","k910a","k950a","k096a","k976a","m010a","m030a","m090a","p100a","p100b","p030a","p030b","q010a","q020a","q030a","q400a","q900a"],
+            dtype={"mun_id": "UInt16"}
         )
 
         # Definition of the pipeline and its steps
