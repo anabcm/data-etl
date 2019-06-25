@@ -32,4 +32,4 @@ class TradeBalanceComplexityPipeline(EasyPipeline):
             pk=["mun_id", "product_id"]
         )
 
-        return [transform_step, load_step]
+        return [dl_step, transform_step, load_step]
