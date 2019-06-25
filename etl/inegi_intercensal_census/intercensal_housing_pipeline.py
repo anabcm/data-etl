@@ -110,7 +110,7 @@ class CoveragePipeline(BasePipeline):
         income_transform = IncomeIntervalStep()
 
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
+            "inegi_housing", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
         )
 
         return [download_step, read, clean, transform, income_transform, load_step]
