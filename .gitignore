@@ -8,3 +8,9 @@ __pycache__/
 venv/
 .env
 .envrc
+*.csv
+economic-census
+etl/trade_balance/*.ipynb
+etl/geo/*.ipynb
+
+.log
