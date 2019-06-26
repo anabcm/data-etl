@@ -23,8 +23,6 @@ class CleanStep(PipelineStep):
         df, data = prev[0], prev[1]
         # preformat
         df.columns = df.columns.str.lower()
-        # municipality level
-        df['mun_id'] = (df.ent + df.mun).astype('int')
         # location level
         df['loc_id'] = (df.ent + df.mun + df.loc50k).astype('int')
         # column type conversion
@@ -38,8 +36,8 @@ class TransformStep(PipelineStep):
         # replace, select and group data
         for col in data.keys():
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'])))
-        df = df[['mun_id', 'loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']]
-        df = df.groupby(['mun_id', 'loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill')
+        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']]
+        df = df.groupby(['loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill')
         df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income'})
         return df
 
