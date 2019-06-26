@@ -11,29 +11,30 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx")
 
-        df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1')
+        df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
 
-        primary_cols = ['ent', 'mun', 'factor', 'sexo']
+        # Adding IDs columns and renaming factor as population
+        df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
 
-        # Condense municipality and state IDs into a single column
-        final_df = df[primary_cols]
-        final_df['mun_id'] = final_df['ent'].astype(str) + final_df['mun'].astype(str).str.zfill(3)
-        final_df['mun_id'] = final_df['mun_id'].astype(int)
-        final_df = final_df.drop(columns=['ent', 'mun'])
+        # Transforming certains str columns into int values
+        df["loc_id"] = df["loc_id"].astype(int)
+        df["population"] = df["population"].astype(int)
 
-        # Add new label columns to final_df
-        df_l = pd.read_excel(df_labels, 'sexo')
-        final_df['sexo'] = final_df['sexo'].replace(dict(zip(df_l.prev_id, df_l.id)))
+        # List of columns for the next df
+        params = ["sexo", "parent", "sersalud", "dhsersal1", "nacionalidad"]
 
-        # Group rows to get final population sum
-        grouped = list(final_df)
-        grouped.remove('factor')
-        final_df = final_df.groupby(grouped).sum().reset_index()
+        # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
+        for sheet in params:
+          df_l = pd.read_excel(df_labels, sheet)
+          df[sheet] = df[sheet].astype(int)
+          df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        final_df.rename(columns={'factor': 'population', 'sexo': 'sex'}, inplace=True)
+        # Condense df around params list, mun_id and loc_id, and sum over population (factor)
+        df = df.groupby(params + ["loc_id"]).sum().reset_index()
+        df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex"}, inplace=True)
 
-        return final_df
+        return df
 
 
 class PopulationPipeline(EasyPipeline):
@@ -45,21 +46,25 @@ class PopulationPipeline(EasyPipeline):
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("etl/conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            'sex':          'UInt8',
-            'mun_id':       'UInt16',
-            'population':   'UInt32',
+            "sex":           "UInt8",
+            "loc_id":        "UInt32",
+            "population":    "UInt64",
+            "parent":        "UInt8",
+            "sersalud":      "UInt8",
+            "dhsersal1":     "UInt8",
+            "nationality":   "UInt8"
         }
 
         download_step = DownloadStep(
-            connector='population-data',
-            connector_path='etl/inegi_intercensal_census/conns.yaml'
+            connector="population-data",
+            connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
+            "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
