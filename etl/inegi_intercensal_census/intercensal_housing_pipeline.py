@@ -57,7 +57,8 @@ class IncomeIntervalStep(PipelineStep):
                 if ing >= income.interval_upper[income.shape[0]-1]:
                     df.income = df.income.replace(ing, income.id[income.shape[0]-1])
                     break
-        df.income = df.income.astype('int')
+        for col in df.columns:
+            df[col] = df[col].astype('int')
         return df
 
 class CoveragePipeline(BasePipeline):
