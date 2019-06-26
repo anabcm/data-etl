@@ -13,7 +13,7 @@ class TransformStep(PipelineStep):
 
         df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1')
         df.columns = df.columns.str.lower()
-        
+
         # Adding IDs columns and renaming factor as population
         df["mun_id"] = df["ent"] + df["mun"]
         df["loc_id"] = df["mun_id"] + df["loc50k"]
@@ -53,12 +53,11 @@ class PopulationPipeline(EasyPipeline):
         dtype = {
             "sexo":          "UInt8",
             "mun_id":        "UInt8",
-            "loc_id":        "UInt16",
-            "mun_id":        "UInt16",
+            "loc_id":        "UInt32",
             "population":    "UInt32",
-            "parent":        "UInt16",
-            "sersalud":      "UInt16",
-            "dhsersal1":     "UInt16",
+            "parent":        "UInt8",
+            "sersalud":      "UInt8",
+            "dhsersal1":     "UInt8",
             "nacionalidad":  "UInt8"
         }
 
