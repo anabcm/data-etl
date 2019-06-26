@@ -39,7 +39,8 @@ class TransformStep(PipelineStep):
         for col in data.keys():
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'])))
         df = df[['mun_id', 'loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']]
-        df = df.groupby(['mun_id', 'loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill').rename(columns={'factor': 'population', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income'})
+        df = df.groupby(['mun_id', 'loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill')
+        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income'})
         return df
 
 class IncomeIntervalStep(PipelineStep):
@@ -70,7 +71,7 @@ class CoveragePipeline(BasePipeline):
 
     @staticmethod
     def description():
-        return 'Processes information from Mexico'
+        return 'Processes information from Intercensal Census 2015, Mexico'
 
     @staticmethod
     def website():
@@ -85,32 +86,31 @@ class CoveragePipeline(BasePipeline):
     @staticmethod
     def run(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
-        db_connector = Connector.fetch('clickhouse-database', open('etl/conns.yaml'))
+        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'mun_id':      'String', 
-            'loc_id':      'String', 
-            'cobertura':   'String', 
-            'floor':       'String', 
-            'roof':        'String', 
-            'wall':        'String', 
-            'acquisition': 'String',
-            'debt':        'String', 
-            'population':  'String', 
+            'loc_id':      'UInt32', 
+            'cobertura':   'UInt8', 
+            'floor':       'UInt8', 
+            'roof':        'UInt8', 
+            'wall':        'UInt8', 
+            'acquisition': 'UInt8',
+            'debt':        'UInt8', 
+            'inhabitants': 'UInt32', 
             'income':      'UInt32'
         }
 
         download_step = DownloadStep(
             connector='housing-data',
-            connector_path='etl/inegi_intercensal_census/conns.yaml'
+            connector_path='conns.yaml'
         )
 
-        read = ReadStep()
-        clean = CleanStep()
-        transform = TransformStep()
-        income_transform = IncomeIntervalStep()
+        read_step = ReadStep()
+        clean_step = CleanStep()
+        transform_step = TransformStep()
+        income_transform_step = IncomeIntervalStep()
 
         load_step = LoadStep(
-            "inegi_housing", db_connector, if_exists="append", pk=['sex', 'mun_id'], dtype=dtype
+            'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype
         )
 
-        return [download_step, read, clean, transform, income_transform, load_step]
+        return [download_step, read_step, clean_step, transform_step, income_transform_step, load_step]
