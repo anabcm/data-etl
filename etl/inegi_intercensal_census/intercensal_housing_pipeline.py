@@ -56,7 +56,8 @@ class IncomeIntervalStep(PipelineStep):
                 if ing >= income.interval_upper[income.shape[0]-1]:
                     df.income = df.income.replace(ing, income.id[income.shape[0]-1])
                     break
-        df.income = df.income.astype('int')
+        for col in df.columns:
+            df[col] = df[col].astype('int')
         return df
 
 class CoveragePipeline(BasePipeline):
@@ -87,16 +88,16 @@ class CoveragePipeline(BasePipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('etl/conns.yaml'))
         dtype = {
-            'mun_id':      'String', 
-            'loc_id':      'String', 
-            'cobertura':   'String', 
-            'floor':       'String', 
-            'roof':        'String', 
-            'wall':        'String', 
-            'acquisition': 'String',
-            'debt':        'String', 
-            'population':  'String', 
-            'income':      'UInt32'
+            'mun_id':      'UInt16', 
+            'loc_id':      'UInt32', 
+            'cobertura':   'UInt8', 
+            'floor':       'UInt8', 
+            'roof':        'UInt8', 
+            'wall':        'UInt8', 
+            'acquisition': 'UInt8',
+            'debt':        'UInt8', 
+            'population':  'UInt16', 
+            'income':      'UInt8'
         }
 
         download_step = DownloadStep(
