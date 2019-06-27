@@ -35,7 +35,7 @@ class TransformStep(PipelineStep):
         df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex"}, inplace=True)
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
-        df = df.groupby(params_translated + ["loc_id"]).sum().reset_index()
+        df = df.groupby(params_translated + ["loc_id"]).sum().reset_index(col_fill="ffill")
 
         for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality"]:
             df[col] = df[col].astype(int)
