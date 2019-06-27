@@ -27,15 +27,18 @@ class TransformStep(PipelineStep):
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
-          df_l = pd.read_excel(df_labels, sheet)
-          df[sheet] = df[sheet].astype(int)
-          df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
+            df_l = pd.read_excel(df_labels, sheet)
+            df[sheet] = df[sheet].astype(int)
+            df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         # Renaming of certains columns
         df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex"}, inplace=True)
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id"]).sum().reset_index()
+
+        for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality"]:
+            df[col] = df[col].astype(int)
 
         return df
 
