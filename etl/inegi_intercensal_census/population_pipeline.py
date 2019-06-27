@@ -41,7 +41,7 @@ class PopulationPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Index", name="index", dtype=str),
+            Parameter(label="Index", name="index", dtype=str)
         ]
 
     @staticmethod
