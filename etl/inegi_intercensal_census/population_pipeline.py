@@ -11,7 +11,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx")
 
-        df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1")
+        df = pd.read_csv(prev, dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
 
         # Adding IDs columns and renaming factor as population
@@ -19,10 +19,11 @@ class TransformStep(PipelineStep):
 
         # Transforming certains str columns into int values
         df["loc_id"] = df["loc_id"].astype(int)
-        df["population"] = df["population"].astype(int)
+        df["factor"] = df["factor"].astype(int)
 
         # List of columns for the next df
-        params = ["sexo", "parent", "sersalud", "dhsersal1", "nacionalidad"]
+        params            = ["sexo", "parent", "sersalud", "dhsersal1", "nacionalidad"]
+        params_translated = ["sex", "parent", "sersalud", "dhsersal1", "nationality"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -30,12 +31,13 @@ class TransformStep(PipelineStep):
           df[sheet] = df[sheet].astype(int)
           df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        # Condense df around params list, mun_id and loc_id, and sum over population (factor)
-        df = df.groupby(params + ["loc_id"]).sum().reset_index()
+        # Renaming of certains columns
         df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex"}, inplace=True)
 
-        return df
+        # Condense df around params list, mun_id and loc_id, and sum over population (factor)
+        df = df.groupby(params_translated + ["loc_id"]).sum().reset_index()
 
+        return df
 
 class PopulationPipeline(EasyPipeline):
     @staticmethod
