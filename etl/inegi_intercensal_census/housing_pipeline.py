@@ -38,7 +38,7 @@ class TransformStep(PipelineStep):
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'])))
         df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']]
         df = df.groupby(['loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill')
-        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income'})
+        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage'})
         return df
 
 class IncomeIntervalStep(PipelineStep):
@@ -89,7 +89,7 @@ class CoveragePipeline(BasePipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
             'loc_id':      'UInt32', 
-            'cobertura':   'UInt8', 
+            'coverage':    'UInt8', 
             'floor':       'UInt8', 
             'roof':        'UInt8', 
             'wall':        'UInt8', 
