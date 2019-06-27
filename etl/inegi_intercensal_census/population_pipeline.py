@@ -56,11 +56,7 @@ class PopulationPipeline(EasyPipeline):
         dtype = {
             "sex":           "UInt8",
             "loc_id":        "UInt32",
-            "population":    "UInt64",
-            "parent":        "UInt8",
-            "sersalud":      "UInt8",
-            "dhsersal1":     "UInt8",
-            "nationality":   "UInt8"
+            "population":    "UInt64"
         }
 
         download_step = DownloadStep(
