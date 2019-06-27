@@ -10,7 +10,7 @@ from bamboo_lib.helpers import grab_connector
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # intercensal census data
-        df = prev
+        df = pd.read_csv(prev, encoding='latin-1', dtype='str')
         # data to replace
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
