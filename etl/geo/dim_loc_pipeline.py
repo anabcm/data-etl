@@ -54,7 +54,7 @@ class TransformStep(PipelineStep):
             df.loc[df['altitude'] == '00-{}'.format(i), 'altitude'] = '-00{}'.format(i)
 
         df_other_loc = []
-        for item in df[["ent_id", "ent_name", "mun_id", "mun_name", "cve_mun_full", "cve_mun"]].drop_duplicates().reset_index().itertuples():
+        for item in df[["ent_id", "ent_name", "mun_id", "mun_name", "cve_mun_full", "cve_mun", "cve_ent"]].drop_duplicates().reset_index().itertuples():
 
             df_other_loc.append({
                 "loc_id": item.mun_id * 10000,
@@ -70,11 +70,14 @@ class TransformStep(PipelineStep):
                 "mun_id": item.mun_id,
                 "mun_name": item.mun_name,
                 "cve_mun_full": item.cve_mun_full,
-                "cve_mun": item.cve_mun
+                "cve_mun": item.cve_mun,
+                "cve_ent": item.cve_ent,
             })
 
         df_other_loc = pd.DataFrame(df_other_loc)
         df = df.append(df_other_loc)
+        df["altitude"] = df["altitude"].astype(float)
+        df["zone_id"] = df["zone_id"].astype(float)
 
         return df
 
@@ -93,10 +96,9 @@ class DimLocationGeographyPipeline(EasyPipeline):
             'ent_name':          'String',
             'mun_name':          'String',
             'loc_name':          'String',
-            'zone_id':           'UInt8',
             'latitude':          'Float64',
             'longitude':         'Float64',
-            'altitude':          'Int32',
+            'altitude':          'Float64',
             'ent_id':            'UInt8',
             'mun_id':            'UInt16',
             'loc_id':            'UInt32',
