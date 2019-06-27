@@ -79,6 +79,7 @@ class CoveragePipeline(BasePipeline):
     @staticmethod
     def parameter_list():
         return [
+            Parameter(label="Index", name="index", dtype=str),
             Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
         ]
 
