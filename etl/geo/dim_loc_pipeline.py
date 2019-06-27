@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -52,7 +53,28 @@ class TransformStep(PipelineStep):
         for i in list(range(1, 10)):
             df.loc[df['altitude'] == '00-{}'.format(i), 'altitude'] = '-00{}'.format(i)
 
-        df["altitude"] = df["altitude"].astype(int)
+        df_other_loc = []
+        for item in df[["ent_id", "ent_name", "mun_id", "mun_name", "cve_mun_full", "cve_mun"]].drop_duplicates().reset_index().itertuples():
+
+            df_other_loc.append({
+                "loc_id": item.mun_id * 10000,
+                "cve_loc_full": item.cve_mun_full + "0000",
+                "cve_loc": "0000",
+                "altitude": np.nan,
+                "longitude": np.nan,
+                "latitude": np.nan,
+                "zone_id": 0,
+                "loc_name": "Otras localidades de {}".format(item.mun_name),
+                "ent_id": item.ent_id,
+                "ent_name": item.ent_name,
+                "mun_id": item.mun_id,
+                "mun_name": item.mun_name,
+                "cve_mun_full": item.cve_mun_full,
+                "cve_mun": item.cve_mun
+            })
+
+        df_other_loc = pd.DataFrame(df_other_loc)
+        df = df.append(df_other_loc)
 
         return df
 
@@ -87,7 +109,7 @@ class DimLocationGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude']
+            pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude', 'latitude', 'longitude']
         )
 
         return [download_step, transform_step, load_step]
