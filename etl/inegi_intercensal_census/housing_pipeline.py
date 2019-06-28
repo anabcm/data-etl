@@ -1,7 +1,7 @@
 
 import pandas as pd
 from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
-from bamboo_lib.models import Parameter, BasePipeline
+from bamboo_lib.models import Parameter, EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
@@ -59,7 +59,7 @@ class IncomeIntervalStep(PipelineStep):
             df[col] = df[col].astype('int')
         return df
 
-class CoveragePipeline(BasePipeline):
+class CoveragePipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
         return 'program-coverage-pipeline-temp'
@@ -84,19 +84,11 @@ class CoveragePipeline(BasePipeline):
         ]
 
     @staticmethod
-    def run(params, **kwargs):
+    def steps(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'loc_id':      'UInt32', 
-            'cobertura':   'UInt8', 
-            'floor':       'UInt8', 
-            'roof':        'UInt8', 
-            'wall':        'UInt8', 
-            'acquisition': 'UInt8',
-            'debt':        'UInt8', 
-            'inhabitants': 'UInt32', 
-            'income':      'UInt32'
+            'loc_id':      'UInt32'
         }
 
         download_step = DownloadStep(
