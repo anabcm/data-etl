@@ -39,7 +39,6 @@ class TransformStep(PipelineStep):
 
         for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality"]:
             df[col] = df[col].astype(int)
-
         return df
 
 class PopulationPipeline(EasyPipeline):
@@ -56,7 +55,7 @@ class PopulationPipeline(EasyPipeline):
         dtype = {
             "sex":           "UInt8",
             "loc_id":        "UInt32",
-            "population":    "UInt64"
+            "population":    "UInt64",
         }
 
         download_step = DownloadStep(
