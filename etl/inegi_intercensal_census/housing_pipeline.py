@@ -84,7 +84,7 @@ class CoveragePipeline(EasyPipeline):
         ]
 
     @staticmethod
-    def steps(params, **kwargs):
+    def steps(params):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
