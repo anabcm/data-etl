@@ -14,7 +14,7 @@ class ReadStep(PipelineStep):
         # data to replace
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
-        for col in ['pisos', 'techos', 'paredes']:
+        for col in ['pisos', 'techos', 'paredes', 'cobertura', 'financiamiento', 'clavivp', 'totcuart', 'cuadorm', 'ingr_ayugob', 'ingr_perotropais', 'deuda', 'forma_adqui']:
             data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='str')
         return df, data
 
@@ -33,12 +33,13 @@ class CleanStep(PipelineStep):
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df, data = prev[0], prev[1]
+        df.fillna(0, inplace=True)
         # replace, select and group data
         for col in data.keys():
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'])))
-        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']]
-        df = df.groupby(['loc_id', 'cobertura', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor']).sum().reset_index(col_fill='ffill')
-        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage'})
+        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais']]
+        df = df.groupby(['loc_id', 'factor', 'cobertura', 'clavivp', 'forma_adqui', 'financiamiento', 'deuda', 'ingr_ayugob', 'ingr_perotropais', 'ingtrhog', 'pisos', 'techos', 'paredes', 'numpers', 'totcuart', 'cuadorm']).sum().reset_index(col_fill='ffill')
+        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 'totcuart': 'total_rooms', 'cuadorm': 'bedrooms'})
         return df
 
 class IncomeIntervalStep(PipelineStep):
