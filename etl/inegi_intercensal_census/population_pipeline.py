@@ -21,9 +21,12 @@ class TransformStep(PipelineStep):
         df["loc_id"] = df["loc_id"].astype(int)
         df["factor"] = df["factor"].astype(int)
 
+        # Replacing NaN values with "0" in order to pass GroupBy method
+        df.fillna("0", inplace=True)
+
         # List of columns for the next df
-        params            = ["sexo", "parent", "sersalud", "dhsersal1", "nacionalidad"]
-        params_translated = ["sex", "parent", "sersalud", "dhsersal1", "nationality"]
+        params            = ["sexo", "parent", "sersalud", "dhsersal1", "nacionalidad", "conact", "tie_traslado_trab", "med_traslado_trab1"]
+        params_translated = ["sex", "parent", "sersalud", "dhsersal1", "nationality", "laboral_condition", "time_to_work", "transport_mean_work"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -37,7 +40,11 @@ class TransformStep(PipelineStep):
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id"]).sum().reset_index(col_fill="ffill")
 
-        for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality"]:
+        # Turning back NaN values
+        df.replace(0, pd.np.nan, inplace=True)
+
+        # Transforming certains columns into int values
+        for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality", "time_to_work", "transport_mean_work"]:
             df[col] = df[col].astype(int)
 
         return df
