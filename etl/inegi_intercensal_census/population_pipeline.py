@@ -65,10 +65,7 @@ class PopulationPipeline(EasyPipeline):
         dtype = {
             "sex":                 "UInt8",
             "loc_id":              "UInt32",
-            "population":          "UInt64",
-            "laboral_condition":   "Int8Dtype",
-            "time_to_work":        "Int8Dtype",
-            "transport_mean_work": "Int8Dtype"
+            "population":          "UInt64"
         }
 
         download_step = DownloadStep(
@@ -77,7 +74,8 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype
+            "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
+            nullable_list=["laboral_condition", "time_to_work", "transport_mean_work"]
         )
 
         return [download_step, transform_step, load_step]
