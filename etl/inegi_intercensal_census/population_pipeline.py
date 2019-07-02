@@ -35,7 +35,9 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         # Renaming of certains columns
-        df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex", "conact": "laboral_condition"}, inplace=True)
+        df.rename(index=str, columns={"factor": "population", "nacionalidad": "nationality", "sexo": "sex", 
+                                        "conact": "laboral_condition", "tie_traslado_trab": "time_to_work",
+                                        "med_traslado_trab1": "transport_mean_work"}, inplace=True)
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id"]).sum().reset_index(col_fill="ffill")
@@ -44,7 +46,7 @@ class TransformStep(PipelineStep):
         df.replace(0, pd.np.nan, inplace=True)
 
         # Transforming certains columns into int values
-        for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality", "time_to_work", "transport_mean_work"]:
+        for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality", "laboral_condition", "time_to_work", "transport_mean_work"]:
             df[col] = df[col].astype(int)
 
         return df
