@@ -63,9 +63,12 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "sex":           "UInt8",
-            "loc_id":        "UInt32",
-            "population":    "UInt64"
+            "sex":                 "UInt8",
+            "loc_id":              "UInt32",
+            "population":          "UInt64",
+            "laboral_condition":   "Int8Dtype",
+            "time_to_work":        "Int8Dtype",
+            "transport_mean_work": "Int8Dtype"
         }
 
         download_step = DownloadStep(
