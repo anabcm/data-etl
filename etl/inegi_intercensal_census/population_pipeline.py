@@ -9,7 +9,7 @@ from bamboo_lib.steps import LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx")
+        df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/1iBPltBxRQ4PcKKINZGMh52wJqilNqFo7kqnsqEFkys4/edit#gid=393682648")
 
         df = pd.read_csv(prev, dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
