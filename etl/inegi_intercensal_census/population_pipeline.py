@@ -72,7 +72,7 @@ class PopulationPipeline(EasyPipeline):
             "nationality":         "UInt8",
             "laboral_condition":   "UInt8",
             "time_to_work":        "UInt8",
-            "transport_mean_work": "UInt8",
+            "transport_mean_work": "UInt8"
         }
 
         download_step = DownloadStep(
