@@ -72,11 +72,11 @@ class CoveragePipeline(EasyPipeline):
 
     @staticmethod
     def description():
-        return 'Processes information from Intercensal Census 2015, Mexico'
+        return 'ETL scripts from Intercensal Census 2015, Mexico, Housing'
 
     @staticmethod
     def website():
-        return 'http://datawheel.us'
+        return 'https://www.inegi.org.mx/programas/intercensal/2015/'
 
     @staticmethod
     def parameter_list():
