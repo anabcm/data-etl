@@ -47,7 +47,7 @@ class TransformStep(PipelineStep):
 
         # Transforming certains columns into int values
         for col in ["sex", "parent", "sersalud", "dhsersal1", "nationality", "laboral_condition", "time_to_work", "transport_mean_work"]:
-            df[col] = df[col].astype('object')
+            df[col] = df[col].astype("object")
 
         return df
 
