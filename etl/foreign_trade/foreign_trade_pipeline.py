@@ -1,7 +1,7 @@
 
 import pandas as pd
 from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
-from bamboo_lib.models import Parameter, BasePipeline
+from bamboo_lib.models import Parameter, EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
 
@@ -17,7 +17,9 @@ class CleanStep(PipelineStep):
         df = prev
         df.drop(0, inplace=True)
         df.drop(columns=['EN'], inplace=True)
-        df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '').str.replace('__', '_')
+        df.columns = df.columns.str.strip().str.lower()
+        for ele in [(' ', '_'), ('(', ''), (')', ''), ('__', '_')]:
+            df.columns = df.columns.str.replace(ele[0], ele[1])
         return df
 
 class TransformStep(PipelineStep):
@@ -25,11 +27,11 @@ class TransformStep(PipelineStep):
         df = prev
         df.date_scale = pd.to_datetime(df.date_scale).dt.date
         df['id'] = range(df.shape[0])
-        for col in ['unitary_price', 'commercial_value', 'code_of_dispatch_customs_section', 'sequence_of__tariff_fractions', 'code_of_entry_customs_section', 'tariff_fraction', 'postal_code_taxpayer_address', 'commercial_measure_code']:
+        for col in ['unitary_price', 'commercial_value', 'code_of_dispatch_customs_section', 'sequence_of_tariff_fractions', 'code_of_entry_customs_section', 'tariff_fraction', 'postal_code_taxpayer_address', 'commercial_measure_code']:
             df[col] = df[col].astype('float')
         return df
 
-class CoveragePipeline(BasePipeline):
+class CoveragePipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
         return 'program-coverage-pipeline-temp'
@@ -53,7 +55,7 @@ class CoveragePipeline(BasePipeline):
         ]
 
     @staticmethod
-    def run(params, **kwargs):
+    def steps(params, **kwargs):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
@@ -81,25 +83,9 @@ class CoveragePipeline(BasePipeline):
         }
 
         # Definition of each step
-        step0 = ReadStep()
-        step1 = CleanStep()
-        step2 = TransformStep()
-        step3 = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['id'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
-
-        # Definition of the pipeline and its steps
-        pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(step0).next(step1).next(step2).next(step3)
+        read_step = ReadStep()
+        clean_step = CleanStep()
+        transform_step = TransformStep()
+        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['id'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
         
-        return pipeline.run_pipeline()
-
-
-def run_coverage(params, **kwargs):
-    pipeline = CoveragePipeline()
-    pipeline.run(params)
-
-
-if __name__ == '__main__':
-    run_coverage({
-        'database-connector': 'clickhouse'
-    })
-
+        return [read_step, clean_step, transform_step, load_step]
