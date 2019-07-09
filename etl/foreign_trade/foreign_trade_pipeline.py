@@ -31,26 +31,18 @@ class TransformStep(PipelineStep):
         # country codes iso 3166-1 alpha-3
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSDaqIIMI56NCwzU1fJxz6erC474xtqJBytaBaqVJS6b5Op7nr1p_sE1Fq4XKVaNdDjoz-yOzX1rRj6/pub?output=xlsx'
         data = {}
-        for col in ['entidad_federativa', 'country_codes', 'iso_3166']:
+        for col in ['federal_entities']:
             data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
         
-        df.country_origin_destiny.replace(dict(zip(data['country_codes']['code'], data['country_codes']['country_en'])), inplace=True)
-        df.state_code_taxpayer.replace(dict(zip(data['entidad_federativa']['code'], data['entidad_federativa']['name'])), inplace=True)
-        df.country_taxpayer.replace(dict(zip(data['iso_3166']['code'], data['iso_3166']['country_en'])), inplace=True)
-        
-        # clean stopwords
-        stopwords_es = ['a', 'e', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
-        
-        #spanish
-        for ele in ['country_origin_destiny']:
-            df[ele] = df[ele].str.title()
-            for ene in stopwords_es:
-                df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+        # federal entities codes
+        df.state_code_taxpayer.replace(dict(zip(data['federal_entities']['prev'], data['federal_entities']['code'].str.lower())), inplace=True)
+        df.country_taxpayer = df.country_taxpayer.str.lower()
+        df.country_origin_destiny = df.country_origin_destiny.str.lower()
 
         # date format
         df.date_scale = df.date_scale.str[6:] + df.date_scale.str[3:5] + df.date_scale.str[:2]
         df.date_scale = df.date_scale.astype('int32')
-        df.rename(columns={'date_scale': 'date_id'}, inplace=True)
+        df.rename(columns={'date_scale': 'date_id', 'state_code_taxpayer': 'ent_id', 'tariff_fraction': 'product_id'}, inplace=True)
 
         return df
 
@@ -86,7 +78,7 @@ class CoveragePipeline(EasyPipeline):
 
             'document_code':                    'String',
             'operation_code':                   'String',
-            'state_code_taxpayer':              'String',
+            'ent_id':                           'String',
             'country_taxpayer':                 'String',
             'country_origin_destiny':           'String',
             'customs_patent':                   'String',
@@ -96,7 +88,7 @@ class CoveragePipeline(EasyPipeline):
             'code_of_dispatch_customs_section': 'UInt16',
             'sequence_of_tariff_fractions':     'UInt16',
             'code_of_entry_customs_section':    'UInt16',
-            'tariff_fraction':                  'UInt32',
+            'product_id':                       'UInt32',
             'postal_code_taxpayer_address':     'UInt32',
 
             'unitary_price':                    'Float64',
@@ -109,6 +101,6 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
-        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
+        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id', 'product_id', 'country_origin_destiny'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
         
         return [read_step, clean_step, transform_step, load_step]
