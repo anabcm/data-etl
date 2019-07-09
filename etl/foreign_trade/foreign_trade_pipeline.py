@@ -25,10 +25,33 @@ class CleanStep(PipelineStep):
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        df.date_scale = pd.to_datetime(df.date_scale).dt.date
-        df['id'] = range(df.shape[0])
         for col in ['unitary_price', 'commercial_value', 'code_of_dispatch_customs_section', 'sequence_of_tariff_fractions', 'code_of_entry_customs_section', 'tariff_fraction', 'postal_code_taxpayer_address', 'commercial_measure_code']:
             df[col] = df[col].astype('float')
+
+        # country codes iso 3166-1 alpha-3
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSDaqIIMI56NCwzU1fJxz6erC474xtqJBytaBaqVJS6b5Op7nr1p_sE1Fq4XKVaNdDjoz-yOzX1rRj6/pub?output=xlsx'
+        data = {}
+        for col in ['entidad_federativa', 'country_codes', 'iso_3166']:
+            data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
+        
+        df.country_origin_destiny.replace(dict(zip(data['country_codes']['code'], data['country_codes']['country_en'])), inplace=True)
+        df.state_code_taxpayer.replace(dict(zip(data['entidad_federativa']['code'], data['entidad_federativa']['name'])), inplace=True)
+        df.country_taxpayer.replace(dict(zip(data['iso_3166']['code'], data['iso_3166']['country_en'])), inplace=True)
+        
+        # clean stopwords
+        stopwords_es = ['a', 'e', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        
+        #spanish
+        for ele in ['country_origin_destiny']:
+            df[ele] = df[ele].str.title()
+            for ene in stopwords_es:
+                df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+        # date format
+        df.date_scale = df.date_scale.str[6:] + df.date_scale.str[3:5] + df.date_scale.str[:2]
+        df.date_scale = df.date_scale.astype('int32')
+        df.rename(columns={'date_scale': 'date_id'}, inplace=True)
+
         return df
 
 class CoveragePipeline(EasyPipeline):
@@ -42,7 +65,7 @@ class CoveragePipeline(EasyPipeline):
 
     @staticmethod
     def description():
-        return 'Processes information from Mexico'
+        return 'Processes information from foreign trade data Mexico'
 
     @staticmethod
     def website():
@@ -79,13 +102,13 @@ class CoveragePipeline(EasyPipeline):
             'unitary_price':                    'Float64',
             'commercial_value':                 'Float64',
 
-            'date_scale':                       'Date'
+            'date_id':                          'UInt32'
         }
 
         # Definition of each step
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
-        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['id'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
+        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
         
         return [read_step, clean_step, transform_step, load_step]
