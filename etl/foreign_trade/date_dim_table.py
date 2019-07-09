@@ -7,7 +7,7 @@ from bamboo_lib.steps import LoadStep
 class CreateStep(PipelineStep):
     def run_step(self, prev, params):
         start='1990-01-01'
-        end='2080-12-31'
+        end='2030-12-31'
         df = pd.DataFrame({'date': pd.date_range(start, end)})
         df['week_day'] = df.date.dt.weekday_name
         df['day'] = df.date.dt.day
