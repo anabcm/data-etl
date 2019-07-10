@@ -49,7 +49,7 @@ class TransformStep(PipelineStep):
         
         # nan transformation
         df.fillna('temp', inplace=True)
-        df = df.groupby(['hs8_id', 'code_of_entry_customs_section', 'document_code', 'operation_code', 'ent_id', 'postal_code_taxpayer_address', 'country_taxpayer', 'country_origin_destiny', 'commercial_measure_code']).sum().reset_index(col_fill='ffill')
+        df = df.groupby(['hs8_id', 'code_of_entry_customs_section', 'document_code', 'operation_code', 'ent_id', 'postal_code_taxpayer_address', 'country_taxpayer', 'country_origin_destiny', 'commercial_measure_code', 'date_id']).sum().reset_index(col_fill='ffill')
         df.replace('temp', pd.np.nan, inplace=True)
 
         return df
