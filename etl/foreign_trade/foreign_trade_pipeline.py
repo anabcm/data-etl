@@ -44,6 +44,9 @@ class TransformStep(PipelineStep):
         df.date_scale = df.date_scale.astype('int32')
         df.rename(columns={'date_scale': 'date_id', 'state_code_taxpayer': 'ent_id', 'tariff_fraction': 'product_id'}, inplace=True)
 
+        # drop unused columns
+        df.drop(columns=['customs_patent', 'number_of_petition', 'code_of_dispatch_customs_section', 'sequence_of_tariff_fractions'])
+
         return df
 
 class CoveragePipeline(EasyPipeline):
@@ -78,15 +81,10 @@ class CoveragePipeline(EasyPipeline):
 
             'document_code':                    'String',
             'operation_code':                   'String',
-            'ent_id':                           'String',
             'country_taxpayer':                 'String',
             'country_origin_destiny':           'String',
-            'customs_patent':                   'String',
-            'number_of_petition':               'String',
             
             'commercial_measure_code':          'UInt8',
-            'code_of_dispatch_customs_section': 'UInt16',
-            'sequence_of_tariff_fractions':     'UInt16',
             'code_of_entry_customs_section':    'UInt16',
             'product_id':                       'UInt32',
             'postal_code_taxpayer_address':     'UInt32',
@@ -101,6 +99,6 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
-        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id', 'product_id', 'country_origin_destiny'], nullable_list=['state_code_taxpayer', 'postal_code_taxpayer_address'], dtype=dtype)
+        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id', 'product_id', 'country_origin_destiny'], nullable_list=['ent_id', 'postal_code_taxpayer_address'], dtype=dtype)
         
         return [read_step, clean_step, transform_step, load_step]
