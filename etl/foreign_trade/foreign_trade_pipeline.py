@@ -42,10 +42,15 @@ class TransformStep(PipelineStep):
         # date format
         df.date_scale = df.date_scale.str[6:] + df.date_scale.str[3:5] + df.date_scale.str[:2]
         df.date_scale = df.date_scale.astype('int32')
-        df.rename(columns={'date_scale': 'date_id', 'state_code_taxpayer': 'ent_id', 'tariff_fraction': 'product_id'}, inplace=True)
+        df.rename(columns={'date_scale': 'date_id', 'state_code_taxpayer': 'ent_id', 'tariff_fraction': 'hs8_id'}, inplace=True)
 
         # drop unused columns
-        df.drop(columns=['customs_patent', 'number_of_petition', 'code_of_dispatch_customs_section', 'sequence_of_tariff_fractions'])
+        df.drop(columns=['customs_patent', 'number_of_petition', 'code_of_dispatch_customs_section', 'sequence_of_tariff_fractions'], inplace=True)
+        
+        # nan transformation
+        df.fillna('temp', inplace=True)
+        df = df.groupby(['hs8_id', 'code_of_entry_customs_section', 'document_code', 'operation_code', 'ent_id', 'postal_code_taxpayer_address', 'country_taxpayer', 'country_origin_destiny', 'commercial_measure_code']).sum().reset_index(col_fill='ffill')
+        df.replace('temp', pd.np.nan, inplace=True)
 
         return df
 
@@ -86,7 +91,7 @@ class CoveragePipeline(EasyPipeline):
             
             'commercial_measure_code':          'UInt8',
             'code_of_entry_customs_section':    'UInt16',
-            'product_id':                       'UInt32',
+            'hs8_id':                           'UInt32',
             'postal_code_taxpayer_address':     'UInt32',
 
             'unitary_price':                    'Float64',
@@ -99,6 +104,6 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
-        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id', 'product_id', 'country_origin_destiny'], nullable_list=['ent_id', 'postal_code_taxpayer_address'], dtype=dtype)
+        load_step = LoadStep('foreign_trade', db_connector, if_exists='drop', pk=['date_id', 'hs8_id', 'country_origin_destiny'], nullable_list=['ent_id', 'postal_code_taxpayer_address'], dtype=dtype)
         
         return [read_step, clean_step, transform_step, load_step]
