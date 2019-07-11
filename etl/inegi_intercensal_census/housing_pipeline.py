@@ -43,11 +43,12 @@ class TransformStep(PipelineStep):
         for ing in df.ingtrhog.unique():
             for level in range(income.shape[0]):
                 if (ing >= income.interval_lower[level]) & (ing < income.interval_upper[level]):
-                    df.ingtrhog = df.ingtrhog.replace(ing, income.id[level])
+                    df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[level]))
                     break
                 if ing >= income.interval_upper[income.shape[0]-1]:
-                    df.ingtrhog = df.ingtrhog.replace(ing, income.id[income.shape[0]-1])
+                    df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[income.shape[0]-1]))
                     break
+        df.ingtrhog = df.ingtrhog.astype('int')
 
         # subset of columns
         df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais']].copy(deep=True)
