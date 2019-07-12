@@ -19,26 +19,32 @@ class TransformStep(PipelineStep):
         df["mun_id_trab"] = df["ent_pais_trab"] + df["mun_trab"]
         df["year"] = 2015
 
-        # Replacing NaN values with "0" (Not this df.fillna("0", inplace=True)) 
+        # Replacing NaN values with "X" (Not this df.fillna("0", inplace=True)) 
         # in order to not drop values by GroupBy method
         df["tie_traslado_trab"].fillna("0", inplace=True)
         df["med_traslado_trab1"].fillna("0", inplace=True)
+        df["nivacad"].fillna("1000", inplace=True)
         df["conact"].fillna("0", inplace=True)
         df["mun_id_trab"].fillna("0", inplace=True)
 
         # Transforming certains str columns into int values
         df["loc_id"] = df["loc_id"].astype(int)
-        df["factor"] = df["factor"].astype(int)
         df["mun_id_trab"] = df["mun_id_trab"].astype(int)
-        df["edad"] = df["edad"].astype(int)
+        df["factor"] = df["factor"].astype(int)
+        df["edad"] = df["edad"].astype("int64")
 
         # Turning work places IDs to 0, which are overseas
         df.loc[df["mun_id_trab"] > 33000, "mun_id_trab"] = 0
         df["mun_id_trab"].replace(pd.np.nan , 0, inplace=True)
 
         # List of columns for the next df
-        params            = ["sexo", "parent", "sersalud", "dhsersal1", "conact", "tie_traslado_trab", "med_traslado_trab1"]
-        params_translated = ["sex", "parent", "sersalud", "dhsersal1", "laboral_condition", "time_to_work", "transport_mean_work"]
+        params = ["sexo", "parent", "sersalud", "dhsersal1", 
+            "conact", "tie_traslado_trab", "med_traslado_trab1",
+            "nivacad"]
+
+        params_translated = ["sex", "parent", "sersalud", "dhsersal1",
+            "laboral_condition", "time_to_work", "transport_mean_work",
+            "academic_degree"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -52,14 +58,26 @@ class TransformStep(PipelineStep):
                             "sexo": "sex", 
                             "conact": "laboral_condition", 
                             "tie_traslado_trab": "time_to_work",
-                            "med_traslado_trab1": "transport_mean_work"}, inplace=True)
+                            "med_traslado_trab1": "transport_mean_work",
+                            "nivacad": "academic_degree"}, inplace=True)
+
+
+        url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSYxBmHW5xXkzhVL3X5N21EWWVJKzOkaCfEERaG5lWpmgdx6-Sjcxf7FA7uV1j-_EJIeWZmGbMMDeJh/pub?output=xlsx"
+        pivote = pd.read_excel(url, sheet_name="tramo_edad", encoding="latin-1", dtype={"interval_upper": "int64", "interval_lower": "int64"})
+        for edad in df.age.unique():
+            for level in range(pivote.shape[0]):
+                if (edad >= pivote.interval_lower[level]) & (edad < pivote.interval_upper[level]):
+                    df.age.replace(edad, str(pivote.id[level]), inplace=True)
+                    break
+        df.age = df.age.astype("int")
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
 
-        # Turning back NaN values
+        # Turning back NaN values in the respective columns
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
+        df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
         df["laboral_condition"].replace(0, pd.np.nan, inplace=True)
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
 
@@ -94,6 +112,7 @@ class PopulationPipeline(EasyPipeline):
             "time_to_work":        "UInt8",
             "transport_mean_work": "UInt8",
             "mun_id_trab":         "UInt8",
+            "academic_degree":     "UInt8",
             "age":                 "UInt8",
             "year":                "UInt8",
         }
