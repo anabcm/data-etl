@@ -18,12 +18,14 @@ class TransformStep(PipelineStep):
 
         # Adding ID columns, year and age(edad)
         df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
+        df["mun_id_trab"] = df["ltrabpai_c"] + df["ltrabmun_c"]
         df["year"] = 2010
         df["edad"] = df["edad"].astype(int)
 
         # Adding work places IDs as float type column
-        df["mun_id_trab"] = df["ltrabpai_c"] + df["ltrabmun_c"]
-        df["mun_id_trab"] = df["mun_id_trab"].astype(float)
+        df["mun_id_trab"].fillna("0", inplace=True)
+        df["mun_id_trab"] = df["mun_id_trab"].astype(int)
+        df["edad"] = df["edad"].astype(object)
 
         # Turning work places IDs to 0, which are overseas
         df.loc[df["mun_id_trab"] > 33000, "mun_id_trab"] = 0
@@ -70,7 +72,7 @@ class TransformStep(PipelineStep):
                                     "sexo": "sex",
                                     "nivacad": "academic_degree"}, inplace=True)
 
-
+        # Turning back NaN values in the respective columns
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
