@@ -16,18 +16,18 @@ class ExtractStep(PipelineStep):
 class DimSexPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("etl/conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("etl/conns.yaml"))
         dtype = {
-            "age":            "UInt8",
-            "range_es":       "String",
-            "range_en":       "String",
-            "age_range_ id":  "UInt8"
+            "age":           "UInt8",
+            "name_es":       "String",
+            "name_en":       "String",
+            "age_range_id":  "UInt8"
         }
 
         extract_step = ExtractStep()
         load_step = LoadStep(
             "dim_shared_sex", db_connector, if_exists="append", dtype=dtype,
-            pk=['id']
+            pk=["age_range_id"]
         )
 
         return [extract_step, load_step]
