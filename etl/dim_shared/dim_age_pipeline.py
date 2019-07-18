@@ -18,10 +18,10 @@ class DimSexPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open("etl/conns.yaml"))
         dtype = {
-            "edad":       "UInt8",
-            "range_esp":  "String",
-            "range_eng":  "String",
-            "id":         "UInt8"
+            "age":            "UInt8",
+            "range_es":       "String",
+            "range_en":       "String",
+            "age_range_ id":  "UInt8"
         }
 
         extract_step = ExtractStep()
