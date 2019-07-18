@@ -62,9 +62,9 @@ class TransformStep(PipelineStep):
 
         # Renaming of certains columns
         df.rename(index=str, columns={
-                                    "factor": "population",
-                                    "edad": "age",
-                                    "sexo": "sex"}, inplace=True)
+            "factor": "population",
+            "edad": "age",
+            "sexo": "sex"}, inplace=True)
 
         # Not answered age values, turned to text (Column as object type)
         df["age"].replace(999, "Edad no especificada", inplace=True)
