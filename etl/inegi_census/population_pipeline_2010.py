@@ -29,6 +29,9 @@ class TransformStep(PipelineStep):
         df.loc[df["mun_id_trab"] > 33000, "mun_id_trab"] = 0
         df["mun_id_trab"].replace(pd.np.nan , 0, inplace=True)
 
+        #Replacing empty values
+        df["nivacad"].fillna("1000", inplace=True)
+
         # Adding columns related to work, which are not in the original DF (Exist in the 2015 intercensal census data)
         df["laboral_condition"] = ""
         df["time_to_work"] = ""
@@ -39,7 +42,7 @@ class TransformStep(PipelineStep):
         df["factor"] = df["factor"].astype(int)
 
         # List of columns for the next df
-        params = ["sexo", "parent", "sersalud", "dhsersal1"]
+        params = ["sexo", "parent", "sersalud", "dhsersal1", "nivacad"]
         params_nan = ["laboral_condition", "time_to_work", "transport_mean_work"]
         params_int = ["loc_id", "year", "mun_id_trab"]
 
@@ -64,13 +67,23 @@ class TransformStep(PipelineStep):
         df.rename(index=str, columns={
                                     "factor": "population",
                                     "edad": "age",
-                                    "sexo": "sex"}, inplace=True)
+                                    "sexo": "sex",
+                                    "nivacad": "academic_degree"}, inplace=True)
+
+
+        df["time_to_work"].replace(0, pd.np.nan, inplace=True)
+        df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
+        df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
+        df["laboral_condition"].replace(0, pd.np.nan, inplace=True)
+        df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
 
         # Not answered age values, turned to text (Column as object type)
         df["age"].replace(999, "Edad no especificada", inplace=True)
 
         # Transforming certains columns into int values
-        for col in ["sex", "parent", "sersalud", "dhsersal1", "laboral_condition", "time_to_work", "transport_mean_work", "mun_id_trab", "age"]:
+        for col in ["sex", "parent", "sersalud", "dhsersal1", "laboral_condition",
+                    "time_to_work", "transport_mean_work", "mun_id_trab", "age",
+                    "academic_degree"]:
             df[col] = df[col].astype("object")
 
         return df
@@ -96,6 +109,7 @@ class PopulationPipeline(EasyPipeline):
             "laboral_condition":   "UInt8",
             "time_to_work":        "UInt8",
             "transport_mean_work": "UInt8",
+            "academic_degree":     "UInt8",
             "mun_id_trab":         "UInt8",
             "age":                 "UInt8",
             "year":                "UInt8",
@@ -108,7 +122,7 @@ class PopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
-            nullable_list=["time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab"]
+            nullable_list=["time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab", "academic_degree"]
         )
 
         return [download_step, transform_step, load_step]
