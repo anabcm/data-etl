@@ -11,8 +11,7 @@ from bamboo_lib.steps import LoadStep
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # foreign trade data
-        url = 'viviendas_15.dbf'
-        dbf = Dbf5(url, codec='latin-1')
+        dbf = Dbf5(prev, codec='latin-1')
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
         
@@ -163,6 +162,11 @@ class CoveragePipeline(EasyPipeline):
             'funding':                  'UInt8'
         }
 
+        download_step = DownloadStep(
+            connector='housing-data',
+            connector_path='conns.yaml'
+        )
+
         # Definition of each step
         read_step = ReadStep()
         clean_step = CleanStep()
@@ -171,4 +175,4 @@ class CoveragePipeline(EasyPipeline):
                                                                                                               'bedrooms', 'total_rooms', 'n_inhabitants', 'income', 'coverage',
                                                                                                               'government_financial_aid', 'foreign_financial_aid', 'debt'], dtype=dtype)
         
-        return [read_step, clean_step, transform_step, load_step]
+        return [download_step, read_step, clean_step, transform_step, load_step]
