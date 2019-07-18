@@ -145,21 +145,21 @@ class CoveragePipeline(EasyPipeline):
 
         dtype = {
             'loc_id':                   'UInt32',
-            'inhabitants':              'UInt16', 
-            'home_type':                'UInt8',
-            'acquisition':              'UInt8',
-            'wall':                     'UInt8', 
-            'roof':                     'UInt8',
+            'inhabitants':              'UInt16',
             'floor':                    'UInt8',
-            'bedrooms':                 'UInt8',
-            'total_rooms':              'UInt8',
-            'n_inhabitants':            'UInt8',
-            'income':                   'UInt8', 
-            'government_financial_aid': 'UInt8', 
-            'foreign_financial_aid':    'UInt8',
+            'wall':                     'UInt8',
+            'roof':                     'UInt8',
+            'acquisition':              'UInt8',
             'debt':                     'UInt8',
+            'income':                   'UInt8',
             'coverage':                 'UInt8',
-            'funding':                  'UInt8'
+            'home_type':                'UInt8',
+            'funding':                  'UInt8',
+            'government_financial_aid': 'UInt8',
+            'foreign_financial_aid':    'UInt8',
+            'n_inhabitants':            'UInt8',
+            'total_rooms':              'UInt8',
+            'bedrooms':                 'UInt8'
         }
 
         download_step = DownloadStep(
@@ -171,8 +171,11 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_housing', db_connector, if_exists='append', pk=['loc_id'], nullable_list=['inhabitants', 'home_type', 'acquisition', 'wall', 'roof', 'floor', 'funding',
-                                                                                                              'bedrooms', 'total_rooms', 'n_inhabitants', 'income', 'coverage',
-                                                                                                              'government_financial_aid', 'foreign_financial_aid', 'debt'], dtype=dtype)
+        load_step = LoadStep(
+            'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
+            nullable_list=['inhabitants', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
+                          'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
+                          'n_inhabitants', 'total_rooms', 'bedrooms']
+        )
         
         return [download_step, read_step, clean_step, transform_step, load_step]
