@@ -54,6 +54,7 @@ class TransformStep(PipelineStep):
 
         # Renaming of certains columns (Nacionality is not added given 2010 data, for now)
         df.rename(index=str, columns={
+                            "edad": "age"
                             "factor": "population",
                             "sexo": "sex", 
                             "conact": "laboral_condition", 
