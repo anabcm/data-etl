@@ -6,16 +6,16 @@ from simpledbf import Dbf5
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import Parameter, EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # foreign trade data
-        dbf = Dbf5(prev, codec='latin-1')
+        dbf = Dbf5(prev[0], codec='latin-1')
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
         
-        dbf = Dbf5('personas_15.dbf', codec='latin-1')
+        dbf = Dbf5(prev[1], codec='latin-1')
         dfp = dbf.to_dataframe()
         dfp.columns = dfp.columns.str.lower()
         dfp = dfp[['id_viv', 'ayuprogob', 'ayupeop']].groupby(['id_viv', 'ayuprogob', 'ayupeop']).sum().reset_index(col_fill='ffill')
@@ -135,7 +135,7 @@ class CoveragePipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
+            Parameter(label="Index", name="index", dtype=str)
         ]
 
     @staticmethod
@@ -162,8 +162,8 @@ class CoveragePipeline(EasyPipeline):
             'bedrooms':                 'UInt8'
         }
 
-        download_step = DownloadStep(
-            connector='housing-data',
+        http_multi_dl_step = DownloadStep(
+            connector=['housing-data', 'population-data'],
             connector_path='conns.yaml'
         )
 
@@ -178,4 +178,4 @@ class CoveragePipeline(EasyPipeline):
                           'n_inhabitants', 'total_rooms', 'bedrooms']
         )
         
-        return [download_step, read_step, clean_step, transform_step, load_step]
+        return [http_multi_dl_step, read_step, clean_step, transform_step, load_step]
