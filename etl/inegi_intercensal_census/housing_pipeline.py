@@ -27,7 +27,7 @@ class CleanStep(PipelineStep):
         df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
         # column type conversion
         df['ingtrhog'] = df['ingtrhog'].astype('float')
-        df.ingtrhog = df.ingtrhog.fillna(0).round(0).astype('int64')
+        df.ingtrhog = df.ingtrhog.fillna(-5).round(0).astype('int64')
         return df, data
 
 class TransformStep(PipelineStep):
@@ -49,6 +49,7 @@ class TransformStep(PipelineStep):
                     df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[income.shape[0]-1]))
                     break
         df.ingtrhog = df.ingtrhog.astype('int')
+        df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
 
         # subset of columns
         df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais']].copy(deep=True)
@@ -60,6 +61,8 @@ class TransformStep(PipelineStep):
         # data types
         for col in df.columns:
             df[col] = df[col].astype('object')
+
+        df['year'] = 2015
 
         return df
 
