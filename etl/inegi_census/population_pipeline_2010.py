@@ -115,7 +115,7 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab":         "UInt8",
             "academic_degree":     "UInt8",
             "age":                 "UInt8",
-            "year":                "UInt8"
+            "year":                "UInt16"
         }
 
         download_step = DownloadStep(
