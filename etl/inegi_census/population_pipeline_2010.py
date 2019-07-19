@@ -54,7 +54,6 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(int)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params + params_nan + params_int + ["edad"]).sum().reset_index(col_fill="ffill")
 
@@ -64,13 +63,18 @@ class TransformStep(PipelineStep):
         df["transport_mean_work"] = pd.np.nan
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
 
-
         # Renaming of certains columns
         df.rename(index=str, columns={
                                     "factor": "population",
                                     "edad": "age",
                                     "sexo": "sex",
                                     "nivacad": "academic_degree"}, inplace=True)
+
+        # Setting same academic ids as year 2015
+        df["academic_degree"].replace(12, 14, inplace=True)
+        df["academic_degree"].replace(11, 13, inplace=True)
+        df["academic_degree"].replace(10, 11, inplace=True)
+        df["academic_degree"].replace(9, 10, inplace=True)
 
         # Turning back NaN values in the respective columns
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
