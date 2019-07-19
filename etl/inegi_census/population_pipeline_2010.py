@@ -76,7 +76,6 @@ class TransformStep(PipelineStep):
         df["academic_degree"].replace(10, 11, inplace=True)
         df["academic_degree"].replace(9, 10, inplace=True)
 
-        # Turning back NaN values in the respective columns
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
