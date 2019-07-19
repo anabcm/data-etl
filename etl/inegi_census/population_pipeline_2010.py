@@ -18,12 +18,14 @@ class TransformStep(PipelineStep):
 
         # Adding ID columns, year and age(edad)
         df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
+        df["mun_id_trab"] = df["ltrabpai_c"] + df["ltrabmun_c"]
         df["year"] = 2010
         df["edad"] = df["edad"].astype(int)
 
         # Adding work places IDs as float type column
-        df["mun_id_trab"] = df["ltrabpai_c"] + df["ltrabmun_c"]
-        df["mun_id_trab"] = df["mun_id_trab"].astype(float)
+        df["mun_id_trab"].fillna("0", inplace=True)
+        df["mun_id_trab"] = df["mun_id_trab"].astype(int)
+        df["edad"] = df["edad"].astype(object)
 
         # Turning work places IDs to 0, which are overseas
         df.loc[df["mun_id_trab"] > 33000, "mun_id_trab"] = 0
@@ -52,7 +54,6 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(int)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params + params_nan + params_int + ["edad"]).sum().reset_index(col_fill="ffill")
 
@@ -62,7 +63,6 @@ class TransformStep(PipelineStep):
         df["transport_mean_work"] = pd.np.nan
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
 
-
         # Renaming of certains columns
         df.rename(index=str, columns={
                                     "factor": "population",
@@ -70,15 +70,18 @@ class TransformStep(PipelineStep):
                                     "sexo": "sex",
                                     "nivacad": "academic_degree"}, inplace=True)
 
+        # Setting same academic ids as year 2015
+        df["academic_degree"].replace(12, 14, inplace=True)
+        df["academic_degree"].replace(11, 13, inplace=True)
+        df["academic_degree"].replace(10, 11, inplace=True)
+        df["academic_degree"].replace(9, 10, inplace=True)
 
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
         df["laboral_condition"].replace(0, pd.np.nan, inplace=True)
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
-
-        # Not answered age values, turned to text (Column as object type)
-        df["age"].replace(999, "Edad no especificada", inplace=True)
+        df["age"].replace(999, pd.np.nan, inplace=True)
 
         # Transforming certains columns into int values
         for col in ["sex", "parent", "sersalud", "dhsersal1", "laboral_condition",
@@ -109,9 +112,10 @@ class PopulationPipeline(EasyPipeline):
             "laboral_condition":   "UInt8",
             "time_to_work":        "UInt8",
             "transport_mean_work": "UInt8",
+            "academic_degree":     "UInt8",
             "mun_id_trab":         "UInt8",
             "age":                 "UInt8",
-            "year":                "UInt8",
+            "year":                "UInt8"
         }
 
         download_step = DownloadStep(
@@ -121,7 +125,7 @@ class PopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
-            nullable_list=["time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab"]
+            nullable_list=["age", "time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab", "academic_degree"]
         )
 
         return [download_step, transform_step, load_step]

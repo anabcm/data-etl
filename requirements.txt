@@ -87,3 +87,4 @@ widgetsnbextension==3.4.2
 xlrd==1.2.0
 zipp==0.5.1
 sklearn
+simpledbf
