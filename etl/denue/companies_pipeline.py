@@ -34,13 +34,12 @@ class TransformStep(PipelineStep):
         df['directory_added_year'] = df.fecha_alta.str.split('-').str[0]
         df['directory_added_month'] = df.fecha_alta.str.split('-').str[1]
         
-        df.drop(columns=['fecha_alta', 'ageb', 'manzana'], inplace=True)
-        
         df.cve_mun = df.cve_ent + df.cve_mun
         df.cve_loc = df.cve_mun + df.cve_loc
 
-        for col in ['cve_ent', 'cve_mun', 'cve_loc']:
-            df[col] = df[col].astype('int')
+        df['cve_loc'] = df['cve_loc'].astype('int')
+
+        df.drop(columns=['fecha_alta', 'ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
         
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
@@ -72,8 +71,6 @@ class TransformStep(PipelineStep):
             'cod_postal': 'postal_code',
             'tipounieco': 'establishment',
             'fecha_alta': 'directory_added_date',
-            'cve_ent': 'ent_id',
-            'cve_mun': 'mun_id',
             'cve_loc': 'loc_id',
             'latitud': 'latitude',
             'longitud': 'longitude'
@@ -86,8 +83,6 @@ class TransformStep(PipelineStep):
             'national_industry_id': 'str',
             'n_workers': 'int',
             'postal_code': 'int',
-            'ent_id': 'int',
-            'mun_id': 'int',
             'loc_id': 'int',
             'establishment': 'int',
             'directory_added_year': 'int',
@@ -125,15 +120,13 @@ class ExamplePipeline(EasyPipeline):
             'establishment':        'UInt8',
             'directory_added_year': 'UInt16',
             'directory_added_month':'UInt8',
-            'ent_id':               'UInt8',
-            'mun_id':               'UInt16',
             'loc_id':               'UInt32',
             'latitude':             'Float32',
             'longitude':            'Float32'
         }
 
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_companies', connector=db_connector, if_exists='drop', pk=['ent_id', 'mun_id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
+        load_step = LoadStep('inegi_companies', connector=db_connector, if_exists='drop', pk=['loc_id', 'national_industry_id'], dtype=dtypes, 
                                 nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude',
                                             'directory_added_year', 'directory_added_month'])
         return [transform_step, load_step]
