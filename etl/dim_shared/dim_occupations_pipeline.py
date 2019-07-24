@@ -13,8 +13,8 @@ from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/a/datawheel.us/spreadsheets/d/e/2PACX-1vR35-6oQq5c2KPRHiGtMK84zuw6yQ-9F6cVt8hkq9p6GvwJrYLnB_1pUVvX03Ru0MYEstjw4SD5G7GM/pub?output=xlsx'
-        df = pd.read_excel(url, dtype='str')
+        url = 'https://docs.google.com/a/datawheel.us/spreadsheets/d/e/2PACX-1vR35-6oQq5c2KPRHiGtMK84zuw6yQ-9F6cVt8hkq9p6GvwJrYLnB_1pUVvX03Ru0MYEstjw4SD5G7GM/pub?output=csv'
+        df = pd.read_csv(url, dtype='str')
         return df
 
 class CleanStep(PipelineStep):
