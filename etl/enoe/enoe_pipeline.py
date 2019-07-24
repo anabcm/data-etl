@@ -81,8 +81,32 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "ent_id":   "UInt8",
-            "time":     "UInt8"
+            "ent_id":                               "UInt8",
+            "time":                                 "UInt8",
+            "ent_id":                               "UInt8",
+            "age":                                  "UInt8",
+            "has_job_or_business":                  "UInt8",
+            "search_job_overseas":                  "UInt8",
+            "search_job_mexico":                    "UInt8",
+            "search_start_business":                "UInt8",
+            "search_no_search":                     "UInt8",
+            "search_no_knowledge":                  "UInt8",
+            "search_job_year":                      "UInt8",
+            "time_looking_job":                     "UInt8",
+            "actual_job_position":                  "UInt16",
+            "actual_job_industry_group_id":         "UInt16",
+            "actual_job_hrs_worked_lastweek":       "UInt8",
+            "actual_job_days_worked_lastweek":      "UInt8",
+            "population":                           "UInt64", 
+            "actual_frecuency_payments":            "UInt8",
+            "actual_amount_pesos":                  "UInt32",
+            "actual_minimal_wages_proportion":      "UInt8",
+            "actual_healthcare_attention":          "UInt8",
+            "second_activity":                      "UInt8",
+            "second_activity_task":                 "UInt16",
+            "second_activity_group_id":             "UInt16",
+            "year":                                 "UInt16"
+
         }
 
         download_step = DownloadStep(
@@ -94,8 +118,10 @@ class PopulationPipeline(EasyPipeline):
             "inegi_enoe", db_connector, if_exists="append", pk=["ent_id", "time" ], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
-              "actual_amount_pesos", "second_activity_task", "second_activity_group_id"
-            ]
+              "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
+              "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
+              "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
+              "actual_minimal_wages_proportion"]
         )
 
         return [download_step, transform_step, load_step]
