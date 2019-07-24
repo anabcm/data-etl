@@ -49,6 +49,7 @@ class TransformStep(PipelineStep):
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
         df.replace(pd.np.nan, 99999, inplace=True)
+        df.replace(" ", 99999, inplace=True)
 
         # Changing columns with IDs trought cycle
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
