@@ -108,7 +108,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe_simple", db_connector, if_exists="append", pk=["ent_id", "actual_job_position", "actual_job_industry_group_id", "year" ], dtype=dtype, 
+            "inegi_enoe", db_connector, if_exists="append", pk=["ent_id", "actual_job_position", "actual_job_industry_group_id", "year" ], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id"
