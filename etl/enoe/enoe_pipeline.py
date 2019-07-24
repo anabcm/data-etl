@@ -66,10 +66,6 @@ class TransformStep(PipelineStep):
         # Turning back NaN values in the respective columns
         df.replace(99999, pd.np.nan, inplace=True)
 
-        # Transforming certains columns to objects
-        for col in (batch):
-            df[col] = df[col].astype("object")
-
         return df
 
 class PopulationPipeline(EasyPipeline):
