@@ -15,24 +15,25 @@ class TransformStep(PipelineStep):
         df_labels = pd.ExcelFile(excel_url)
 
         # Loading 2 ENOE files, in order to create 1 quarter per year data
-        dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1")
-        dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1")
+        try:
+            dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1",
+            usecols = ["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4",
+            "p2_9", "p2a_anio", "p2b", "p3",
+            "p4a", "p5b_thrs", "p5b_tdia", "fac"])
+        except:
+            dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1",
+            usecols = lambda x: x.lower() in ["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4",
+            "p2_9", "p2a_anio", "p2b", "p3","p4a", "p5c_thrs", "p5c_tdia", "fac"])
+
+        dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1",
+        usecols= lambda x: x.lower() in ["p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
 
         # Standarizing headers, some files are capitalized
         dt_1.columns = dt_1.columns.str.lower()
         dt_2.columns = dt_2.columns.str.lower()
 
-        # Setting the list of the respective columns for each part of the survey
-        half1 = ["r_def", "cd_a", "ent", "n_pro_viv", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9",
-                  "p2a_anio", "p2b", "p2c", "p2d1", "p2d2", "p2d3", "p2d4", "p2d5", "p2d6", "p2d7", "p2d8", "p2d9",
-                  "p2d10", "p2d11", "p2d99", "p2e", "p2f", "p2g1", "p2g2", "p3", "p3i", "p3j1", "p3j2", "p3k1", "p3k2",
-                  "p3k3", "p3k4", "p3k5", "p3k9", "p4a", "p4b", "p5b_thrs", "p5d_thrs", "p5b_tdia", "p5d_tdia", "fac"]
-        half2 = ["p6_1", "p6_2", "p6_3", "p6_4", "p6_5", "p6_6", "p6_7", "p6_8", "p6_9", "p6_10", "p6_99",
-                  "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c", "p8_2", "p8_3", "p8_4", "p8_9", "p8a"]
-
         # Creating df
-        df = dt_1[half1]
-        df[half2] = dt_2[half2]
+        df = dt_1.join(dt_2)
 
         # Getting values of year and respective quarter for the survey
         df["time"] = params["year"] + params["quarter"]
@@ -47,19 +48,7 @@ class TransformStep(PipelineStep):
         df.rename(columns = dict(zip(part2.column, part2.new_column)), inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
-        df.replace(" ", 99999, inplace = True)
-        df.fillna(99999, inplace = True)
-
-        # Final columns [24 columns]
-        batch = ["ent_id", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
-                "search_start_business", "search_no_search", "search_no_knowledge", "search_job_year",
-                "time_looking_job", "actual_job_position", "actual_job_industry_group_id", 
-                "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "population", 
-                "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", 
-                "actual_healthcare_attention", "second_activity", "second_activity_task", "second_activity_group_id"
-                "time"]
-
-        df = df[batch]
+        df.replace(pd.np.nan, 99999, inplace=True)
 
         # Changing columns with IDs trought cycle
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
