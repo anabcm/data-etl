@@ -83,7 +83,6 @@ class PopulationPipeline(EasyPipeline):
         dtype = {
             "ent_id":                               "UInt8",
             "time":                                 "UInt8",
-            "ent_id":                               "UInt8",
             "age":                                  "UInt8",
             "has_job_or_business":                  "UInt8",
             "search_job_overseas":                  "UInt8",
@@ -104,9 +103,7 @@ class PopulationPipeline(EasyPipeline):
             "actual_healthcare_attention":          "UInt8",
             "second_activity":                      "UInt8",
             "second_activity_task":                 "UInt16",
-            "second_activity_group_id":             "UInt16",
-            "year":                                 "UInt16"
-
+            "second_activity_group_id":             "UInt16"
         }
 
         download_step = DownloadStep(
