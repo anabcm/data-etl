@@ -40,6 +40,9 @@ class CleanStep(PipelineStep):
         for col in ['sector_id', 'subsector_id', 'industry_group_id']:
             df[col] = df[col].astype('int')
 
+        df = df.groupby(['sector_id', 'sector_es', 'sector_en', 'subsector_id', 'subsector_es', 
+                    'subsector_en','industry_group_id','industry_group_es','industry_group_en']).sum().reset_index(col_fill='ffill')
+
         return df
 
 class CoveragePipeline(EasyPipeline):
