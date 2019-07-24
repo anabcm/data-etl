@@ -14,10 +14,9 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(prev, dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
 
-        # Adding IDs columns and adding year column
+        # Adding IDs columns
         df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
         df["mun_id_trab"] = df["ent_pais_trab"] + df["mun_trab"]
-        df["year"] = 2015
 
         # Replacing NaN values with "X" (Not this df.fillna("0", inplace=True)) 
         # in order to not drop values by GroupBy method
@@ -73,6 +72,9 @@ class TransformStep(PipelineStep):
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
         df["age"].replace(999, pd.np.nan, inplace=True)
 
+        # Includes year column
+        df["year"] = 2015
+
         # Transforming certains columns to objects
         for col in (params_translated + ["mun_id_trab"]):
             df[col] = df[col].astype("object")
@@ -103,7 +105,7 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab":         "UInt8",
             "academic_degree":     "UInt8",
             "age":                 "UInt8",
-            "year":                "UInt8"
+            "year":                "UInt16"
         }
 
         download_step = DownloadStep(

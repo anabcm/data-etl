@@ -54,7 +54,6 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(int)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params + params_nan + params_int + ["edad"]).sum().reset_index(col_fill="ffill")
 
@@ -64,7 +63,6 @@ class TransformStep(PipelineStep):
         df["transport_mean_work"] = pd.np.nan
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
 
-
         # Renaming of certains columns
         df.rename(index=str, columns={
                                     "factor": "population",
@@ -72,7 +70,12 @@ class TransformStep(PipelineStep):
                                     "sexo": "sex",
                                     "nivacad": "academic_degree"}, inplace=True)
 
-        # Turning back NaN values in the respective columns
+        # Setting same academic ids as year 2015
+        df["academic_degree"].replace(12, 14, inplace=True)
+        df["academic_degree"].replace(11, 13, inplace=True)
+        df["academic_degree"].replace(10, 11, inplace=True)
+        df["academic_degree"].replace(9, 10, inplace=True)
+
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
@@ -103,16 +106,16 @@ class PopulationPipeline(EasyPipeline):
             "sex":                 "UInt8",
             "loc_id":              "UInt32",
             "population":          "UInt64",
-            "parent":              "UInt32",
-            "sersalud":            "UInt32",
-            "dhsersal1":           "UInt32",
+            "parent":              "UInt8",
+            "sersalud":            "UInt8",
+            "dhsersal1":           "UInt8",
             "laboral_condition":   "UInt8",
             "time_to_work":        "UInt8",
             "transport_mean_work": "UInt8",
-            "academic_degree":     "UInt8",
             "mun_id_trab":         "UInt8",
+            "academic_degree":     "UInt8",
             "age":                 "UInt8",
-            "year":                "UInt8"
+            "year":                "UInt16"
         }
 
         download_step = DownloadStep(

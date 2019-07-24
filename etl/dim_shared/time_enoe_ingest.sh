@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry dim_time_enoe_pipeline
