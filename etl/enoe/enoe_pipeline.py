@@ -55,12 +55,13 @@ class TransformStep(PipelineStep):
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
                     "search_start_business", "search_no_search", "search_no_knowledge",
                     "actual_frecuency_payments", "actual_minimal_wages_proportion", 
-                    "actual_healthcare_attention", "second_activity"]
+                    "actual_healthcare_attention", "second_activity", "time_looking_job",
+                    "actual_job_days_worked_lastweek"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in filling:
             df_l = pd.read_excel(df_labels, sheet)
-            df[sheet] = df[sheet].astype(int)
+            df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         # Turning back NaN values in the respective columns
@@ -81,8 +82,29 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "ent_id":   "UInt8",
-            "time":     "UInt8"
+            "ent_id":                               "UInt8",
+            "time":                                 "UInt8",
+            "age":                                  "UInt8",
+            "has_job_or_business":                  "UInt8",
+            "search_job_overseas":                  "UInt8",
+            "search_job_mexico":                    "UInt8",
+            "search_start_business":                "UInt8",
+            "search_no_search":                     "UInt8",
+            "search_no_knowledge":                  "UInt8",
+            "search_job_year":                      "UInt8",
+            "time_looking_job":                     "UInt8",
+            "actual_job_position":                  "UInt16",
+            "actual_job_industry_group_id":         "UInt16",
+            "actual_job_hrs_worked_lastweek":       "UInt8",
+            "actual_job_days_worked_lastweek":      "UInt8",
+            "population":                           "UInt64", 
+            "actual_frecuency_payments":            "UInt8",
+            "actual_amount_pesos":                  "UInt32",
+            "actual_minimal_wages_proportion":      "UInt8",
+            "actual_healthcare_attention":          "UInt8",
+            "second_activity":                      "UInt8",
+            "second_activity_task":                 "UInt16",
+            "second_activity_group_id":             "UInt16"
         }
 
         download_step = DownloadStep(
