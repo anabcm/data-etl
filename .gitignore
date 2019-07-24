@@ -13,7 +13,9 @@ economic-census
 etl/trade_balance/*.ipynb
 etl/geo/*.ipynb
 etl/inegi_intercensal_census/*.ipynb
+
 .log
 
 etl/enoe/*.ipynb
 etl/inegi_census/*.ipynb
+
