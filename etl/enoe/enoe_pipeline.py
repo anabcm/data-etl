@@ -66,6 +66,8 @@ class TransformStep(PipelineStep):
         # Turning back NaN values in the respective columns
         df.replace(99999, pd.np.nan, inplace=True)
 
+        df["actual_job_days_worked_lastweek"] = df["actual_job_days_worked_lastweek"].astype(float)
+
         return df
 
 class PopulationPipeline(EasyPipeline):
