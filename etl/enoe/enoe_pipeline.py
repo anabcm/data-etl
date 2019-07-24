@@ -55,8 +55,7 @@ class TransformStep(PipelineStep):
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
                     "search_start_business", "search_no_search", "search_no_knowledge",
                     "actual_frecuency_payments", "actual_minimal_wages_proportion", 
-                    "actual_healthcare_attention", "second_activity", "time_looking_job",
-                    "actual_job_days_worked_lastweek"]
+                    "actual_healthcare_attention", "second_activity", "time_looking_job"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in filling:
