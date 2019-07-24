@@ -20,8 +20,8 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        cols_es = ['ocupation_es', 'subgroup_es', 'group_es', 'category_es']
-        cols_en = ['ocupation_en', 'subgroup_en', 'group_en', 'category_en']
+        cols_es = ['occupation_es', 'subgroup_es', 'group_es', 'category_es']
+        cols_en = ['occupation_en', 'subgroup_en', 'group_en', 'category_en']
         stopwords_es = ['a', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
         
         #spanish
@@ -36,7 +36,7 @@ class CleanStep(PipelineStep):
             for ene in list(stop_words.ENGLISH_STOP_WORDS):
                 df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
         
-        for col in ['ocupation_id', 'subgroup_id', 'group_id', 'category_id']:
+        for col in ['occupation_id', 'subgroup_id', 'group_id', 'category_id']:
             df[col] = df[col].astype('int')
 
         return df
@@ -55,9 +55,9 @@ class CoveragePipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'ocupation_id': 'UInt16',
-            'ocupation_es': 'String',
-            'ocupation_en': 'String',
+            'occupation_id': 'UInt16',
+            'occupation_es': 'String',
+            'occupation_en': 'String',
             'subgroup_id':  'UInt16',
             'subgroup_es':  'String',
             'subgroup_en':  'String',
