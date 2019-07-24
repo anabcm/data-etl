@@ -72,7 +72,7 @@ class CoveragePipeline(EasyPipeline):
         # Definition of each step
         read_step = ReadStep()
         clean_step = CleanStep()
-        load_step = LoadStep('dim_shared_occupations_enoe', db_connector, if_exists='drop', pk=['ocupation_id', 'subgroup_id', 'group_id', 'category_id'], dtype=dtype)
+        load_step = LoadStep('dim_shared_occupations_enoe', db_connector, if_exists='drop', pk=['occupation_id', 'subgroup_id', 'group_id', 'category_id'], dtype=dtype)
         
         return [read_step, clean_step, load_step]
 
