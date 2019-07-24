@@ -36,7 +36,7 @@ class TransformStep(PipelineStep):
 
         # Getting values of year and respective quarter for the survey
         df["time"] = params["year"] + params["quarter"]
-        df["time"] = df["year"].astype(int)
+        df["time"] = df["time"].astype(int)
 
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
