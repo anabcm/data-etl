@@ -1,0 +1,7 @@
+enoe-1-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/enoe/coe1t<quarter><year>.CSV
+
+enoe-2-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/enoe/coe2t<quarter><year>.CSV
