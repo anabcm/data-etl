@@ -81,29 +81,8 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "ent_id":                               "UInt8",
-            "time":                                 "UInt8",
-            "age":                                  "UInt8",
-            "has_job_or_business":                  "UInt8",
-            "search_job_overseas":                  "UInt8",
-            "search_job_mexico":                    "UInt8",
-            "search_start_business":                "UInt8",
-            "search_no_search":                     "UInt8",
-            "search_no_knowledge":                  "UInt8",
-            "search_job_year":                      "UInt8",
-            "time_looking_job":                     "UInt8",
-            "actual_job_position":                  "UInt16",
-            "actual_job_industry_group_id":         "UInt16",
-            "actual_job_hrs_worked_lastweek":       "UInt8",
-            "actual_job_days_worked_lastweek":      "UInt8",
-            "population":                           "UInt64", 
-            "actual_frecuency_payments":            "UInt8",
-            "actual_amount_pesos":                  "UInt32",
-            "actual_minimal_wages_proportion":      "UInt8",
-            "actual_healthcare_attention":          "UInt8",
-            "second_activity":                      "UInt8",
-            "second_activity_task":                 "UInt16",
-            "second_activity_group_id":             "UInt16"
+            "ent_id":   "UInt8",
+            "time":     "UInt8"
         }
 
         download_step = DownloadStep(
