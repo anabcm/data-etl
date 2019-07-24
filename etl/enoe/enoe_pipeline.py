@@ -14,15 +14,13 @@ class TransformStep(PipelineStep):
         excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg-NM8Jt_vHnuIcJ3fjHMxcae_IkK7sresHvhUs_G7NSM5CN5NGYiCf-BP_GMPw3jwmm791CXPLpqJ/pub?output=xlsx"
         df_labels = pd.ExcelFile(excel_url)
 
-        print(params)
-
         # Loading 2 ENOE files, in order to create 1 quarter per year data
         dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1")
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1")
 
         # Standarizing headers, some files are capitalized
-        dt_1.columns = df.columns.str.lower()
-        dt_2.columns = df.columns.str.lower()
+        dt_1.columns = dt_1.columns.str.lower()
+        dt_2.columns = dt_2.columns.str.lower()
 
         # Setting the list of the respective columns for each part of the survey
         half1 = ["r_def", "cd_a", "ent", "n_pro_viv", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9",
@@ -37,10 +35,8 @@ class TransformStep(PipelineStep):
         df[half2] = dt_2[half2]
 
         # Getting values of year and respective quarter for the survey
-        df["year"] = "20" + prev[0][slice(-6,-4)]
-        df["quarter"] = prev[0][slice(-7,-6)]
-        df["year"] = df["year"].astype(int)
-        df["quarter"] = df["quarter"].astype(int)
+        df["time"] = params["year"] + params["quarter"]
+        df["time"] = df["year"].astype(int)
 
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
@@ -61,7 +57,7 @@ class TransformStep(PipelineStep):
                 "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "population", 
                 "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", 
                 "actual_healthcare_attention", "second_activity", "second_activity_task", "second_activity_group_id"
-                "year", "quarter"]
+                "time"]
 
         df = df[batch]
 
@@ -99,7 +95,8 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-
+            "ent_id":   "UInt8",
+            "time":     "UInt8"
         }
 
         download_step = DownloadStep(
@@ -108,7 +105,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["ent_id", "actual_job_position", "actual_job_industry_group_id", "year" ], dtype=dtype, 
+            "inegi_enoe", db_connector, if_exists="append", pk=["ent_id", "actual_job_position", "actual_job_industry_group_id", "time" ], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id"
