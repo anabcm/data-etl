@@ -8,7 +8,7 @@ from bamboo_lib.steps import LoadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        storage_client = storage.Client.from_service_account_json('datamexico-53d3d7d1e3f6.json')
+        storage_client = storage.Client.from_service_account_json('datamexico.json')
         bucket = storage_client.get_bucket('datamexico-data')
         blobs = bucket.list_blobs()
         urls = []
