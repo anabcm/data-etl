@@ -18,4 +18,4 @@ etl/inegi_intercensal_census/*.ipynb
 
 etl/enoe/*.ipynb
 etl/inegi_census/*.ipynb
-
+etl/denue/datamexico.json
