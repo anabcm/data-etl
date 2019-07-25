@@ -1,22 +1,27 @@
 import glob
 import pandas as pd
 
+from google.cloud import storage
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep
 from bamboo_lib.steps import LoadStep
 
+class ReadStep(PipelineStep):
+    def run_step(self, prev, params):
+        storage_client = storage.Client.from_service_account_json('datamexico-53d3d7d1e3f6.json')
+        bucket = storage_client.get_bucket('datamexico-data')
+        blobs = bucket.list_blobs()
+        urls = []
+        for blob in blobs:
+            if 'denue' in blob.name:
+                urls.append('https://storage.googleapis.com/datamexico-data/' + str(blob.name))
+        
+        return urls
+
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        folders = [f for f in glob.glob('denue_data/*')]
-        
-        # read all
-        csv = []
-        for di in folders:
-            for re in (glob.glob(di+'/*')):
-                if (re.endswith('.csv')) & ('2019' in re):
-                    csv.append(re)
-        
+        csv = prev
         # read data
         df = pd.DataFrame()
         df_temp = pd.DataFrame()
@@ -27,19 +32,15 @@ class TransformStep(PipelineStep):
                    'tipoUniEco', 'fecha_alta', 'latitud', 'longitud'])
             df = df.append(df_temp, sort=False)
 
-
         # format, create columns
         df.columns = df.columns.str.lower()
-        
-        df['directory_added_year'] = df.fecha_alta.str.split('-').str[0]
-        df['directory_added_month'] = df.fecha_alta.str.split('-').str[1]
         
         df.cve_mun = df.cve_ent + df.cve_mun
         df.cve_loc = df.cve_mun + df.cve_loc
 
         df['cve_loc'] = df['cve_loc'].astype('int')
 
-        df.drop(columns=['fecha_alta', 'ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
+        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
         
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
@@ -59,10 +60,11 @@ class TransformStep(PipelineStep):
 
         place = {
             'Fijo': 1,
-            'Semifijo': 2
+            'Semifijo': 2,
+            'Actividad en vivienda': 3
         }
         df.tipounieco.replace(place, inplace=True)
-        
+
         # rename column names
         column_names = {
             'nom_estab': 'name',
@@ -81,12 +83,11 @@ class TransformStep(PipelineStep):
         dtypes = {
             'name': 'str',
             'national_industry_id': 'str',
+            'directory_added_date': 'str',
             'n_workers': 'int',
             'postal_code': 'int',
             'loc_id': 'int',
             'establishment': 'int',
-            'directory_added_year': 'int',
-            'directory_added_month': 'int',
             'latitude': 'float',
             'longitude': 'float'
         }
@@ -103,10 +104,12 @@ class TransformStep(PipelineStep):
                     df.loc[:, key] = df.loc[:, key].astype('float')
                 else:
                     print(e)
+        
+        df['publication_date'] = '2019-10-04'
 
         return df
 
-class ExamplePipeline(EasyPipeline):
+class CoveragePipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         
@@ -118,15 +121,13 @@ class ExamplePipeline(EasyPipeline):
             'n_workers':            'UInt8',
             'postal_code':          'UInt32',
             'establishment':        'UInt8',
-            'directory_added_year': 'UInt16',
-            'directory_added_month':'UInt8',
             'loc_id':               'UInt32',
             'latitude':             'Float32',
             'longitude':            'Float32'
         }
 
+        read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('inegi_companies', connector=db_connector, if_exists='drop', pk=['loc_id', 'national_industry_id'], dtype=dtypes, 
-                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude',
-                                            'directory_added_year', 'directory_added_month'])
-        return [transform_step, load_step]
+                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date'])
+        return [read_step, transform_step, load_step]
