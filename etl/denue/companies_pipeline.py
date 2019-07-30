@@ -31,6 +31,7 @@ class TransformStep(PipelineStep):
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
         df.per_ocu = df.per_ocu.str.replace(' y más', ' +')
+        df.fecha_alta = df.fecha_alta.str.replace('-', '')
 
         #range creation
         df['lower'] = pd.np.nan
@@ -87,7 +88,7 @@ class TransformStep(PipelineStep):
         dtypes = {
             'name': 'str',
             'national_industry_id': 'str',
-            'directory_added_date': 'str',
+            'directory_added_date': 'int',
             'n_workers': 'int',
             'postal_code': 'int',
             'loc_id': 'int',
@@ -112,7 +113,7 @@ class TransformStep(PipelineStep):
                 else:
                     print(e)
         
-        df['publication_date'] = params['date']
+        df['publication_date'] = params['date'].astype('int')
 
         return df
 
@@ -140,7 +141,9 @@ class CoveragePipeline(EasyPipeline):
             'longitude':            'Float32',
             'lower':                'UInt8',
             'middle':               'Float32',
-            'upper':                'UInt8'
+            'upper':                'UInt8',
+            'publication_date':     'UInt32',
+            'directory_added_date': 'UInt32'
         }
 
         read_step = ReadStep()
