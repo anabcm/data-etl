@@ -3,34 +3,20 @@ import pandas as pd
 
 from google.cloud import storage
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline, PipelineStep
+from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        storage_client = storage.Client.from_service_account_json('datamexico.json')
-        bucket = storage_client.get_bucket('datamexico-data')
-        blobs = bucket.list_blobs()
-        urls = []
-        for blob in blobs:
-            if 'denue' in blob.name:
-                urls.append('https://storage.googleapis.com/datamexico-data/' + str(blob.name))
-        
-        return urls
+        # read data
+        df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=['id', 'nom_estab', 'codigo_act', 
+                    'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                   'tipoUniEco', 'fecha_alta', 'latitud', 'longitud'])
+        return df
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-
-        csv = prev
-        # read data
-        df = pd.DataFrame()
-        df_temp = pd.DataFrame()
-        for val in range(len(csv)):
-            df_temp = pd.read_csv(csv[val], encoding='utf-8', dtype='str', usecols=['nom_estab', 'codigo_act', 
-                    'per_ocu', 'cod_postal', 'cve_ent',
-                   'cve_mun', 'cve_loc', 'ageb', 'manzana', 
-                   'tipoUniEco', 'fecha_alta', 'latitud', 'longitud'])
-            df = df.append(df_temp, sort=False)
+        df = prev
 
         # format, create columns
         df.columns = df.columns.str.lower()
@@ -45,6 +31,24 @@ class TransformStep(PipelineStep):
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
         df.per_ocu = df.per_ocu.str.replace(' y más', ' +')
+
+        #range creation
+        df['lower'] = pd.np.nan
+        df['upper'] = pd.np.nan
+        df['middle'] = pd.np.nan
+
+        for ele in df.per_ocu.unique():
+            try:
+                if '-' in ele:
+                    df.loc[df.per_ocu == ele, 'lower'] = int(ele.split(' - ')[0])
+                    df.loc[df.per_ocu == ele, 'upper'] = int(ele.split(' - ')[1])
+                    df.loc[df.per_ocu == ele, 'middle'] = (float(ele.split(' - ')[1]) + float(ele.split(' - ')[0]))/2.0
+                else:
+                    df.loc[df.per_ocu == ele, 'lower'] = int(ele.split(' +')[0])
+                    df.loc[df.per_ocu == ele, 'upper'] = int(ele.split(' +')[0])
+                    df.loc[df.per_ocu == ele, 'middle'] = int(ele.split(' +')[0])
+            except:
+                continue
         
         # replace values
         workers = {
@@ -89,7 +93,10 @@ class TransformStep(PipelineStep):
             'loc_id': 'int',
             'establishment': 'int',
             'latitude': 'float',
-            'longitude': 'float'
+            'longitude': 'float',
+            'lower': 'int',
+            'middle': 'float',
+            'upper': 'int'
         }
         
         for key, val in dtypes.items():
@@ -105,15 +112,22 @@ class TransformStep(PipelineStep):
                 else:
                     print(e)
         
-        df['publication_date'] = '2019-10-04'
+        df['publication_date'] = params['date']
 
         return df
 
 class CoveragePipeline(EasyPipeline):
     @staticmethod
+    def parameter_list():
+        return [
+            Parameter(label="Date", name="date", dtype=str),
+            Parameter(label="URL", name="url", dtype=str)
+        ]
+
+    @staticmethod
     def steps(params):
         
-        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+        db_connector = Connector.fetch('clickhouse-database', open('conns.yaml'))
         
         dtypes = {
             'name':                 'String',
@@ -123,11 +137,15 @@ class CoveragePipeline(EasyPipeline):
             'establishment':        'UInt8',
             'loc_id':               'UInt32',
             'latitude':             'Float32',
-            'longitude':            'Float32'
+            'longitude':            'Float32',
+            'lower':                'UInt8',
+            'middle':               'Float32',
+            'upper':                'UInt8'
         }
 
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='drop', pk=['loc_id', 'national_industry_id'], dtype=dtypes, 
-                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date'])
+        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='drop', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
+                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
+                                'lower', 'middle', 'upper'])
         return [read_step, transform_step, load_step]
