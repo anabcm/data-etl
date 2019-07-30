@@ -145,7 +145,7 @@ class CoveragePipeline(EasyPipeline):
 
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='drop', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
+        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
                                 nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
                                 'lower', 'middle', 'upper'])
         return [read_step, transform_step, load_step]

@@ -19,4 +19,3 @@ for blob in blobs:
         date = blob.name.split('denue/')[1].split('/')[0].replace('_', '-')
         date = date.split('-')[2] + '-' + date.split('-')[1] + '-' + date.split('-')[0]
         os.system("bamboo-cli --folder . --entry companies_pipeline --date=" + date + " --url=" + url)
-        break
