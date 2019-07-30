@@ -11,7 +11,7 @@ class CreateStep(PipelineStep):
         df = pd.DataFrame({'date': pd.date_range(start, end)})
         df['week_day'] = df.date.dt.weekday_name
         df['day'] = df.date.dt.day
-        df['month'] = df.date.dt.day
+        df['month'] = df.date.dt.month
 
         df['week'] = df.date.dt.weekofyear
         df['quarter'] = df.date.dt.quarter
