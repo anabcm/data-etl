@@ -17,5 +17,5 @@ for blob in blobs:
         #urls.append('https://storage.googleapis.com/datamexico-data/' + str(blob.name))
         url = 'https://storage.googleapis.com/datamexico-data/' + str(blob.name)
         date = blob.name.split('denue/')[1].split('/')[0].replace('_', '-')
-        date = date.split('-')[2] + '-' + date.split('-')[1] + '-' + date.split('-')[0]
+        date = (date.split('-')[2] + '-' + date.split('-')[1] + '-' + date.split('-')[0]).replace('-', '')
         os.system("bamboo-cli --folder . --entry companies_pipeline --date=" + date + " --url=" + url)
