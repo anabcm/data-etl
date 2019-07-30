@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import os
 import glob
 import pandas as pd
@@ -18,4 +15,8 @@ for blob in blobs:
         url = 'https://storage.googleapis.com/datamexico-data/' + str(blob.name)
         date = blob.name.split('denue/')[1].split('/')[0].replace('_', '-')
         date = (date.split('-')[2] + '-' + date.split('-')[1] + '-' + date.split('-')[0]).replace('-', '')
+        # runs pipeline
         os.system("bamboo-cli --folder . --entry companies_pipeline --date=" + date + " --url=" + url)
+
+# create date dimension table
+os.system("bamboo-cli --folder . --entry date_dim_table")
