@@ -9,7 +9,7 @@ from bamboo_lib.steps import LoadStep
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=usecols=[0, 1, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+        df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 1, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
         return df
 
 class TransformStep(PipelineStep):
