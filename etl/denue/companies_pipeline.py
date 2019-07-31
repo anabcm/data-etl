@@ -103,6 +103,12 @@ class TransformStep(PipelineStep):
             'longitud': 'longitude'
         }
         df.rename(columns=column_names, inplace=True)
+        df.postal_code = df.postal_code.str.replace('O', '0')
+        for code in df.postal_code.unique():
+            try:
+                float(code)
+            except:
+                df.postal_code.replace(code, pd.np.nan, inplace=True)
         
         # data types conversion
         dtypes = {
@@ -110,7 +116,7 @@ class TransformStep(PipelineStep):
             'national_industry_id': 'str',
             'directory_added_date': 'int',
             'n_workers': 'int',
-            'postal_code': 'int',
+            'postal_code': 'str',
             'loc_id': 'int',
             'establishment': 'int',
             'latitude': 'float',
@@ -154,7 +160,7 @@ class CoveragePipeline(EasyPipeline):
             'name':                 'String',
             'national_industry_id': 'String',
             'n_workers':            'UInt8',
-            'postal_code':          'UInt32',
+            'postal_code':          'String',
             'establishment':        'UInt8',
             'loc_id':               'UInt32',
             'latitude':             'Float32',
