@@ -28,10 +28,32 @@ class TransformStep(PipelineStep):
 
         df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
         
+        df.nom_estab = df.nom_estab.str.strip()
+
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
         df.per_ocu = df.per_ocu.str.replace(' y más', ' +')
         df.fecha_alta = df.fecha_alta.str.replace('-', '')
+
+        # date processing
+        df.fecha_alta = df.fecha_alta.str.upper()
+        months = {'ENERO': '01',
+                'FEBRERO': '02',
+                'MARZO': '03',
+                'ABRIL': '04',
+                'MAYO': '05',
+                'JUNIO': '06',
+                'JULIO': '07',
+                'AGOSTO': '08',
+                'SEPTIEMBRE': '09',
+                'OCTUBRE': '10',
+                'NOVIEMBRE': '11',
+                'DICIEMBRE': '12'}
+        for key, val in months.items():
+            for date in df.fecha_alta.unique().tolist():
+                if key in date:
+                    temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
+                    df.fecha_alta = df.fecha_alta.str.replace(date, temp)
 
         #range creation
         df['lower'] = pd.np.nan
