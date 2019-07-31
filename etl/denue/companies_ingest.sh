@@ -1,1 +1,1 @@
-bamboo-cli --folder . --entry companies_pipeline
+bamboo-cli --folder . --entry companies_pipeline --date --link
