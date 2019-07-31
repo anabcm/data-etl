@@ -10,6 +10,8 @@ class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 1, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+        df.columns = ['id', 'nom_estab', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                   'tipounieco', 'latitud', 'longitud', 'fecha_alta']
         return df
 
 class TransformStep(PipelineStep):
@@ -17,8 +19,6 @@ class TransformStep(PipelineStep):
         df = prev
 
         # format, create columns
-        df.columns = df.columns.str.lower()
-        
         df.cve_mun = df.cve_ent + df.cve_mun
         df.cve_loc = df.cve_mun + df.cve_loc
 
