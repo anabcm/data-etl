@@ -18,6 +18,8 @@ class CreateStep(PipelineStep):
         df.drop(columns='date', inplace=True)
 
         df = df.groupby(['date_id', 'month', 'quarter', 'year']).sum().reset_index(col_fill='ffill')
+        for col in df.columns:
+            df.loc[:, col] = df.loc[:, col].astype('int')
 
         return df
 
@@ -45,6 +47,9 @@ class CoveragePipeline(EasyPipeline):
 
         dtypes = {
             'date_id': 'UInt32',
+            'month': 'UInt8',
+            'quarter': 'UInt8',
+            'year': 'UInt16'
         }
 
         # Definition of each step

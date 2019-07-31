@@ -133,7 +133,7 @@ class TransformStep(PipelineStep):
                 else:
                     print(e)
         
-        df['publication_date'] = params['date'].astype('int')
+        df['publication_date'] = int(params['date'])
 
         return df
 
