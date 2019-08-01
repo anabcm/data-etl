@@ -25,15 +25,15 @@ class CreateStep(PipelineStep):
 class CoveragePipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
-        return 'program-coverage-pipeline'
+        return 'datetime-pipeline'
 
     @staticmethod
     def name():
-        return 'Program Coverage Pipeline'
+        return 'Shared dimension'
 
     @staticmethod
     def description():
-        return 'Create Date Dimension Table'
+        return 'Creates date dimension table'
 
     @staticmethod
     def website():
@@ -57,6 +57,6 @@ class CoveragePipeline(EasyPipeline):
 
         # Definition of each step
         create_step = CreateStep()
-        load_step = LoadStep('dim_date', db_connector, if_exists='drop', pk=['date_id'], dtype=dtypes)
+        load_step = LoadStep('dim_shared_date', db_connector, if_exists='drop', pk=['date_id'], dtype=dtypes)
         
         return [create_step, load_step]
