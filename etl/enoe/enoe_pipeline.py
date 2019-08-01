@@ -55,18 +55,18 @@ class TransformStep(PipelineStep):
         df.rename(columns = dict(zip(part2.column, part2.new_column)), inplace=True)
 
         # Loading table with mun and loc values
-        vivienda = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
+        housing = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
                         usecols= lambda x: x.lower() in["ent", "con", "upm", "v_sel", "n_pro_viv", "mun", "loc"])
-        vivienda.columns = vivienda.columns.str.lower()
+        housing.columns = housing.columns.str.lower()
 
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["upm"] + df["v_sel"]+ df["numero_vivienda"]
-        vivienda["code"] = vivienda["ent"] + vivienda["con"] + vivienda["upm"] + vivienda["v_sel"] + vivienda["n_pro_viv"]
+        housing["code"] = housing["ent"] + housing["con"] + housing["upm"] + housing["v_sel"] + housing["n_pro_viv"]
 
         # Keeping just the needed values from vivienda, and merge them into the df
-        Lista = ["code", "loc", "mun"]
-        vivienda = vivienda[Lista]
-        df = df.merge(vivienda, on="code", how="left")
+        _list = ["code", "loc", "mun"]
+        housing = housing[_list]
+        df = df.merge(housing, on="code", how="left")
 
         # Creating news geo ids, and deleting another values
         df["loc_id"] = df["ent_id"] + df["mun"] + df["loc"]
@@ -98,7 +98,9 @@ class TransformStep(PipelineStep):
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", 
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
                    "second_activity", "second_activity_task", "second_activity_group_id"]:
-            df[col] = df[col].astype("float")
+            df[col] = df[col].astype(float)
+
+        df["loc_id"] = df["loc_id"].astype(int)
 
         return df
 
@@ -115,7 +117,7 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "loc_id":                               "UInt8",
+            "loc_id":                               "UInt32",
             "time":                                 "UInt8",
             "age":                                  "UInt8",
             "has_job_or_business":                  "UInt8",
@@ -141,7 +143,7 @@ class PopulationPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["enoe-1-data", "enoe-2-data", "vivienda-data"],
+            connector=["enoe-1-data", "enoe-2-data", "housing-data"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
