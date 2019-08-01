@@ -17,16 +17,23 @@ class TransformStep(PipelineStep):
         # Loading 2 ENOE files, in order to create 1 quarter per year data
         try:
             dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                usecols=["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio",
-                "p2b", "p3","p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
+                                usecols =[
+                "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
+                "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
         except:
-            dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                usecols= lambda x: x.lower() in ["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4",
-                "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac", "con", "upm",
-                "n_pro_viv", "v_sel"])
-            dt_1.rename(index=str, columns={
-                                "p5c_thrs": "p5b_thrs",
-                                "p5c_tdia": "p5b_tdia"}, inplace=True)
+            try:
+                dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
+                                    usecols=[
+                    "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
+                    "p4a", "p5c_thrs", "p5c_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
+                dt_1.rename(index=str, columns={
+                                    "p5c_thrs": "p5b_thrs",
+                                    "p5c_tdia": "p5b_tdia"}, inplace=True)
+            except:
+                dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
+                                    usecols = lambda x: x.lower() in [
+                    "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
+                    "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
 
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
         usecols= lambda x: x.lower() in ["ent", "con", "upm", "n_pro_viv", "v_sel", "p6b1",
