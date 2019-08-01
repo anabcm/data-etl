@@ -98,7 +98,9 @@ class TransformStep(PipelineStep):
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", 
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
                    "second_activity", "second_activity_task", "second_activity_group_id"]:
-            df[col] = df[col].astype("float")
+            df[col] = df[col].astype(float)
+
+        df["loc_id"] = df["loc_id"].astype(int)
 
         return df
 
