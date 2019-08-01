@@ -55,18 +55,18 @@ class TransformStep(PipelineStep):
         df.rename(columns = dict(zip(part2.column, part2.new_column)), inplace=True)
 
         # Loading table with mun and loc values
-        vivienda = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
+        housing = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
                         usecols= lambda x: x.lower() in["ent", "con", "upm", "v_sel", "n_pro_viv", "mun", "loc"])
-        vivienda.columns = vivienda.columns.str.lower()
+        housing.columns = housing.columns.str.lower()
 
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["upm"] + df["v_sel"]+ df["numero_vivienda"]
-        vivienda["code"] = vivienda["ent"] + vivienda["con"] + vivienda["upm"] + vivienda["v_sel"] + vivienda["n_pro_viv"]
+        housing["code"] = housing["ent"] + housing["con"] + housing["upm"] + housing["v_sel"] + housing["n_pro_viv"]
 
         # Keeping just the needed values from vivienda, and merge them into the df
-        Lista = ["code", "loc", "mun"]
-        vivienda = vivienda[Lista]
-        df = df.merge(vivienda, on="code", how="left")
+        _list = ["code", "loc", "mun"]
+        housing = housing[_list]
+        df = df.merge(housing, on="code", how="left")
 
         # Creating news geo ids, and deleting another values
         df["loc_id"] = df["ent_id"] + df["mun"] + df["loc"]
@@ -141,7 +141,7 @@ class PopulationPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["enoe-1-data", "enoe-2-data", "vivienda-data"],
+            connector=["enoe-1-data", "enoe-2-data", "housing-data"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
