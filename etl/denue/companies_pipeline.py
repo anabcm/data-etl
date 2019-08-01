@@ -112,18 +112,19 @@ class TransformStep(PipelineStep):
         
         # data types conversion
         dtypes = {
-            'name': 'str',
+            'id':                   'int',
+            'name':                 'str',
             'national_industry_id': 'str',
             'directory_added_date': 'int',
-            'n_workers': 'int',
-            'postal_code': 'str',
-            'loc_id': 'int',
-            'establishment': 'int',
-            'latitude': 'float',
-            'longitude': 'float',
-            'lower': 'int',
-            'middle': 'float',
-            'upper': 'int'
+            'n_workers':            'int',
+            'postal_code':          'str',
+            'loc_id':               'int',
+            'establishment':        'int',
+            'latitude':             'float',
+            'longitude':            'float',
+            'lower':                'int',
+            'middle':               'float',
+            'upper':                'int'
         }
         
         for key, val in dtypes.items():
@@ -157,6 +158,7 @@ class CoveragePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtypes = {
+            'id':                   'UInt32',
             'name':                 'String',
             'national_industry_id': 'String',
             'n_workers':            'UInt8',
