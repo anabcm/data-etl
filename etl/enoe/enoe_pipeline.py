@@ -14,26 +14,23 @@ class TransformStep(PipelineStep):
         excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg-NM8Jt_vHnuIcJ3fjHMxcae_IkK7sresHvhUs_G7NSM5CN5NGYiCf-BP_GMPw3jwmm791CXPLpqJ/pub?output=xlsx"
         df_labels = pd.ExcelFile(excel_url)
 
-        # Loading 2 ENOE files, in order to create 1 quarter per year data
-        try:
-            dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                                usecols =[
-                "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
-                "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
-        except:
-            try:
-                dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                                    usecols=[
-                    "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
-                    "p4a", "p5c_thrs", "p5c_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
-                dt_1.rename(index=str, columns={
-                                    "p5c_thrs": "p5b_thrs",
-                                    "p5c_tdia": "p5b_tdia"}, inplace=True)
-            except:
-                dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                                    usecols = lambda x: x.lower() in [
-                    "ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3",
-                    "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"])
+        # Loading 2 ENOE files, in order to create 1 quarter per year data || New loading step
+        cols = [["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"],
+                ["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"]]
+
+        def upper_(array):
+            return [x.upper() for x in array]
+        def lower_(array):
+            return [x.lower() for x in array]
+
+        for col in cols:
+            for op in [upper_, lower_]:
+                try:
+                    dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
+                                usecols=op(col))
+                    break
+                except:
+                    continue
 
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
         usecols= lambda x: x.lower() in ["ent", "con", "upm", "n_pro_viv", "v_sel", "p6b1",
