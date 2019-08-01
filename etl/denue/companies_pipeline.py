@@ -18,7 +18,15 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
 
-        # format, create columns
+        # format
+        df.loc[df.cve_ent.str.len() == 1, 'cve_ent'] = '0' + df.loc[df.cve_ent.str.len() == 1, 'cve_ent']
+        df.loc[df.cve_mun.str.len() == 1, 'cve_mun'] = '00' + df.loc[df.cve_mun.str.len() == 1, 'cve_mun']
+        df.loc[df.cve_mun.str.len() == 2, 'cve_mun'] = '0' + df.loc[df.cve_mun.str.len() == 2, 'cve_mun']
+        df.loc[df.cve_loc.str.len() == 1, 'cve_loc'] = '000' + df.loc[df.cve_loc.str.len() == 1, 'cve_loc']
+        df.loc[df.cve_loc.str.len() == 2, 'cve_loc'] = '00' + df.loc[df.cve_loc.str.len() == 2, 'cve_loc']
+        df.loc[df.cve_loc.str.len() == 3, 'cve_loc'] = '0' + df.loc[df.cve_loc.str.len() == 3, 'cve_loc']
+        
+        # create columns
         df.cve_mun = df.cve_ent + df.cve_mun
         df.cve_loc = df.cve_mun + df.cve_loc
 
