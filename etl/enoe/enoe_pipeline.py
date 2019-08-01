@@ -56,7 +56,8 @@ class TransformStep(PipelineStep):
 
         # Loading table with mun and loc values
         vivienda = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                       usecols=["ent", "con", "upm", "v_sel", "n_pro_viv", "mun", "loc"])
+                        usecols= lambda x: x.lower() in["ent", "con", "upm", "v_sel", "n_pro_viv", "mun", "loc"])
+        vivienda.columns = vivienda.columns.str.lower()
 
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["upm"] + df["v_sel"]+ df["numero_vivienda"]
@@ -68,9 +69,8 @@ class TransformStep(PipelineStep):
         df = df.merge(vivienda, on="code", how="left")
 
         # Creating news geo ids, and deleting another values
-        df["mun_id"] = df["ent_id"] + df["mun"]
-        df["loc_id"] = df["mun_id"] + df["loc"]
-        list_drop = ["con", "upm", "v_sel", "numero_vivienda", "code" , "mun", "loc"]
+        df["loc_id"] = df["ent_id"] + df["mun"] + df["loc"]
+        list_drop = ["con", "upm", "v_sel", "numero_vivienda", "code" , "mun", "loc", "ent_id"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
@@ -115,8 +115,6 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "ent_id":                               "UInt8",
-            "mun_id":                               "UInt8",
             "loc_id":                               "UInt8",
             "time":                                 "UInt8",
             "age":                                  "UInt8",
@@ -148,7 +146,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["ent_id", "time" ], dtype=dtype, 
+            "inegi_enoe", db_connector, if_exists="append", pk=["loc_id", "time"], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
