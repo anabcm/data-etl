@@ -100,7 +100,8 @@ class TransformStep(PipelineStep):
                    "second_activity", "second_activity_task", "second_activity_group_id"]:
             df[col] = df[col].astype(float)
 
-        df["loc_id"] = df["loc_id"].astype(int)
+        for item in ["age", "loc_id", "population"]:
+            df[item] = df[item].astype(int)
 
         return df
 
