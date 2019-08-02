@@ -41,7 +41,7 @@ class TransformStep(PipelineStep):
         dt_2.columns = dt_2.columns.str.lower()
 
         # Renaming columns from first quarter to match the rest of the year
-        dt_22007.rename(index=str, columns={"p5c_thrs": "p5b_thrs","p5c_tdia": "p5b_tdia"}, inplace=True)
+        dt_1.rename(index=str, columns={"p5c_thrs": "p5b_thrs","p5c_tdia": "p5b_tdia"}, inplace=True)
 
         # Creating df
         dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["upm"] + dt_1["v_sel"] + dt_1["n_pro_viv"]
