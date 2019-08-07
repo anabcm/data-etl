@@ -137,6 +137,7 @@ class ExtractStep(PipelineStep):
 
         return output
 
+
 class INEAPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
