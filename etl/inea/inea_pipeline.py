@@ -141,7 +141,8 @@ class INEAPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
             "month_id":     "UInt16",
-            "ent_id":       "UInt8"
+            "ent_id":       "UInt8",
+            "origin_id":    "UInt8"
         }
 
         extract_step = ExtractStep()
