@@ -118,13 +118,15 @@ class ExtractStep(PipelineStep):
 
         frames = []
         for i in iterator:
-            item = df[["month_id", "ent_id", "{}_sp_speaker".format(i), "{}_indigenous".format(i)]].melt(
+            sp_speaker_label = "{}_sp_speaker".format(i)
+            indigenous_label = "{}_indigenous".format(i)
+            item = df[["month_id", "ent_id", sp_speaker_label, indigenous_label]].melt(
                 id_vars=["month_id", "ent_id"], 
                 var_name="origin_id",
-                value_vars=["{}_sp_speaker".format(i), "{}_indigenous".format(i)],
+                value_vars=[sp_speaker_label, indigenous_label],
                 value_name=i
             ).replace(
-                {"{}_sp_speaker".format(i): 1, "{}_indigenous".format(i): 2}
+                {sp_speaker_label: 1, indigenous_label: 2}
             )
             item["concat_id"] = item["ent_id"].astype(str) + item["month_id"].astype(str) + item["origin_id"].astype(str)
             frames.append(item.set_index("concat_id"))
