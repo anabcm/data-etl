@@ -133,7 +133,7 @@ class ExtractStep(PipelineStep):
 
         output = pd.concat(frames, axis=1, join="inner")
         output = output.loc[:,~output.columns.duplicated()]
-        output = output.drop(columns=["concat_id"])
+        output = output.reset_index(drop=True)
 
         return output
 
