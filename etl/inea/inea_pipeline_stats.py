@@ -69,7 +69,7 @@ class ExtractStep(PipelineStep):
         return df
 
 
-class INEAPipeline(EasyPipeline):
+class INEAStatsPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
