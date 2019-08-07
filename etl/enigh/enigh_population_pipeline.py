@@ -17,22 +17,16 @@ class TransformStep(PipelineStep):
 
         # List to cloumns to bring from population
         list_cols = ["folioviv", "foliohog", "sexo", "edad", "hablaind", "hablaesp", "etnia", "nivelaprob", "residencia", "segsoc", "ss_aa", "ss_mm",
-        "segsoc", "redsoc_1", "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "hor_1", "usotiempo1", "segpop",
+        "segsoc", "redsoc_1", "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "hor_1", "segpop",
         "atemed", "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "hh_lug", "mm_lug", "hh_esp", "mm_esp",
         "trabajo_mp", "motivo_aus", "act_pnea1", "act_pnea2", "num_trabaj"]
 
         # Loading population file
         dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, usecols = list_cols)
 
-        # Unique answers to working time given documentation
-        dt_1["usotiempo1"].replace({"8": "No recuerda", "9": "No lo hizo"}, inplace=True)
-
-        # Complete working time values
-        dt_1.loc[(dt_1["hor_1"] != " "), "usotiempo1"] = dt_1["hor_1"]
-
         # Time in social security
-        dt_1["ss_aa"].replace("-1", "No especificado", inplace = True)
-        dt_1["ss_mm"].replace("-1", "No especificado", inplace = True)
+        dt_1["ss_aa"].replace("-1", "999", inplace = True)
+        dt_1["ss_mm"].replace("-1", "999", inplace = True)
 
         # Time related to health attention
         dt_1["near_healthcare_center"] = dt_1["hh_lug"] + ":" + dt_1["mm_lug"]
@@ -84,7 +78,7 @@ class TransformStep(PipelineStep):
             "redsoc_5": "near_support_neighborhood",
             "redsoc_6": "near_support_childrens",
             "nivelaprob": "academic_degree",
-            "usotiempo1": "working_hours",
+            "hor_1": "working_hours",
             "segpop": "popular_insurance",
             "atemed": "health_attention",
             "trabajo_mp": "work_last_month",
