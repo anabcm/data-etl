@@ -107,7 +107,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class ENOEPipeline(EasyPipeline):
+class EnighJobsPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
