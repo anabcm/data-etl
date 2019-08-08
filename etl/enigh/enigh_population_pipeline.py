@@ -16,41 +16,44 @@ class TransformStep(PipelineStep):
 
 
         # List to cloumns to bring from population
-        list_cols = ["folioviv", "foliohog", "sexo", "edad", "hablaind", "hablaesp", "etnia", "nivelaprob", "residencia", "segsoc", "ss_aa", "ss_mm",
-        "segsoc", "redsoc_1", "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "hor_1", "segpop",
-        "atemed", "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "hh_lug", "mm_lug", "hh_esp", "mm_esp",
-        "trabajo_mp", "motivo_aus", "act_pnea1", "act_pnea2", "num_trabaj"]
+        list_cols = ["folioviv", "foliohog", "sexo", "edad", "hablaind", "etnia", "nivelaprob", "residencia", "segsoc",
+        "ss_aa", "ss_mm", "segsoc", "redsoc_1", "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "hor_1",
+        "segpop", "atemed", "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "hh_lug", "mm_lug", "hh_esp",
+        "mm_esp", "trabajo_mp", "motivo_aus", "act_pnea1", "act_pnea2", "num_trabaj"]
 
         # Loading population file
         dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, usecols = list_cols)
 
         # Time in social security
-        dt_1["ss_aa"].replace("-1", "999", inplace = True)
-        dt_1["ss_mm"].replace("-1", "999", inplace = True)
+        dt_1["ss_aa"].replace("-1", 999999, inplace = True)
+        dt_1["ss_mm"].replace("-1", 999999, inplace = True)
 
         # Time related to health attention
-        dt_1["near_healthcare_center"] = dt_1["hh_lug"] + ":" + dt_1["mm_lug"]
-        dt_1["waiting_health_attention"] = dt_1["hh_esp"] + ":" + dt_1["mm_esp"]
+        for item in ["hh_lug", "mm_lug", "hh_esp", "mm_esp"]:
+            dt_1[item].replace(" ", "0", inplace=True)
+            dt_1[item] = dt_1[item].astype(int)
+
+        dt_1["near_healthcare_center"] = dt_1["hh_lug"]*60 + dt_1["mm_lug"]
+        dt_1["waiting_health_attention"] = dt_1["hh_esp"]*60 + dt_1["mm_esp"]
 
         # Filling empty cells
         dt_1.replace(" ", 999999, inplace = True)
 
         # Loading enigh housing dataframe in order to get mun_id and factor columns
         df_viv = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-                usecols= ["folioviv", "ubica_geo", "est_socio", "factor", "tam_loc"])
+                usecols= ["folioviv", "ubica_geo", "est_socio", "factor"])
 
-
-        df = pd.merge(dt_1, df_viv[["folioviv", "ubica_geo", "est_socio", "factor", "tam_loc"]],
+        df = pd.merge(dt_1, df_viv[["folioviv", "ubica_geo", "est_socio", "factor"]],
                     on="folioviv", how="left")
 
         df["mun_id"] = df["ubica_geo"].str.slice(0,5)
 
 
         # Changing columns with IDs trought cycle
-        filling = ["sexo", "hablaind", "hablaesp", "etnia", "nivelaprob", "residencia", "segsoc", "redsoc_1",
-                    "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "segpop",
-                    "atemed", "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6",
-                    "trabajo_mp", "motivo_aus", "act_pnea1", "act_pnea2", "num_trabaj", "est_socio", "tam_loc"]
+        filling = ["sexo", "hablaind", "etnia", "nivelaprob", "residencia", "segsoc", "redsoc_1",
+            "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "segpop",
+            "atemed", "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6",
+            "trabajo_mp", "motivo_aus", "act_pnea1", "act_pnea2", "num_trabaj", "est_socio"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in filling:
@@ -58,13 +61,16 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
+        # Droping already used columns
+        list_drop = ["hh_lug", "mm_lug", "hh_esp", "mm_esp", "ubica_geo", "folioviv", "foliohog", "ubica_geo"]
+        df.drop(list_drop, axis=1, inplace=True)
+
         # Turning back NaN values in the respective columns
         df.replace(999999, pd.np.nan, inplace = True)
 
         # Renaming the columns to english
         params = {
-            "sexo": "sex", 
-            "edad": "age",
+            "sexo": "sex", "edad": "age",
             "hablaind": "speaks_native",
             "etnia": "etnicity",
             "residencia": "reference_city",
@@ -90,16 +96,33 @@ class TransformStep(PipelineStep):
 
         df.rename(index=str, columns=params, inplace=True)
 
+        df["working_hours"] = df["working_hours"].astype(int)
+        df["population"] = df["population"].astype(int)
+        df["working_hours"].replace(999999, 0, inplace = True)
+
+        group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
+        "social_security", "social_security_years", "social_security_months", "near_support_money",
+        "near_support_sickness", "near_support_work", "near_support_doctor", "near_support_neighborhood",
+        "near_support_childrens", "popular_insurance", "health_attention",
+        "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "work_last_month", "job_absence",
+        "act_pnea1", "act_pnea2", "number_jobs", "eco_stratum", "mun_id"]
+
+        df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
+
+        df.replace(999999, pd.np.nan, inplace = True)
+        df["working_hours"].replace(0, pd.np.nan, inplace = True)
+
         # Changing types for certains columns
-        null_list = ["speaks_native", "hablaesp", "etnicity", "academic_degree", "reference_city", "social_security",
-                    "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
-                    "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
-                    "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
-                    "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
+        null_list = ["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
+            "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
+            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
+            "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
+            "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
+
         for col in null_list:
             df[col] = df[col].astype(float)
 
-        for item in ["mun_id", "loc_size", "population", "eco_stratum", "folioviv", "foliohog", "sex", "age"]:
+        for item in ["mun_id", "population", "near_healthcare_center", "waiting_health_attention","sex", "age"]:
             df[item] = df[item].astype(int)
 
         return df
@@ -108,7 +131,7 @@ class ENOEPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Year", name="year", dtype=str),
+            Parameter(label="Mun_id", name="mun_id", dtype=str),
         ]
 
     @staticmethod
@@ -117,7 +140,6 @@ class ENOEPipeline(EasyPipeline):
 
         dtype = {
             "speaks_native"                   "UInt8",
-            "hablaesp"                        "UInt8",
             "etnicity"                        "UInt8",
             "academic_degree"                 "UInt8",
             "reference_city"                  "UInt8",
@@ -149,10 +171,8 @@ class ENOEPipeline(EasyPipeline):
             "loc_size"                        "UInt8",
             "population"                      "UInt16",
             "eco_stratum"                     "UInt8",
-            "folioviv"                        "UInt32",
-            "foliohog"                        "UInt8",
             "sex"                             "UInt8",
-            "age"                             "UInt8",
+            "age"                             "UInt8"
         }
 
         download_step = DownloadStep(

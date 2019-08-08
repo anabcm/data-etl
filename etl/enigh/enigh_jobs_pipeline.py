@@ -16,8 +16,8 @@ class TransformStep(PipelineStep):
         # Loading population file
         dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str,
                                     usecols = ["folioviv", "foliohog","numren", "id_trabajo", "trapais",
-                                              "pago", "contrato", "tipocontr", "htrab", "sinco", "scian",
-                                              "clas_emp", "tam_emp"])
+                                            "pago", "contrato", "tipocontr", "htrab", "sinco", "scian",
+                                            "clas_emp", "tam_emp"])
 
         # Replacing empty cells in columns with actual numbers
         dt_1["pago"].replace(" ", "99", inplace = True)
@@ -29,10 +29,10 @@ class TransformStep(PipelineStep):
 
         # Loading enigh housing dataframe in order to get mun_id and factor columns
         df_viv = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-                usecols=["folioviv", "ubica_geo", "est_socio", "factor", "tam_loc"])
+                usecols=["folioviv", "ubica_geo", "est_socio", "factor"])
 
         # Merging housing with jobs dataframe
-        df = pd.merge(dt_1, df_viv[["folioviv", "ubica_geo", "est_socio", "factor", "tam_loc"]],
+        df = pd.merge(dt_1, df_viv[["folioviv", "ubica_geo", "est_socio", "factor"]],
                     on="folioviv", how="left")
         df["mun_id"] = df["ubica_geo"].str.slice(0,5)
 
@@ -44,10 +44,10 @@ class TransformStep(PipelineStep):
         df["coding"] = df["folioviv"] + df["foliohog"] + df["numren"]
         df_pop["coding"] = df_pop["folioviv"] + df_pop["foliohog"] + df_pop["numren"]
 
-        df = pd.merge(df, df_pop[["coding", "sexo"]], on="coding", how="left")
+        df = pd.merge(df, df_pop[["coding", "sexo", "edad"]], on="coding", how="left")
 
         # Changing columns with IDs trought cycle
-        filling = ["id_trabajo", "pago", "clas_emp", "tam_emp", "sexo", "est_socio", "tam_loc"]
+        filling = ["id_trabajo", "pago", "clas_emp", "tam_emp", "sexo", "est_socio"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in filling:
@@ -55,15 +55,11 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        # Returning odd values to empty cells, to match next step
-            df["pago"].replace(99, " ", inplace = True)
-            df["clas_emp"].replace(99, " ", inplace = True)
 
-        # Turning " " to NaN values in the dataframe
-        df.replace(" ",pd.np.nan, inplace = True)
+        df.replace(" ", 999999, inplace = True)
 
         # Droping already used columns
-        list_drop = ["coding", "ubica_geo"]
+        list_drop = ["coding", "ubica_geo", "folioviv", "foliohog", "numren"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Renaming the columns to english
@@ -86,10 +82,22 @@ class TransformStep(PipelineStep):
             }
         df.rename(index=str, columns=params, inplace=True)
 
+        group_list = ["sex", "age", "id_job", "national_job", "sinco_id", "scian_id",
+            "eco_stratum","business_size", "mun_id", "pay_mode", "contract",
+            "contract_type", "business_type"]
+
+        df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
+
+        # Turning odd values to empty cells, to match next step
+        df["pay_mode"].replace(99, pd.np.nan, inplace = True)
+        df["business_type"].replace(99, pd.np.nan, inplace = True)
+
+        # Replacing previous empty cells with nan after groupby method
+        df.replace(999999, pd.np.nan, inplace = True)
+
         # Changing types for certains columns
-        non_null_list = ["sex", "age", "id_job", "national_job", "worked_hours", 
-                        "sinco_id", "scian_id", "eco_stratum", "loc_size", "population",
-                        "business_size", "mun_id", "folioviv", "foliohog", "numren"]
+        non_null_list = ["sex", "age", "id_job", "national_job", "sinco_id", "scian_id", "eco_stratum",
+                        "business_size", "mun_id", "worked_hours", "population"]
 
         for col in ["pay_mode", "contract", "contract_type", "business_type"]:
             df[col] = df[col].astype(float)
@@ -103,16 +111,13 @@ class ENOEPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Year", name="year", dtype=str),
+            Parameter(label="Mun_id", name="mun_id", dtype=int),
         ]
 
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "numren"                          "UInt8",
-            "hablaesp"                        "UInt8",
-            "etnicity"                        "UInt8",
             "id_job"                          "UInt8",
             "national_job"                    "UInt8",
             "pay_mode"                        "UInt8",
@@ -125,13 +130,9 @@ class ENOEPipeline(EasyPipeline):
             "business_size"                   "UInt8",
             "eco_stratum"                     "UInt8",
             "mun_id"                          "UInt16",
-            "loc_size"                        "UInt8",
             "population"                      "UInt16",
-            "eco_stratum"                     "UInt8",
-            "folioviv"                        "UInt32",
-            "foliohog"                        "UInt8",
             "sex"                             "UInt8",
-            "age"                             "UInt8",
+            "age"                             "UInt8"
         }
 
         download_step = DownloadStep(
