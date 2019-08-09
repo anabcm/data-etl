@@ -105,6 +105,8 @@ class TransformStep(PipelineStep):
         for item in not_null_list:
             df[item] = df[item].astype(int)
 
+        print(df.head())
+
         return df
 
 class EnighJobsPipeline(EasyPipeline):
@@ -116,21 +118,21 @@ class EnighJobsPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "job_id"                          "UInt8",
-            "national_job"                    "UInt8",
-            "pay_mode"                        "UInt8",
-            "contract"                        "UInt8",
-            "contract_type"                   "UInt8",
-            "worked_hours"                    "UInt8",
-            "sinco_id"                        "UInt16",
-            "scian_id"                        "UInt16",
-            "business_type"                   "UInt8",
-            "business_size"                   "UInt8",
-            "eco_stratum"                     "UInt8",
-            "mun_id"                          "UInt16",
-            "population"                      "UInt16",
-            "sex"                             "UInt8",
-            "age"                             "UInt8"
+            "job_id":                          "UInt8",
+            "national_job":                    "UInt8",
+            "pay_mode":                        "UInt8",
+            "contract":                        "UInt8",
+            "contract_type":                   "UInt8",
+            "worked_hours":                    "UInt8",
+            "sinco_id":                        "UInt16",
+            "scian_id":                        "UInt16",
+            "business_type":                   "UInt8",
+            "business_size":                   "UInt8",
+            "eco_stratum":                     "UInt8",
+            "mun_id":                          "UInt16",
+            "population":                      "UInt16",
+            "sex":                             "UInt8",
+            "age":                             "UInt8"
         }
 
         download_step = DownloadStep(
