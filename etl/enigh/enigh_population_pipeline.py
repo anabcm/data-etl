@@ -96,16 +96,16 @@ class TransformStep(PipelineStep):
 
         df.rename(index=str, columns=params, inplace=True)
 
-        df["working_hours"] = df["working_hours"].astype(int)
         df["population"] = df["population"].astype(int)
         df["working_hours"].replace(999999, 0, inplace = True)
 
         group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
         "social_security", "social_security_years", "social_security_months", "near_support_money",
         "near_support_sickness", "near_support_work", "near_support_doctor", "near_support_neighborhood",
-        "near_support_childrens", "popular_insurance", "health_attention",
+        "near_support_childrens", "popular_insurance", "health_attention", "working_hours",
         "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "work_last_month", "job_absence",
-        "act_pnea1", "act_pnea2", "number_jobs", "eco_stratum", "mun_id"]
+        "act_pnea1", "act_pnea2", "number_jobs", "eco_stratum", "mun_id", "near_healthcare_center",
+        "waiting_health_attention"]
 
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
@@ -152,7 +152,7 @@ class EnighPopulationPipeline(EasyPipeline):
             "near_support_doctor"             "UInt8",
             "near_support_neighborhood"       "UInt8",
             "near_support_childrens"          "UInt8",
-            "working_hours"                   "UInt8",
+            "working_hours"                   "UInt16",
             "popular_insurance"               "UInt8",
             "health_attention"                "UInt8",
             "inst_1"                          "UInt8",
@@ -182,7 +182,11 @@ class EnighPopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_enigh_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
-            nullable_list=[]
+            nullable_list=["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
+            "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
+            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
+            "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
+            "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
         )
 
         return [download_step, transform_step, load_step]
