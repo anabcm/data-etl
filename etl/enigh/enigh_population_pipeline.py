@@ -48,7 +48,6 @@ class TransformStep(PipelineStep):
 
         df["mun_id"] = df["ubica_geo"].str.slice(0,5)
 
-
         # Changing columns with IDs trought cycle
         filling = ["sexo", "hablaind", "etnia", "nivelaprob", "residencia", "segsoc", "redsoc_1",
             "redsoc_2", "redsoc_3", "redsoc_4", "redsoc_5", "redsoc_6", "segpop",
@@ -70,7 +69,8 @@ class TransformStep(PipelineStep):
 
         # Renaming the columns to english
         params = {
-            "sexo": "sex", "edad": "age",
+            "sexo": "sex", 
+            "edad": "age",
             "hablaind": "speaks_native",
             "etnia": "etnicity",
             "residencia": "reference_city",
@@ -98,6 +98,7 @@ class TransformStep(PipelineStep):
 
         df["population"] = df["population"].astype(int)
         df["working_hours"].replace(999999, 0, inplace = True)
+        df["working_hours"] = df["working_hours"].astype(int)
 
         group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
         "social_security", "social_security_years", "social_security_months", "near_support_money",
@@ -130,9 +131,7 @@ class TransformStep(PipelineStep):
 class EnighPopulationPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return [
-            Parameter(label="Mun_id", name="mun_id", dtype=str),
-        ]
+        return []
 
     @staticmethod
     def steps(params):
@@ -166,7 +165,6 @@ class EnighPopulationPipeline(EasyPipeline):
             "act_pnea1"                       "UInt8",
             "act_pnea2"                       "UInt8",
             "number_jobs"                     "UInt8",
-
             "mun_id"                          "UInt16",
             "loc_size"                        "UInt8",
             "population"                      "UInt16",

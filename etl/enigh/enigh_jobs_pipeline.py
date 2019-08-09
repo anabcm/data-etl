@@ -66,7 +66,7 @@ class TransformStep(PipelineStep):
         params = {
             "sexo": "sex", 
             "edad": "age",
-            "id_trabajo": "id_job",
+            "id_trabajo": "job_id",
             "trapais": "national_job",
             "htrab": "worked_hours",
             "sinco": "sinco_id",
@@ -79,10 +79,10 @@ class TransformStep(PipelineStep):
             "tipocontr": "contract_type",
             "tam_emp": "business_size",
             "clas_emp": "business_type"
-            }
+        }
         df.rename(index=str, columns=params, inplace=True)
 
-        group_list = ["sex", "age", "id_job", "national_job", "sinco_id", "scian_id",
+        group_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id",
             "eco_stratum","business_size", "mun_id", "pay_mode", "contract",
             "contract_type", "business_type"]
 
@@ -96,13 +96,13 @@ class TransformStep(PipelineStep):
         df.replace(999999, pd.np.nan, inplace = True)
 
         # Changing types for certains columns
-        non_null_list = ["sex", "age", "id_job", "national_job", "sinco_id", "scian_id", "eco_stratum",
+        not_null_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id", "eco_stratum",
                         "business_size", "mun_id", "worked_hours", "population"]
 
         for col in ["pay_mode", "contract", "contract_type", "business_type"]:
             df[col] = df[col].astype(float)
 
-        for item in non_null_list:
+        for item in not_null_list:
             df[item] = df[item].astype(int)
 
         return df
@@ -110,15 +110,13 @@ class TransformStep(PipelineStep):
 class EnighJobsPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return [
-            Parameter(label="Mun_id", name="mun_id", dtype=int),
-        ]
+        return []
 
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "id_job"                          "UInt8",
+            "job_id"                          "UInt8",
             "national_job"                    "UInt8",
             "pay_mode"                        "UInt8",
             "contract"                        "UInt8",
