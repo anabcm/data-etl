@@ -98,7 +98,6 @@ class TransformStep(PipelineStep):
 
         df["population"] = df["population"].astype(int)
         df["working_hours"].replace(999999, 0, inplace = True)
-        df["working_hours"] = df["working_hours"].astype(int)
 
         group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
         "social_security", "social_security_years", "social_security_months", "near_support_money",
@@ -118,12 +117,13 @@ class TransformStep(PipelineStep):
             "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
             "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
             "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
-            "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
+            "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs",
+            "near_healthcare_center", "waiting_health_attention"]
 
         for col in null_list:
             df[col] = df[col].astype(float)
 
-        for item in ["mun_id", "population", "near_healthcare_center", "waiting_health_attention","sex", "age"]:
+        for item in ["mun_id", "population", "sex", "age"]:
             df[item] = df[item].astype(int)
 
         return df
