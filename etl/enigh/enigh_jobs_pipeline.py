@@ -140,7 +140,7 @@ class EnighJobsPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_enigh_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
-            nullable_list=[]
+            nullable_list=["pay_mode", "contract", "contract_type", "business_type"]
         )
 
         return [download_step, transform_step, load_step]
