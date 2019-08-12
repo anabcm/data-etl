@@ -8,6 +8,14 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
+def slug_parser(txt):
+    slug = txt.lower().replace(" ", "-")
+    slug = unidecode.unidecode(slug)
+
+    for char in ["]", "[", "(", ")"]:
+        slug = slug.replace(char, "")
+
+    return slug
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
