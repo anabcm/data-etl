@@ -50,7 +50,7 @@ class TransformStep(PipelineStep):
 
         # Fix weird type issue with altitude values
         for i in list(range(1, 10)):
-            df.loc[df['altitude'] == '00-{}'.format(i), 'altitude'] = '-00{}'.format(i)
+            df.loc[df["altitude"] == "00-{}".format(i), "altitude"] = "-00{}".format(i)
 
         df["altitude"] = df["altitude"].astype(int)
 
@@ -59,27 +59,32 @@ class TransformStep(PipelineStep):
         ])
         df = df.drop_duplicates(subset=["mun_id"]).reset_index().drop(columns="index")
 
+        df["nation_id"] = 1
+        df["nation_name"] = "México"
+
         return df
 
 
 class DimMunicipalityGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            'cve_ent':           'String',
-            'cve_mun':           'String',
-            'cve_mun_full':      'String',
-            'ent_name':          'String',
-            'mun_name':          'String',
-            'ent_id':            'UInt8',
-            'mun_id':            'UInt16'
+            "cve_ent":          "String",
+            "cve_mun":          "String",
+            "cve_mun_full":     "String",
+            "ent_name":         "String",
+            "mun_name":         "String",
+            "ent_id":           "UInt8",
+            "mun_id":           "UInt16",
+            "nation_name":      "String",
+            "nation_id":        "UInt8"
         }
 
         download_step = DownloadStep(
-            connector='geo-data',
-            connector_path='conns.yaml'
+            connector="geo-data",
+            connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(

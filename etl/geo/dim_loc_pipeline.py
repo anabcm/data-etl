@@ -51,7 +51,7 @@ class TransformStep(PipelineStep):
 
         # Fix weird type issue with altitude values
         for i in list(range(1, 10)):
-            df.loc[df['altitude'] == '00-{}'.format(i), 'altitude'] = '-00{}'.format(i)
+            df.loc[df["altitude"] == "00-{}".format(i), "altitude"] = "-00{}".format(i)
 
         df_other_loc = []
         for item in df[["ent_id", "ent_name", "mun_id", "mun_name", "cve_mun_full", "cve_mun", "cve_ent"]].drop_duplicates().reset_index().itertuples():
@@ -79,39 +79,44 @@ class TransformStep(PipelineStep):
         df["altitude"] = df["altitude"].astype(float)
         df["zone_id"] = df["zone_id"].astype(float)
 
+        df["nation_id"] = 1
+        df["nation_name"] = "México"
+
         return df
 
 
 class DimLocationGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            'cve_ent':           'String',
-            'cve_mun':           'String',
-            'cve_loc':           'String',
-            'cve_mun_full':      'String',
-            'cve_loc_full':      'String',
-            'ent_name':          'String',
-            'mun_name':          'String',
-            'loc_name':          'String',
-            'latitude':          'Float64',
-            'longitude':         'Float64',
-            'altitude':          'Float64',
-            'ent_id':            'UInt8',
-            'mun_id':            'UInt16',
-            'loc_id':            'UInt32',
+            "cve_ent":          "String",
+            "cve_mun":          "String",
+            "cve_loc":          "String",
+            "cve_mun_full":     "String",
+            "cve_loc_full":     "String",
+            "ent_name":         "String",
+            "mun_name":         "String",
+            "loc_name":         "String",
+            "latitude":         "Float64",
+            "longitude":        "Float64",
+            "altitude":         "Float64",
+            "ent_id":           "UInt8",
+            "mun_id":           "UInt16",
+            "loc_id":           "UInt32",
+            "nation_name":      "String",
+            "nation_id":        "UInt8"
         }
 
         download_step = DownloadStep(
-            connector='geo-data',
-            connector_path='conns.yaml'
+            connector="geo-data",
+            connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id', 'mun_id', 'loc_id'], nullable_list=['altitude', 'latitude', 'longitude']
+            pk=["ent_id", "mun_id", "loc_id"], nullable_list=["altitude", "latitude", "longitude"]
         )
 
         return [download_step, transform_step, load_step]

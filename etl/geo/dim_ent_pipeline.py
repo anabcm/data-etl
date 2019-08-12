@@ -59,6 +59,9 @@ class TransformStep(PipelineStep):
         ])
         df = df.drop_duplicates(subset=["ent_id"]).reset_index().drop(columns="index")
 
+        df["nation_id"] = 1
+        df["nation_name"] = "México"
+
         return df
 
 
@@ -68,9 +71,11 @@ class DimEntityGeographyPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
 
         dtype = {
-            'cve_ent':           'String',
-            'ent_name':          'String',
-            'ent_id':            'UInt8'
+            "cve_ent":          "String",
+            "ent_name":         "String",
+            "ent_id":           "UInt8",
+            "nation_name":      "String",
+            "nation_id":        "UInt8"
         }
 
         download_step = DownloadStep(
