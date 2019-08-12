@@ -28,7 +28,7 @@ class TransformStep(PipelineStep):
         df["mun_id"] = df["mun_id"].astype(int)
         df["loc_id"] = df["loc_id"].astype(object)
 
-        df["nation_id"] = 1
+        df["nation_id"] = "mex"
         df["nation_name"] = "México"
 
         return df
@@ -48,7 +48,7 @@ class DimSUNGeographyPipeline(EasyPipeline):
             "loc_id":       "UInt32",
             "loc_name":     "String",
             "nation_name":  "String",
-            "nation_id":    "UInt8"
+            "nation_id":    "String"
         }
 
         transform_step = TransformStep()

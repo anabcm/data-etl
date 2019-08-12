@@ -59,7 +59,7 @@ class TransformStep(PipelineStep):
         ])
         df = df.drop_duplicates(subset=["mun_id"]).reset_index().drop(columns="index")
 
-        df["nation_id"] = 1
+        df["nation_id"] = "mex"
         df["nation_name"] = "México"
 
         return df
@@ -79,7 +79,7 @@ class DimMunicipalityGeographyPipeline(EasyPipeline):
             "ent_id":           "UInt8",
             "mun_id":           "UInt16",
             "nation_name":      "String",
-            "nation_id":        "UInt8"
+            "nation_id":        "String"
         }
 
         download_step = DownloadStep(

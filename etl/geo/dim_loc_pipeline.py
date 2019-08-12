@@ -79,7 +79,7 @@ class TransformStep(PipelineStep):
         df["altitude"] = df["altitude"].astype(float)
         df["zone_id"] = df["zone_id"].astype(float)
 
-        df["nation_id"] = 1
+        df["nation_id"] = "mex"
         df["nation_name"] = "México"
 
         return df
@@ -106,7 +106,7 @@ class DimLocationGeographyPipeline(EasyPipeline):
             "mun_id":           "UInt16",
             "loc_id":           "UInt32",
             "nation_name":      "String",
-            "nation_id":        "UInt8"
+            "nation_id":        "String"
         }
 
         download_step = DownloadStep(

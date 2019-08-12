@@ -24,7 +24,7 @@ class TransformStep(PipelineStep):
         df["zm_id"] = df["zm_id"].astype(str).str.replace(".", "").astype(int)
         df["mun_id"] = df["mun_id"].astype(int)
 
-        df["nation_id"] = 1
+        df["nation_id"] = "mex"
         df["nation_name"] = "México"
 
         return df
@@ -42,7 +42,7 @@ class DimZMGeographyPipeline(EasyPipeline):
             "mun_id":       "UInt16",
             "mun_name":     "String",
             "nation_name":  "String",
-            "nation_id":    "UInt8"
+            "nation_id":    "String"
         }
 
         transform_step = TransformStep()
