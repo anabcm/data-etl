@@ -9,6 +9,7 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_cYou4TSCU8zxH3S6Ze0HZM8Dv3bBUSXKYVN5UYMnkinSwjnAuSHr-T-mmLjALMFxyH0JduBECM6F/pub?output=csv")
+        df["slug"] = df["iso3"]
         return df
 
 class DimCountryGeographyPipeline(EasyPipeline):
