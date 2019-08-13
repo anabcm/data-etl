@@ -25,7 +25,7 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        df = df[['ent', 'mun', 'loc50k', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'factor', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']]
+        df = df[['ent', 'mun', 'loc50k', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'factor', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']].copy()
         # data type conversion
         dtypes = {
             'ent': 'str',
