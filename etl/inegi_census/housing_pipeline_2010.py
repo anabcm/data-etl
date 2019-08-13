@@ -123,7 +123,7 @@ class TransformStep(PipelineStep):
         
         # data type conversion
         for col in df.columns:
-            df[col] = df[col].astype('object')
+            df[col] = df[col].astype('float')
         
         df['year'] = 2010
         df['debt'] = pd.np.nan
