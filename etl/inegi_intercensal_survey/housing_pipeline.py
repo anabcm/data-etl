@@ -108,6 +108,12 @@ class CoveragePipeline(EasyPipeline):
             'n_inhabitants':            'UInt8',
             'total_rooms':              'UInt8',
             'bedrooms':                 'UInt8',
+            'fridge':                   'UInt8',
+            'washing_machine':          'UInt8',
+            'vehicle':                  'UInt8',
+            'tv':                       'UInt8',
+            'computer':                 'UInt8',
+            'mobile_phone':             'UInt8',
             'year':                     'UInt16'
         }
 
@@ -124,7 +130,8 @@ class CoveragePipeline(EasyPipeline):
             'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
             nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
-                          'n_inhabitants', 'total_rooms', 'bedrooms']
+                          'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
+                          'vehicle', 'tv', 'computer', 'mobile_phone']
         )
 
         return [download_step, read_step, clean_step, transform_step, load_step]
