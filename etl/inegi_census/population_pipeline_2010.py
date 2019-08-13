@@ -38,6 +38,8 @@ class TransformStep(PipelineStep):
         df["laboral_condition"] = ""
         df["time_to_work"] = ""
         df["transport_mean_work"] = ""
+        df["time_to_ed_facilities"] = ""
+        df["transport_mean_ed_facilities"] = ""
 
         # Transforming certains str columns into int values
         df["loc_id"] = df["loc_id"].astype(int)
@@ -45,7 +47,7 @@ class TransformStep(PipelineStep):
 
         # List of columns for the next df
         params = ["sexo", "parent", "sersalud", "dhsersal1", "nivacad"]
-        params_nan = ["laboral_condition", "time_to_work", "transport_mean_work"]
+        params_nan = ["laboral_condition", "time_to_work", "transport_mean_work", "time_to_ed_facilities", "transport_mean_ed_facilities"]
         params_int = ["loc_id", "year", "mun_id_trab"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
@@ -78,6 +80,8 @@ class TransformStep(PipelineStep):
 
         df["time_to_work"].replace(0, pd.np.nan, inplace=True)
         df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
+        df["time_to_ed_facilities"].replace(0, pd.np.nan, inplace=True)
+        df["transport_mean_ed_facilities"].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
         df["laboral_condition"].replace(0, pd.np.nan, inplace=True)
         df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
@@ -86,7 +90,7 @@ class TransformStep(PipelineStep):
         # Transforming certains columns into int values
         for col in ["sex", "parent", "sersalud", "dhsersal1", "laboral_condition",
                     "time_to_work", "transport_mean_work", "mun_id_trab", "age",
-                    "academic_degree"]:
+                    "academic_degree", "time_to_ed_facilities", "transport_mean_ed_facilities"]:
             df[col] = df[col].astype("object")
 
         return df
@@ -103,19 +107,21 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "sex":                 "UInt8",
-            "loc_id":              "UInt32",
-            "population":          "UInt64",
-            "parent":              "UInt8",
-            "sersalud":            "UInt8",
-            "dhsersal1":           "UInt8",
-            "laboral_condition":   "UInt8",
-            "time_to_work":        "UInt8",
-            "transport_mean_work": "UInt8",
-            "mun_id_trab":         "UInt8",
-            "academic_degree":     "UInt8",
-            "age":                 "UInt8",
-            "year":                "UInt16"
+            "sex":                          "UInt8",
+            "loc_id":                       "UInt32",
+            "population":                   "UInt64",
+            "parent":                       "UInt8",
+            "sersalud":                     "UInt8",
+            "dhsersal1":                    "UInt8",
+            "laboral_condition":            "UInt8",
+            "time_to_work":                 "UInt8",
+            "transport_mean_work":          "UInt8",
+            "time_to_ed_facilities":        "UInt8",
+            "transport_mean_ed_facilities": "UInt8",
+            "mun_id_trab":                  "UInt8",
+            "academic_degree":              "UInt8",
+            "age":                          "UInt8",
+            "year":                         "UInt16"
         }
 
         download_step = DownloadStep(
