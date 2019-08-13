@@ -8,7 +8,7 @@ class CreateStep(PipelineStep):
     def run_step(self, prev, params):
         data = []
 
-        for year in range(2000, 2020 + 1):
+        for year in range(2000, 2030 + 1):
             for quarter in range(1, 4 + 1):
                 data.append({
                     "year": year,
@@ -21,38 +21,39 @@ class CreateStep(PipelineStep):
 class DimTimeQuarterPipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
-        return 'datetime-pipeline'
+        return "datetime-pipeline"
 
     @staticmethod
     def name():
-        return 'Shared dimension'
+        return "Shared dimension"
 
     @staticmethod
     def description():
-        return 'Creates date dimension table'
+        return "Creates date quarter dimension table"
 
     @staticmethod
     def website():
-        return 'http://datawheel.us'
+        return "http://datawheel.us"
 
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
+            Parameter(label="Source connector", name="source-connector", dtype=str, source=Connector)
         ]
 
     @staticmethod
     def steps(params):
         # Use of connectors specified in the conns.yaml file
-        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
-        dtypes = {
-            'date_id': 'UInt32',
-            'date': 'Date'
+        dtype = {
+            "quarter_id":         "UInt16",
+            "quarter_name":       "String",
+            "year":               "UInt16"
         }
 
         # Definition of each step
         create_step = CreateStep()
-        load_step = LoadStep('dim_shared_date', db_connector, if_exists='drop', pk=['date_id'], dtype=dtypes)
+        load_step = LoadStep("dim_shared_date_quarter", db_connector, if_exists="drop", pk=["date_id"], dtype=dtype)
         
         return [create_step, load_step]
