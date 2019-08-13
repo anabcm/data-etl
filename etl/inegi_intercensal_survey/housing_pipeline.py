@@ -14,7 +14,7 @@ class ReadStep(PipelineStep):
         # data to replace
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
-        for col in ['pisos', 'techos', 'paredes', 'cobertura', 'financiamiento', 'clavivp', 'totcuart', 'cuadorm', 'ingr_ayugob', 'ingr_perotropais', 'deuda', 'forma_adqui']:
+        for col in ['pisos', 'techos', 'paredes', 'cobertura', 'financiamiento', 'clavivp', 'totcuart', 'cuadorm', 'ingr_ayugob', 'ingr_perotropais', 'deuda', 'forma_adqui', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
             data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
         return df, data
 
@@ -28,6 +28,9 @@ class CleanStep(PipelineStep):
         # column type conversion
         df['ingtrhog'] = df['ingtrhog'].astype('float')
         df.ingtrhog = df.ingtrhog.fillna(-5).round(0).astype('int64')
+        # nan management
+        for col in ['refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
+            df[col].fillna(0, inplace=True)
         return df, data
 
 class TransformStep(PipelineStep):
@@ -52,15 +55,17 @@ class TransformStep(PipelineStep):
         df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
 
         # subset of columns
-        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais']].copy(deep=True)
+        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']].copy()
         df.fillna('temp', inplace=True)
-        df = df.groupby(['loc_id', 'factor', 'cobertura', 'clavivp', 'forma_adqui', 'financiamiento', 'deuda', 'ingr_ayugob', 'ingr_perotropais', 'ingtrhog', 'pisos', 'techos', 'paredes', 'numpers', 'totcuart', 'cuadorm']).sum().reset_index(col_fill='ffill')
-        df = df.rename(columns={'factor': 'inhabitants', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 'totcuart': 'total_rooms', 'cuadorm': 'bedrooms'})
+        df = df.groupby(['loc_id', 'cobertura', 'clavivp', 'forma_adqui', 'financiamiento', 'deuda', 'ingr_ayugob', 'ingr_perotropais', 'ingtrhog', 'pisos', 'techos', 'paredes', 'numpers', 'totcuart', 'cuadorm', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']).sum().reset_index(col_fill='ffill')
+        df = df.rename(columns={'factor': 'households', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 
+                                'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 
+                                'totcuart': 'total_rooms', 'cuadorm': 'bedrooms', 'refrigerador': 'fridge', 'lavadora': 'washing_machine', 'autoprop': 'vehicle', 'televisor': 'tv', 'computadora': 'computer', 'celular': 'mobile_phone'})
         df.replace('temp', pd.np.nan, inplace=True)
 
         # data types
         for col in df.columns:
-            df[col] = df[col].astype('object')
+            df[col] = df[col].astype('float')
 
         df['year'] = 2015
 
@@ -68,16 +73,8 @@ class TransformStep(PipelineStep):
 
 class CoveragePipeline(EasyPipeline):
     @staticmethod
-    def pipeline_id():
-        return 'program-coverage-pipeline-temp'
-
-    @staticmethod
-    def name():
-        return 'Program Coverage Pipeline temp'
-
-    @staticmethod
     def description():
-        return 'ETL scripts from Intercensal Census 2015, Mexico, Housing'
+        return 'ETL script for Intercensal Housing Census 2015, México'
 
     @staticmethod
     def website():
@@ -96,7 +93,7 @@ class CoveragePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
             'loc_id':                   'UInt32',
-            'inhabitants':              'UInt16',
+            'households':               'UInt16',
             'floor':                    'UInt8',
             'wall':                     'UInt8',
             'roof':                     'UInt8',
@@ -110,7 +107,8 @@ class CoveragePipeline(EasyPipeline):
             'foreign_financial_aid':    'UInt8',
             'n_inhabitants':            'UInt8',
             'total_rooms':              'UInt8',
-            'bedrooms':                 'UInt8'
+            'bedrooms':                 'UInt8',
+            'year':                     'UInt16'
         }
 
         download_step = DownloadStep(
@@ -124,7 +122,7 @@ class CoveragePipeline(EasyPipeline):
 
         load_step = LoadStep(
             'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
-            nullable_list=['inhabitants', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
+            nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
                           'n_inhabitants', 'total_rooms', 'bedrooms']
         )
