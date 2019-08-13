@@ -60,7 +60,7 @@ class TransformStep(PipelineStep):
         df = df.groupby(['loc_id', 'cobertura', 'clavivp', 'forma_adqui', 'financiamiento', 'deuda', 'ingr_ayugob', 'ingr_perotropais', 'ingtrhog', 'pisos', 'techos', 'paredes', 'numpers', 'totcuart', 'cuadorm', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']).sum().reset_index(col_fill='ffill')
         df = df.rename(columns={'factor': 'households', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 
                                 'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 
-                                'totcuart': 'total_rooms', 'cuadorm': 'bedrooms', 'refrigerador': 'fridge', 'lavadora': 'washing_machine', 'autoprop': 'vehicle', 'televisor': 'tv', 'computadora': 'computer', 'celular': 'movile_phone'})
+                                'totcuart': 'total_rooms', 'cuadorm': 'bedrooms', 'refrigerador': 'fridge', 'lavadora': 'washing_machine', 'autoprop': 'vehicle', 'televisor': 'tv', 'computadora': 'computer', 'celular': 'mobile_phone'})
         df.replace('temp', pd.np.nan, inplace=True)
 
         # data types
