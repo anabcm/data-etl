@@ -6,23 +6,19 @@ from bamboo_lib.steps import LoadStep
 
 class CreateStep(PipelineStep):
     def run_step(self, prev, params):
-        start='1990-01-01'
-        end='2030-12-31'
-        df = pd.DataFrame({'date': pd.date_range(start, end)})
-        df['week_day'] = df.date.dt.weekday_name
-        df['day'] = df.date.dt.day
-        df['month'] = df.date.dt.month
+        data = []
 
-        df['week'] = df.date.dt.weekofyear
-        df['quarter'] = df.date.dt.quarter
-        df['year'] = df.date.dt.year
+        for year in range(2000, 2020 + 1):
+            for quarter in range(1, 4 + 1):
+                data.append({
+                    "year": year,
+                    "quarter_name": "{}-Q{}".format(year, quarter),
+                    "quarter_id": int("{}{}".format(year, quarter))
+                })
 
-        df.insert(0, 'date_id', (df.date.dt.year.astype(str) + df.date.dt.month.astype(str).str.zfill(2) + df.date.dt.day.astype(str).str.zfill(2)).astype(int))
-        df['date'] = pd.to_datetime(df['date']).dt.date
+        return pd.DataFrame(data)
 
-        return df
-
-class CoveragePipeline(EasyPipeline):
+class DimTimeQuarterPipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
         return 'datetime-pipeline'
