@@ -15,8 +15,8 @@ class TransformStep(PipelineStep):
         df_labels = pd.ExcelFile(excel_url)
 
         # Loading 2 ENOE files, in order to create 1 quarter per year data || New loading step
-        cols = [["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"],
-                ["ent", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac", "con", "upm", "n_pro_viv", "v_sel"]]
+        cols = [["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac"],
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac"]]
 
         def upper_(array):
             return [x.upper() for x in array]
@@ -33,8 +33,8 @@ class TransformStep(PipelineStep):
                     continue
 
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-        usecols= lambda x: x.lower() in ["ent", "con", "upm", "n_pro_viv", "v_sel", "p6b1",
-        "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
+        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren",
+                                        "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
 
         # Standarizing headers, some files are capitalized
         dt_1.columns = dt_1.columns.str.lower()
@@ -43,14 +43,14 @@ class TransformStep(PipelineStep):
         # Renaming columns from first quarter to match the rest of the year
         dt_1.rename(index=str, columns={"p5c_thrs": "p5b_thrs","p5c_tdia": "p5b_tdia"}, inplace=True)
 
-        # Creating df
-        dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["upm"] + dt_1["v_sel"] + dt_1["n_pro_viv"]
-        dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["upm"] + dt_2["v_sel"] + dt_2["n_pro_viv"]
+        # Creating df, based in unique individual values (prevent overpopulation with merge)
+        dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
+        dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
         # Getting values of year and respective quarter for the survey
-        df["time"] = params["year"] + params["quarter"]
+        df["time"] = "20" + params["year"] + params["quarter"]
         df["time"] = df["time"].astype(int)
 
         # Dictionaries for renaming the columns
@@ -63,21 +63,19 @@ class TransformStep(PipelineStep):
 
         # Loading table with mun and loc values
         housing = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                        usecols= lambda x: x.lower() in["ent", "con", "upm", "v_sel", "n_pro_viv", "mun", "loc"])
+                        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
         housing.columns = housing.columns.str.lower()
 
         # Creating an unique value to compare between dfs
-        df["code"] = df["ent_id"] + df["con"] + df["upm"] + df["v_sel"]+ df["numero_vivienda"]
-        housing["code"] = housing["ent"] + housing["con"] + housing["upm"] + housing["v_sel"] + housing["n_pro_viv"]
+        df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
+        housing["code"] = housing["ent_id"] + housing["con"] + housing["v_sel"]
 
-        # Keeping just the needed values from vivienda, and merge them into the df
-        _list = ["code", "loc", "mun"]
-        housing = housing[_list]
-        df = df.merge(housing, on="code", how="left")
+        # Merging just the needed column from vivienda
+        df = pd.merge(df, housing[["code", "mun"]], on="code", how="left")
 
         # Creating news geo ids, and deleting another values
-        df["loc_id"] = df["ent_id"] + df["mun"] + df["loc"]
-        list_drop = ["con", "upm", "v_sel", "numero_vivienda", "code" , "mun", "loc", "ent_id"]
+        df["mun_id"] = df["ent_id"] + df["mun"]
+        list_drop = ["ent_id", "con", "v_sel", "n_hog", "h_mud", "numero_renglon", "code" , "mun"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
@@ -102,13 +100,15 @@ class TransformStep(PipelineStep):
 
         for col in ["has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business",
                     "search_no_search", "search_job_year", "time_looking_job", "actual_job_position", "actual_job_industry_group_id",
-                    "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", 
+                    "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "represented_city",
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
                    "second_activity", "second_activity_task", "second_activity_group_id"]:
             df[col] = df[col].astype(float)
 
         for item in ["age", "loc_id", "population"]:
             df[item] = df[item].astype(int)
+
+        df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill")
 
         return df
 
@@ -125,8 +125,9 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "loc_id":                               "UInt32",
-            "time":                                 "UInt8",
+            "mun_id":                               "UInt16",
+            "time":                                 "UInt16",
+            "represented_city":                     "UInt8",
             "age":                                  "UInt8",
             "has_job_or_business":                  "UInt8",
             "search_job_overseas":                  "UInt8",
@@ -156,7 +157,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["loc_id", "time"], dtype=dtype, 
+            "inegi_enoe", db_connector, if_exists="append", pk=["mun_id", "time"], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
