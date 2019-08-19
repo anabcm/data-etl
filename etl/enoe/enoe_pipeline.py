@@ -98,6 +98,10 @@ class TransformStep(PipelineStep):
         df.replace(99999, pd.np.nan, inplace=True)
         df["actual_job_days_worked_lastweek"].replace("9", pd.np.nan, inplace=True)
 
+        # Turning small comunities ids to NaN values
+        df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
+
+        #Setting types
         for col in ["has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business",
                     "search_no_search", "search_job_year", "time_looking_job", "actual_job_position", "actual_job_industry_group_id",
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "represented_city",
@@ -108,6 +112,7 @@ class TransformStep(PipelineStep):
         for item in ["age", "loc_id", "population"]:
             df[item] = df[item].astype(int)
 
+        # Filter population for 15 and/or older
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill")
 
         return df
@@ -163,7 +168,7 @@ class ENOEPipeline(EasyPipeline):
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
               "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
               "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
-              "actual_minimal_wages_proportion"]
+              "actual_minimal_wages_proportion", "represented_city"]
         )
 
         return [download_step, transform_step, load_step]
