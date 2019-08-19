@@ -37,13 +37,14 @@ class TransformStep(PipelineStep):
         }
         df = df.rename(columns=columns)
         df = df[list(columns.values())]
-        df["year"] = 2010
+        df["year"] = params["year"]
 
         cols = list(columns.values()).copy()
         cols.remove("mun_id")
 
         for col in cols:
             df[col] = df[col].str.replace(",", "").astype(int)
+        df["year"] = df["year"].astype(int)
 
         return df
 
