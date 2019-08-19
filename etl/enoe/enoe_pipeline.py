@@ -50,8 +50,8 @@ class TransformStep(PipelineStep):
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
         # Getting values of year and respective quarter for the survey
-        df["time"] = "20" + params["year"] + params["quarter"]
-        df["time"] = df["time"].astype(int)
+        df["quarter_id"] = "20" + params["year"] + params["quarter"]
+        df["quarter_id"] = df["quarter_id"].astype(int)
 
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
@@ -66,6 +66,10 @@ class TransformStep(PipelineStep):
                         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
         housing.columns = housing.columns.str.lower()
 
+        # Filling with 0s "ent_id" and "v_sel" given 2019 second quarter issue
+        df["ent_id"] = df["ent_id"].str.zfill(2)
+        df["v_sel"] = df["v_sel"].str.zfill(2)
+
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
         housing["code"] = housing["ent_id"] + housing["con"] + housing["v_sel"]
@@ -79,8 +83,8 @@ class TransformStep(PipelineStep):
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
-        df.replace(pd.np.nan, 99999, inplace=True)
-        df.replace(" ", 99999, inplace=True)
+        df.replace(pd.np.nan, 9999999, inplace=True)
+        df.replace(" ", 9999999, inplace=True)
 
         # Changing columns with IDs trought cycle
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
@@ -94,23 +98,47 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        # Turning back NaN values in the respective columns
-        df.replace(99999, pd.np.nan, inplace=True)
-        df["actual_job_days_worked_lastweek"].replace("9", pd.np.nan, inplace=True)
+        # Add groupby method
+        grouped = ["mun_id", "quarter_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
+                "search_start_business", "search_no_search", "search_no_knowledge", "search_job_year", "time_looking_job",
+                "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
+                "actual_job_days_worked_lastweek", "actual_frecuency_payments",
+                "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention", "second_activity",
+                "second_activity_group_id", "second_activity_task"]
 
-        # Turning small comunities ids to NaN values
-        df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
+        df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
+
+        # Loading income values from spreedsheet and income_id column
+        url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTieVnRovfP7AOMtqxIJcrFl8Tayz6Irz-Bc1en1NSIKtjjPtGaBRaCaSeePRrpQMmHMzSt2VO93Wav/pub?output=xlsx"
+        pivote = pd.read_excel(url, sheet_name="Sheet1", encoding="latin-1", dtype={"interval_upper": "int64", "interval_lower": "int64"})
+        df["income_id"] = df["actual_amount_pesos"].astype(int)
+
+        # Transforming income_id values to actual IDs 
+        for pesos in df.income_id.unique():
+            for level in range(pivote.shape[0]):
+                if (pesos >= pivote.interval_lower[level]) & (pesos < pivote.interval_upper[level]):
+                    df.income_id.replace(pesos, str(pivote.id[level]), inplace=True)
+                    break
+        df.income_id = df.income_id.astype("int")
+
+        # Turning back NaN values in the respective columns
+        df.replace(999999, pd.np.nan, inplace=True)
+        df["actual_job_days_worked_lastweek"].replace("9", pd.np.nan, inplace=True)
+        df["income_id"].replace(99, pd.np.nan, inplace=True)
 
         #Setting types
         for col in ["has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business",
                     "search_no_search", "search_job_year", "time_looking_job", "actual_job_position", "actual_job_industry_group_id",
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "represented_city",
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
-                   "second_activity", "second_activity_task", "second_activity_group_id"]:
+                   "second_activity", "second_activity_task", "second_activity_group_id", "income_id"]:
             df[col] = df[col].astype(float)
 
-        for item in ["age", "loc_id", "population"]:
+        for item in ["age", "mun_id", "population"]:
             df[item] = df[item].astype(int)
+
+        # Turning small comunities ids to NaN values
+        df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
 
         # Filter population for 15 and/or older
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill")
@@ -131,7 +159,7 @@ class ENOEPipeline(EasyPipeline):
 
         dtype = {
             "mun_id":                               "UInt16",
-            "time":                                 "UInt16",
+            "quarter_id":                           "UInt16",
             "represented_city":                     "UInt8",
             "age":                                  "UInt8",
             "has_job_or_business":                  "UInt8",
@@ -153,7 +181,8 @@ class ENOEPipeline(EasyPipeline):
             "actual_healthcare_attention":          "UInt8",
             "second_activity":                      "UInt8",
             "second_activity_task":                 "UInt16",
-            "second_activity_group_id":             "UInt16"
+            "second_activity_group_id":             "UInt16",
+            "income_id":                            "UInt8"
         }
 
         download_step = DownloadStep(
@@ -162,13 +191,13 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["mun_id", "time"], dtype=dtype, 
+            "inegi_enoe", db_connector, if_exists="append", pk=["mun_id", "quarter_id"], dtype=dtype, 
             nullable_list=[
               "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
               "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
               "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
-              "actual_minimal_wages_proportion", "represented_city"]
+              "actual_minimal_wages_proportion", "represented_city", "income_id"]
         )
 
         return [download_step, transform_step, load_step]
