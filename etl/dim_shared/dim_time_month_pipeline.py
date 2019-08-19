@@ -22,7 +22,7 @@ class CreateStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class DimTimeMonthPipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
         return 'datetime-pipeline'
