@@ -20,11 +20,16 @@ class TransformStep(PipelineStep):
 
         # Replacing NaN values with "X" (Not this df.fillna("0", inplace=True)) 
         # in order to not drop values by GroupBy method
-        df["tie_traslado_trab"].fillna("0", inplace=True)
-        df["med_traslado_trab1"].fillna("0", inplace=True)
+        li_spa = ["tie_traslado_trab", "med_traslado_trab1", "tie_traslado_escu",
+                    "med_traslado_esc1", "conact", "mun_id_trab"]
+
+        li_eng = ["time_to_work", "transport_mean_work", "time_to_ed_facilities",
+                    "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab"]
+
+        for item in li_spa:
+            df[item].fillna("0", inplace=True)
+
         df["nivacad"].fillna("1000", inplace=True)
-        df["conact"].fillna("0", inplace=True)
-        df["mun_id_trab"].fillna("0", inplace=True)
 
         # Transforming certains str columns into int values
         df["loc_id"] = df["loc_id"].astype(int)
@@ -38,12 +43,12 @@ class TransformStep(PipelineStep):
 
         # List of columns for the next df
         params = ["sexo", "parent", "sersalud", "dhsersal1", 
-            "conact", "tie_traslado_trab", "med_traslado_trab1",
-            "nivacad"]
+        "conact", "tie_traslado_trab", "med_traslado_trab1",
+        "nivacad", "tie_traslado_escu", "med_traslado_esc1"]
 
         params_translated = ["sex", "parent", "sersalud", "dhsersal1",
-            "laboral_condition", "time_to_work", "transport_mean_work",
-            "academic_degree"]
+        "laboral_condition", "time_to_work", "transport_mean_work",
+        "academic_degree", "time_to_ed_facilities", "transport_mean_ed_facilities"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -59,17 +64,17 @@ class TransformStep(PipelineStep):
                             "conact": "laboral_condition",
                             "tie_traslado_trab": "time_to_work",
                             "med_traslado_trab1": "transport_mean_work",
-                            "nivacad": "academic_degree"}, inplace=True)
+                            "nivacad": "academic_degree",
+                            "tie_traslado_escu": "time_to_ed_facilities",
+                            "med_traslado_esc1": "transport_mean_ed_facilities"}, inplace=True)
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
 
         # Turning back NaN values in the respective columns
-        df["time_to_work"].replace(0, pd.np.nan, inplace=True)
-        df["transport_mean_work"].replace(0, pd.np.nan, inplace=True)
+        for item in li_eng:
+            df[item].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
-        df["laboral_condition"].replace(0, pd.np.nan, inplace=True)
-        df["mun_id_trab"].replace(0, pd.np.nan, inplace=True)
         df["age"].replace(999, pd.np.nan, inplace=True)
 
         # Includes year column
@@ -93,19 +98,21 @@ class PopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "sex":                 "UInt8",
-            "loc_id":              "UInt32",
-            "population":          "UInt64",
-            "parent":              "UInt8",
-            "sersalud":            "UInt8",
-            "dhsersal1":           "UInt8",
-            "laboral_condition":   "UInt8",
-            "time_to_work":        "UInt8",
-            "transport_mean_work": "UInt8",
-            "mun_id_trab":         "UInt8",
-            "academic_degree":     "UInt8",
-            "age":                 "UInt8",
-            "year":                "UInt16"
+            "sex":                          "UInt8",
+            "loc_id":                       "UInt32",
+            "population":                   "UInt64",
+            "parent":                       "UInt8",
+            "sersalud":                     "UInt8",
+            "dhsersal1":                    "UInt8",
+            "laboral_condition":            "UInt8",
+            "time_to_work":                 "UInt8",
+            "transport_mean_work":          "UInt8",
+            "time_to_ed_facilities":        "UInt8",
+            "transport_mean_ed_facilities": "UInt8",
+            "mun_id_trab":                  "UInt8",
+            "academic_degree":              "UInt8",
+            "age":                          "UInt8",
+            "year":                         "UInt16"
         }
 
         download_step = DownloadStep(
@@ -115,7 +122,8 @@ class PopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
-            nullable_list=["age", "time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab", "academic_degree"]
+            nullable_list=["age", "time_to_work", "transport_mean_work", "time_to_ed_facilities", 
+            "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "academic_degree"]
         )
 
         return [download_step, transform_step, load_step]

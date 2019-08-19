@@ -1,10 +1,20 @@
 import pandas as pd
+import unidecode
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
+
+def slug_parser(txt):
+    slug = txt.lower().replace(" ", "-")
+    slug = unidecode.unidecode(slug)
+
+    for char in ["]", "[", "(", ")"]:
+        slug = slug.replace(char, "")
+
+    return slug
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -24,6 +34,22 @@ class TransformStep(PipelineStep):
         df["zm_id"] = df["zm_id"].astype(str).str.replace(".", "").astype(int)
         df["mun_id"] = df["mun_id"].astype(int)
 
+        df["nation_id"] = "mex"
+        df["nation_name"] = "México"
+        df["nation_slug"] = "mexico"
+
+        ent_iso2 = {
+            1: "AG", 2: "BC", 3: "BS", 4: "CM", 5: "CS", 6: "CH", 7: "CX", 8: "CO",
+            9: "CL", 10: "DG", 11: "GT", 12: "GR", 13: "HG", 14: "JC", 15: "EM", 16: "MI",
+            17: "MO", 18: "NA", 19: "NL", 20: "OA", 21: "PU", 22: "QT", 23: "QR", 24: "SL",
+            25: "SI", 26: "SO", 27: "TB", 28: "TM", 29: "TL", 30: "VE", 31: "YU", 32: "ZA"
+        }
+
+        df["ent_iso2"] = df["ent_id"].replace(ent_iso2)
+
+        df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
+        df["zm_slug"] = (df["zm_name"] + " zm mx").apply(slug_parser)
+
         return df
 
 class DimZMGeographyPipeline(EasyPipeline):
@@ -37,7 +63,9 @@ class DimZMGeographyPipeline(EasyPipeline):
             "zm_id":        "UInt16",
             "zm_name":      "String",
             "mun_id":       "UInt16",
-            "mun_name":     "String"
+            "mun_name":     "String",
+            "nation_name":  "String",
+            "nation_id":    "String"
         }
 
         transform_step = TransformStep()
