@@ -17,24 +17,21 @@ class TransformStep(PipelineStep):
             "pobreza_pob": "poverty",
             "pobreza_e_pob": "extreme_poverty",
             "pobreza_m_pob": "moderate_poverty",
-            
             "vul_car_pob": "vulnerable_deficiencies",
             "vul_ing_pob": "vulnerable_income",
             "npnv_pob": "no_poverty_vulnerable",
             "ic_rezedu_pob": "educational_backwardness",
-            
             "ic_cv_pob": "deprivation_quality_housing_spaces",
             "ic_asalud_pob": "deprivation_health_services",
             "ic_segsoc_pob": "deprivation_social_security",
             "ic_sbv_pob": "deprivation_basic_services_housing",
             "ic_ali_pob": "deprivation_food_access",
-            
             "carencias_pob": "at_least_one_deficiency",
             "carencias3_pob": "at_least_three_deficiencies",
-
             "plb_pob": "income_below_welfare_line",
             "plbm_pob": "income_below_min_welfare_line"
         }
+
         df = df.rename(columns=columns)
         df = df[list(columns.values())]
         df["year"] = params["year"]
