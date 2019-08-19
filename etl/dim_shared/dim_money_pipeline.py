@@ -19,7 +19,7 @@ class ReadStep(PipelineStep):
 class DimMoneyPipeline(EasyPipeline):
         @staticmethod
         def description():
-            return 'ETL Income dim table'
+            return 'ETL money dim table'
     
         @staticmethod
         def steps(params):
