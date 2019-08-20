@@ -70,9 +70,10 @@ class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "mun_id":       "UInt16",
-            "year":         "UInt16",
-            "population":   "UInt64"
+            "mun_id":               "UInt16",
+            "year":                 "UInt16",
+            "population":           "UInt64",
+            "social_lag_degree":    "UInt8"
         }
 
         download_step = DownloadStep(
