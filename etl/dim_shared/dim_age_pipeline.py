@@ -31,4 +31,3 @@ class DimSexPipeline(EasyPipeline):
         )
 
         return [extract_step, load_step]
-

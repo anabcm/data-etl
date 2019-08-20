@@ -1,0 +1,11 @@
+poverty-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/coneval/Poverty_<year>.csv
+
+social-lag-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/coneval/Inequity_Mun.xlsx
+
+gini-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/coneval/GINI.xlsx
