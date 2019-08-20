@@ -46,7 +46,6 @@ class TransformStep(PipelineStep):
             df[col] = df[col].astype(float)
 
         df["year"] = df["year"].astype(int)
-        print(df.info())
 
         return df
 
