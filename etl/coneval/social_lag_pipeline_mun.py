@@ -10,7 +10,9 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         excel = pd.ExcelFile(prev)
-        df = pd.read_excel(excel, "Municipios", header=1)
+        df = pd.read_excel(excel, "Municipios", header=2)
+
+        print(df.head())
 
         df = df[~df["Municipio"].isna()].copy()
         df = df[df["Municipio"] != "Clave"]

@@ -9,7 +9,7 @@ from bamboo_lib.steps import LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        excel = pd.ExcelFile(prev, encoding="latin-1")
+        excel = pd.ExcelFile(prev)
 
         frames = []
         for year in [2010, 2015]:
