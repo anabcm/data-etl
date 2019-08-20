@@ -57,8 +57,25 @@ class CONEVALPovertyPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "mun_id":   "UInt16",
-            "year":     "UInt16"
+            "mun_id":                               "UInt16",
+            "year":                                 "UInt16",
+            "population":                           "UInt32",
+            "poverty":                              "UInt32",
+            "extreme_poverty":                      "UInt32",
+            "moderate_poverty":                     "UInt32",
+            "vulnerable_lacks":                     "UInt32",
+            "vulnerable_income":                    "UInt32",
+            "no_vulnerable":                        "UInt32",
+            "educational_backwardness":             "UInt32",
+            "deprivation_quality_housing_spaces":   "UInt32",
+            "deprivation_health_services":          "UInt32",
+            "deprivation_social_security":          "UInt32",
+            "deprivation_basic_services_housing":   "UInt32",
+            "deprivation_food_access":              "UInt32",
+            "at_least_one_lack":                    "UInt32",
+            "at_least_three_lacks":                 "UInt32",
+            "income_below_welfare_line":            "UInt32",
+            "income_below_min_welfare_line":        "UInt32"
         }
 
         download_step = DownloadStep(
