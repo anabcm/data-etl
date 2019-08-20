@@ -12,8 +12,6 @@ class TransformStep(PipelineStep):
         excel = pd.ExcelFile(prev)
         df = pd.read_excel(excel, "Municipios", header=2)
 
-        print(df.head())
-
         df = df[~df["Municipio"].isna()].copy()
         df = df[df["Municipio"] != "Clave"]
 
@@ -43,6 +41,7 @@ class TransformStep(PipelineStep):
 
         df_concat["population"] = df_concat["population"].replace("ND", pd.np.nan).astype(object)
         df_concat["mun_id"] = df_concat["mun_id"].astype(int)
+        df_concat["year"] = df_concat["year"].astype(int)
 
         df_concat["social_lag_degree"] = df_concat["social_lag_degree"].replace({
             "Muy bajo": 1,
@@ -51,6 +50,13 @@ class TransformStep(PipelineStep):
             "Alto": 4,
             "Muy alto": 5
         })
+
+        for col in ["population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
+            "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index"]:
+            df_concat[col] = df_concat[col].replace({"ND": pd.np.nan, "ND ": pd.np.nan}).astype(float)
+
+        df_concat["social_lag_degree"] = df_concat["social_lag_degree"].replace({"ND": pd.np.nan, "ND ": pd.np.nan}).astype(object)
 
         return df_concat
 
@@ -63,9 +69,10 @@ class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "mun_id":       "UInt16",
-            "year":         "UInt16",
-            "population":   "UInt64"
+            "mun_id":               "UInt16",
+            "year":                 "UInt16",
+            "population":           "UInt64",
+            "social_lag_degree":    "UInt8"
         }
 
         download_step = DownloadStep(
@@ -75,7 +82,9 @@ class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "coneval_social_lag_mun", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,
-            nullable_list=["population"]
+            nullable_list=["population", "population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
+            "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index", "social_lag_degree"]
         )
 
         return [download_step, transform_step, load_step]

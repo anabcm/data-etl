@@ -26,6 +26,8 @@ class TransformStep(PipelineStep):
             "Razón de ingreso 1": "income_rate"
         })
         df_concat["mun_id"] = df_concat["mun_id"].astype(int)
+        for col in ["gini", "income_rate"]:
+            df_concat[col] = df_concat[col].replace("n.d.", pd.np.nan).astype(float)
 
         return df_concat
 
