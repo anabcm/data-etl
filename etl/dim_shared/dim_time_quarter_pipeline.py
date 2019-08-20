@@ -54,6 +54,6 @@ class DimTimeQuarterPipeline(EasyPipeline):
 
         # Definition of each step
         create_step = CreateStep()
-        load_step = LoadStep("dim_shared_date_quarter", db_connector, if_exists="drop", pk=["date_id"], dtype=dtype)
+        load_step = LoadStep("dim_shared_date_quarter", db_connector, if_exists="drop", pk=["quarter_id"], dtype=dtype)
         
         return [create_step, load_step]
