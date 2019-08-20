@@ -59,7 +59,7 @@ class TransformStep(PipelineStep):
 
         return df_concat
 
-class CONEVALSocialLagIndexStatePipeline(EasyPipeline):
+class CONEVALSocialLagIndexEntPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return []
@@ -80,7 +80,7 @@ class CONEVALSocialLagIndexStatePipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "coneval_social_lag_state", db_connector, if_exists="drop", pk=["ent_id", "year"], dtype=dtype,
+            "coneval_social_lag_ent", db_connector, if_exists="drop", pk=["ent_id", "year"], dtype=dtype,
             nullable_list=["population"]
         )
 
