@@ -81,7 +81,9 @@ class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "coneval_social_lag_mun", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,
-            nullable_list=["population", "social_lag_degree"]
+            nullable_list=["population", "population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
+            "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index", "social_lag_degree"]
         )
 
         return [download_step, transform_step, load_step]
