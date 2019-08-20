@@ -40,7 +40,8 @@ class TransformStep(PipelineStep):
         cols.remove("mun_id")
 
         for col in cols:
-            df[col] = df[col].str.replace(",", "").astype(int)
+            df[col] = df[col].replace({"n.d": pd.np.nan}).str.replace(",", "").astype(object)
+
         df["year"] = df["year"].astype(int)
 
         return df
@@ -66,7 +67,14 @@ class CONEVALPovertyPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "coneval_poverty", db_connector, if_exists="append", pk=["mun_id", "year"], dtype=dtype
+            "coneval_poverty", db_connector, if_exists="append", pk=["mun_id", "year"], dtype=dtype, 
+            nullable_list=[
+                "population", "poverty", "extreme_poverty", "moderate_poverty", "vulnerable_lacks", 
+                "vulnerable_income", "no_vulnerable", "educational_backwardness", "deprivation_quality_housing_spaces", 
+                "deprivation_health_services", "deprivation_social_security", "deprivation_basic_services_housing", 
+                "deprivation_food_access", "at_least_one_lack", "at_least_three_lacks", "income_below_welfare_line", 
+                "income_below_min_welfare_line"
+            ]
         )
 
         return [download_step, transform_step, load_step]
