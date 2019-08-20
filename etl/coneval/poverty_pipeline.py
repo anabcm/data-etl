@@ -41,10 +41,11 @@ class TransformStep(PipelineStep):
 
         for col in cols:
             df[col] = df[col].str.replace(",", "")
-            df[col] = df[col].replace("n.d", pd.np.nan)
+            df[col] = df[col].str.replace("n.d", "")
             df[col] = df[col].astype(object)
 
         df["year"] = df["year"].astype(int)
+        print(df.info())
 
         return df
 
