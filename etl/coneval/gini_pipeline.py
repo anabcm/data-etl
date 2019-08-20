@@ -13,7 +13,7 @@ class TransformStep(PipelineStep):
 
         frames = []
         for year in [2010, 2015]:
-            df = pd.read_excel(excel, sheet_name=str(year), header=6)
+            df = pd.read_excel(excel, sheet_name=str(year), header=7)
             df = df[~df["Clave de municipio"].isna()]
             df = df[["Clave de municipio", "Coeficiente de Gini", "Razón de ingreso 1"]]
             df["year"] = year
