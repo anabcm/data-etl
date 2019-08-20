@@ -55,6 +55,8 @@ class TransformStep(PipelineStep):
             "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index"]:
             df_concat[col] = df_concat[col].astype(float)
 
+        df_concat["social_lag_degree"] = df_concat["social_lag_degree"].astype(int)
+
         return df_concat
 
 class CONEVALSocialLagIndexStatePipeline(EasyPipeline):
