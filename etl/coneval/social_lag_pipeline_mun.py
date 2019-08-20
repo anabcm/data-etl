@@ -52,6 +52,11 @@ class TransformStep(PipelineStep):
             "Muy alto": 5
         })
 
+        for col in ["population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
+            "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index"]:
+            df_concat[col] = df_concat[col].astype(float)
+
         return df_concat
 
 class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
