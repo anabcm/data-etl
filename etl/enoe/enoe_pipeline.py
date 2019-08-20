@@ -72,7 +72,7 @@ class TransformStep(PipelineStep):
 
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
-        housing["code"] = housing["ent_id"] + housing["con"] + housing["v_sel"]
+        housing["code"] = housing["ent"] + housing["con"] + housing["v_sel"]
 
         # Merging just the needed column from vivienda
         df = pd.merge(df, housing[["code", "mun"]], on="code", how="left")
@@ -97,6 +97,9 @@ class TransformStep(PipelineStep):
             df_l = pd.read_excel(df_labels, sheet)
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
+
+        # Reorder of sum() column
+        df["population"] = df["population"].astype(int)
 
         # Add groupby method
         grouped = ["mun_id", "quarter_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
@@ -134,7 +137,7 @@ class TransformStep(PipelineStep):
                    "second_activity", "second_activity_task", "second_activity_group_id", "income_id"]:
             df[col] = df[col].astype(float)
 
-        for item in ["age", "mun_id", "population"]:
+        for item in ["age", "mun_id"]:
             df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
