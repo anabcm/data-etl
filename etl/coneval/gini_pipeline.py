@@ -52,7 +52,7 @@ class CONEVALGiniPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "coneval_gini", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,
+            "coneval_gini_mun", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,
             nullable_list=["income_rate"]
         )
 
