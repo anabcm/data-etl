@@ -12,5 +12,4 @@ venv/
 economic-census
 .log
 *.ipynb
-*.sh
 *.dbf
