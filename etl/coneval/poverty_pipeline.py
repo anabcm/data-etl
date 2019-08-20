@@ -40,9 +40,10 @@ class TransformStep(PipelineStep):
         cols.remove("mun_id")
 
         for col in cols:
+            df[col] = df[col].astype(str)
             df[col] = df[col].str.replace(",", "")
-            df[col] = df[col].str.replace("n.d", "")
-            df[col] = df[col].astype(object)
+            df[col] = df[col].replace("n.d", pd.np.nan)
+            df[col] = df[col].astype(float)
 
         df["year"] = df["year"].astype(int)
         print(df.info())
