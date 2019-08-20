@@ -72,7 +72,7 @@ class TransformStep(PipelineStep):
 
         # Creating an unique value to compare between dfs
         df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
-        housing["code"] = housing["ent_id"] + housing["con"] + housing["v_sel"]
+        housing["code"] = housing["ent"] + housing["con"] + housing["v_sel"]
 
         # Merging just the needed column from vivienda
         df = pd.merge(df, housing[["code", "mun"]], on="code", how="left")
