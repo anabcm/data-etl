@@ -56,8 +56,9 @@ class TransformStep(PipelineStep):
             "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index"]:
             df_concat[col] = df_concat[col].replace({"ND": pd.np.nan, "ND ": pd.np.nan}).astype(float)
 
-        df_concat["social_lag_degree"] = df_concat["social_lag_degree"].replace("ND", pd.np.nan).astype(object)
+        df_concat["social_lag_degree"] = df_concat["social_lag_degree"].replace({"ND": pd.np.nan, "ND ": pd.np.nan}).astype(object)
 
+        print(df_concat.info())
         return df_concat
 
 class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
