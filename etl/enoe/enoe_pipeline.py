@@ -98,6 +98,9 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
+        # Reorder of sum() column
+        df["population"] = df["population"].astype(int)
+
         # Add groupby method
         grouped = ["mun_id", "quarter_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
                 "search_start_business", "search_no_search", "search_no_knowledge", "search_job_year", "time_looking_job",
@@ -134,7 +137,7 @@ class TransformStep(PipelineStep):
                    "second_activity", "second_activity_task", "second_activity_group_id", "income_id"]:
             df[col] = df[col].astype(float)
 
-        for item in ["age", "mun_id", "population"]:
+        for item in ["age", "mun_id"]:
             df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
