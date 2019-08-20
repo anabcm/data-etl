@@ -47,7 +47,7 @@ class CONEVALGiniPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="gini-data",
+            connector="gini-mun-data",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

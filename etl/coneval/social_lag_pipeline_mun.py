@@ -16,7 +16,7 @@ class TransformStep(PipelineStep):
         df = df[df["Municipio"] != "Clave"]
 
         headers = [
-            "mun_id", "population", "population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            "mun_id", "population", "illiterate_population", "population_6_14_school", "population_15_incomplete_school", 
             "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
             "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index", "social_lag_degree"
         ]
@@ -51,7 +51,7 @@ class TransformStep(PipelineStep):
             "Muy alto": 5
         })
 
-        for col in ["population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+        for col in ["illiterate_population", "population_6_14_school", "population_15_incomplete_school", 
             "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
             "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index"]:
             df_concat[col] = df_concat[col].replace({"ND": pd.np.nan, "ND ": pd.np.nan}).astype(float)
@@ -82,7 +82,7 @@ class CONEVALSocialLagIndexMunPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "coneval_social_lag_mun", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,
-            nullable_list=["population", "population_illiterate", "population_6_14_school", "population_15_incomplete_school", 
+            nullable_list=["population", "illiterate_population", "population_6_14_school", "population_15_incomplete_school", 
             "no_health_services", "dirt_floor", "no_toilet", "no_water_supply_network", "no_sewer_system", 
             "no_electrical_energy", "no_washing_machine", "no_fridge", "social_lag_index", "social_lag_degree"]
         )
