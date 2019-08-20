@@ -144,7 +144,7 @@ class TransformStep(PipelineStep):
         df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
 
         # Filter population for 15 and/or older
-        df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill")
+        df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
 
         return df
 
