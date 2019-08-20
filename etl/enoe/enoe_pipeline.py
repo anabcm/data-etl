@@ -33,8 +33,7 @@ class TransformStep(PipelineStep):
                     continue
 
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren",
-                                        "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
+        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
 
         # Standarizing headers, some files are capitalized
         dt_1.columns = dt_1.columns.str.lower()
@@ -83,8 +82,8 @@ class TransformStep(PipelineStep):
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
-        df.replace(pd.np.nan, 9999999, inplace=True)
-        df.replace(" ", 9999999, inplace=True)
+        df.replace(pd.np.nan, 999999, inplace=True)
+        df.replace(" ", 999999, inplace=True)
 
         # Changing columns with IDs trought cycle
         filling = ["has_job_or_business", "search_job_overseas", "search_job_mexico",
