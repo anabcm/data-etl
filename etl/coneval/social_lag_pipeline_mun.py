@@ -41,6 +41,7 @@ class TransformStep(PipelineStep):
 
         df_concat["population"] = df_concat["population"].replace("ND", pd.np.nan).astype(object)
         df_concat["mun_id"] = df_concat["mun_id"].astype(int)
+        df_concat["year"] = df_concat["year"].astype(int)
 
         df_concat["social_lag_degree"] = df_concat["social_lag_degree"].replace({
             "Muy bajo": 1,
