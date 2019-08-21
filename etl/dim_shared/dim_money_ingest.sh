@@ -1,1 +1,1 @@
-bamboo-cli --folder . --entry dim_income_pipeline
+bamboo-cli --folder . --entry dim_money_pipeline

@@ -12,8 +12,9 @@ class ReadStep(PipelineStep):
 
         df['id'] = df.id.astype(int)
         df['enigh_group_id'] = df['enigh_group_id'].astype(int)
+        df['enoe_group_id'] = df['enoe_group_id'].astype(int)
 
-        df = df[['id', 'enigh_group_id', 'enigh_group', 'name_en', 'name_es']]
+        df = df[['id', 'enigh_group_id', 'enigh_group', 'enoe_group_id', 'enoe_group', 'name']]
         return df
 
 class DimMoneyPipeline(EasyPipeline):
@@ -27,10 +28,11 @@ class DimMoneyPipeline(EasyPipeline):
             db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
             dtype = {
                 'id':               'UInt8',
-                'enigh_group_id':   'UInt8'
+                'enigh_group_id':   'UInt8',
                 'enigh_group':      'String',
-                'name_en':          'String',
-                'name_es':          'String',
+                'enoe_group_id':    'UInt8',
+                'enoe_group':       'String',
+                'name':             'String'
             }
     
             read_step = ReadStep()
