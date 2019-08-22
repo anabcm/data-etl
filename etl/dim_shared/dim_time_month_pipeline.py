@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
 from bamboo_lib.models import Parameter, EasyPipeline
 from bamboo_lib.connectors.models import Connector
@@ -6,57 +7,59 @@ from bamboo_lib.steps import LoadStep
 
 class CreateStep(PipelineStep):
     def run_step(self, prev, params):
-        start='1990-01-01'
-        end='2030-12-31'
-        df = pd.DataFrame({'date': pd.date_range(start, end)})
-        df['week_day'] = df.date.dt.weekday_name
-        df['day'] = df.date.dt.day
-        df['month'] = df.date.dt.month
+        data = []
 
-        df['week'] = df.date.dt.weekofyear
-        df['quarter'] = df.date.dt.quarter
-        df['year'] = df.date.dt.year
+        for year in range(2000, 2030 + 1):
+            for month in range(1, 12 + 1):
+                month_id = str(month).zfill(2)
+                data.append({
+                    "year": year,
+                    "quarter_id": "{}{}".format(year, (month - 1) // 3 + 1 ),
+                    "quarter": "{}-Q{}".format(year, (month - 1) // 3 + 1 ),
+                    "month": "{}-{}".format(year, month_id),
+                    "month_id": int("{}{}".format(year, month_id))
+                })
 
-        df.insert(0, 'date_id', (df.date.dt.year.astype(str) + df.date.dt.month.astype(str).str.zfill(2) + df.date.dt.day.astype(str).str.zfill(2)).astype(int))
-        df['date'] = pd.to_datetime(df['date']).dt.date
+        return pd.DataFrame(data)
 
-        return df
-
-class DimTimeMonthPipeline(EasyPipeline):
+class DimTimeQuarterPipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
-        return 'datetime-pipeline'
+        return "datetime-month-pipeline"
 
     @staticmethod
     def name():
-        return 'Shared dimension'
+        return "Shared dimension"
 
     @staticmethod
     def description():
-        return 'Creates date dimension table'
+        return "Creates date month dimension table"
 
     @staticmethod
     def website():
-        return 'http://datawheel.us'
+        return "http://datawheel.us"
 
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
+            Parameter(label="Source connector", name="source-connector", dtype=str, source=Connector)
         ]
 
     @staticmethod
     def steps(params):
         # Use of connectors specified in the conns.yaml file
-        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
-        dtypes = {
-            'date_id': 'UInt32',
-            'date': 'Date'
+        dtype = {
+            "quarter_id":       "UInt16",
+            "quarter_name":     "String",
+            "month_id":         "UInt32",
+            "month_name":       "String",
+            "year":             "UInt16"
         }
 
         # Definition of each step
         create_step = CreateStep()
-        load_step = LoadStep('dim_shared_date', db_connector, if_exists='drop', pk=['date_id'], dtype=dtypes)
+        load_step = LoadStep("dim_shared_date_month", db_connector, if_exists="drop", pk=["quarter_id"], dtype=dtype)
         
         return [create_step, load_step]
