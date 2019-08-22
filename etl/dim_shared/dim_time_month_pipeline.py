@@ -52,9 +52,9 @@ class DimTimeQuarterPipeline(EasyPipeline):
 
         dtype = {
             "quarter_id":       "UInt16",
-            "quarter_name":     "String",
+            "quarter":           "String",
             "month_id":         "UInt32",
-            "month_name":       "String",
+            "month":            "String",
             "year":             "UInt16"
         }
 
