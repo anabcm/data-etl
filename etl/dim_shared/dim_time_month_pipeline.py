@@ -13,8 +13,8 @@ class CreateStep(PipelineStep):
             for month in range(1, 12 + 1):
                 month_id = str(month).zfill(2)
                 data.append({
-                    "year": year,
-                    "quarter_id": "{}{}".format(year, (month - 1) // 3 + 1 ),
+                    "year": int(year),
+                    "quarter_id": int("{}{}".format(year, (month - 1) // 3 + 1 )),
                     "quarter": "{}-Q{}".format(year, (month - 1) // 3 + 1 ),
                     "month": "{}-{}".format(year, month_id),
                     "month_id": int("{}{}".format(year, month_id))
