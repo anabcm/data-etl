@@ -90,9 +90,10 @@ class TransformStep(PipelineStep):
         df1 = df1.rename(columns={"name": "self_city_name"})
         df1 = df1.drop_duplicates()
 
+        df1["self_city_id"] = df1["self_city_id"].astype(int)
         df1["self_city_name"] = df1["self_city_name"].fillna("N/A")
 
-        return df
+        return df1
 
 
 class DimSelfCityGeographyPipeline(EasyPipeline):
