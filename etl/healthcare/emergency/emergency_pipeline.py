@@ -73,7 +73,7 @@ class TransformStep(PipelineStep):
         group_list = ["age", "sex_id", "cie10", "date_id", "mun_id", "attention_time"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
-        for item in ["age", "sex_id", "mun_id", "count", "attention_time"]:
+        for item in ["age", "sex_id", "date_id", "mun_id", "count", "attention_time"]:
             df[item] = df[item].astype(int)
 
         return df
