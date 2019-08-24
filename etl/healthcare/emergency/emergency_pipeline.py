@@ -19,9 +19,9 @@ class TransformStep(PipelineStep):
         # Reading step for emergency files
 
         try:
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str)
+            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, usecols=df_columns)
         except:
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, sep= "|")
+            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, usecols=df_columns, sep= "|")
 
         if (len(df.columns) == 1):
             df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, names = ["PINPOINT"])
@@ -73,7 +73,7 @@ class TransformStep(PipelineStep):
         group_list = ["age", "sex_id", "cie10", "date_id", "mun_id", "attention_time"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
-        for item in ["age", "sex_id", "date_id", "mun_id", "count", "attention_time"]:
+        for item in ["age", "sex_id", "mun_id", "count", "attention_time"]:
             df[item] = df[item].astype(int)
 
         return df
