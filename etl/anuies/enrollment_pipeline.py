@@ -10,38 +10,28 @@ class ReadStep(PipelineStep):
         df.rename(columns={'Unnamed: 0': 'ent_id', 'Unnamed: 1': 'mun_id', 'Unnamed: 2': 'career', 
                            'Unnamed: 3': 'type', 'Unnamed: 4': 'period', 'Unnamed: 5': 'institution', 
                            'Unnamed: 6': 'program'}, inplace=True)
+        df.drop(columns=['ent_id', 'mun_id'], inplace=True)
         df.columns = df.columns.str.lower().str.replace('suma de ', '')
-        # external ids
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
-        ent = pd.read_excel(url, sheet_name='origin', dtypes='str')
         # careers ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTji_9aF8v-wvkRu1G0_1Cgq2NxrEjM0ToMoKWwc2eW_b-aOMXScstb8YDpSt2r6a6iU2AQXpkNlfws/pub?output=csv'
         careers = pd.read_csv(url)
-        return df, ent, careers
+        return df, careers
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df, ent, careers = prev[0], prev[1], prev[2]
+        df, careers = prev[0], prev[1]
         # type format
-        for col in ['ent_id', 'mun_id', 'career', 'type', 'period', 'institution']:
+        for col in ['career', 'type', 'period', 'institution']:
             df[col] = df[col].ffill()
-        df.ent_id = df.ent_id.str.title()
           
         # totals clean
         df = df.loc[~df.program.isna()]
-        
-        # ids replace from external table
-        df.ent_id.replace(dict(zip(ent.origin, ent.id)), inplace=True)
-        
-        # municipality level id
-        df.loc[:, 'mun_id'] = df.loc[:, 'ent_id'].astype('str') + df.loc[:, 'mun_id'].astype('str')
-        df.drop(columns=['ent_id'], inplace=True)
-        
+
         # column names format
         df.columns = df.columns.str.replace('suma de ', '').str.replace('pni-', '')
 
         # melt step
-        df = df[['mun_id', 'career', 'type', 'period', 'institution', 'program',
+        df = df[['career', 'type', 'period', 'institution', 'program',
                'mat-h-22', 'mat-h-23', 'mat-h-24', 'mat-h-25', 'mat-h-26', 'mat-h-27',
                'mat-h-28', 'mat-h-29', 'mat-h-30', 'mat-h-31', 'mat-h-32', 'mat-m-22',
                'mat-m-23', 'mat-m-24', 'mat-m-25', 'mat-m-26', 'mat-m-27', 'mat-m-28',
@@ -49,7 +39,7 @@ class TransformStep(PipelineStep):
         
         df.columns = df.columns.str.replace('mat-', '')
         
-        df = df.melt(id_vars=['mun_id', 'career', 'type', 'period', 'institution', 'program'], var_name='sex', value_name='value')
+        df = df.melt(id_vars=['career', 'type', 'period', 'institution', 'program'], var_name='sex', value_name='value')
         df = df.loc[df.value != 0]
         
         split = df['sex'].str.split('-', n=1, expand=True) 
@@ -74,7 +64,7 @@ class TransformStep(PipelineStep):
         df.program = df.program.str.strip().str.replace('  ', ' ').str.replace(':', '')
         df.program.replace(dict(zip(careers.name_es, careers.code)), inplace=True)
         
-        for col in ['mun_id', 'career', 'program', 'type', 'sex', 'value', 'age']:
+        for col in ['career', 'program', 'type', 'sex', 'value', 'age']:
             df[col] = df[col].astype('float')
 
         df.drop(columns=['career'], inplace=True)
@@ -94,7 +84,6 @@ class EnrollmentPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            'mun_id':      'UInt16',
             'type':        'UInt8',
             'period':      'String',
             'institution': 'String',
@@ -106,6 +95,6 @@ class EnrollmentPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_postgrade_enrollment', db_connector, if_exists='append', pk=['mun_id', 'institution', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_postgraduate_enrollment', db_connector, if_exists='append', pk=['institution', 'program'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
