@@ -58,6 +58,8 @@ class TransformStep(PipelineStep):
         # merge
         df = df.merge(df_program, left_on='area', right_on='speciality_id')
 
+        df.drop(columns=['area', 'speciality_id', 'speciality_es', 'speciality_en'], inplace=True)
+
         return df
 
 class ProgramsCodesPipeline(EasyPipeline):
@@ -83,9 +85,6 @@ class ProgramsCodesPipeline(EasyPipeline):
             'subfield_id':   'UInt16',
             'subfield_es':   'String',
             'subfield_en':   'String',
-            'speciality_id': 'UInt32',
-            'speciality_es': 'String',
-            'speciality_en': 'String',
             'code':          'UInt64',
             'name_es':       'String',
             'name_en':       'String',
@@ -94,6 +93,6 @@ class ProgramsCodesPipeline(EasyPipeline):
         # Definition of each step
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('dim_careers_anuies', db_connector, if_exists='drop', pk=['code'], dtype=dtype)
+        load_step = LoadStep('dim_careers_anuies', db_connector, if_exists='drop', pk=['code'], dtype=dtype, engine='ReplacingMergeTree')
         
         return [read_step, transform_step, load_step]
