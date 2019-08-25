@@ -16,15 +16,21 @@ class TransformStep(PipelineStep):
                 "FECHAINGRESO", "HORASESTANCIA", "MES_ESTADISTICO", "HORAINIATE", "MININIATE", "HORATERATE", "MINTERATE"]
         df_columns = ["EDAD", "SEXO", "ENTRESIDENCIA", "MUNRESIDENCIA", "AFECPRIN", "FECHAINGRESO", "HORAINIATE", "MININIATE", "HORATERATE","MINTERATE"]
 
-        # Reading step for emergency files
+        # Reading step, testing each format type for emergency files
+        df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, nrows=100, chunksize=10**4)
+        df = pd.concat(df)
 
-        try:
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, usecols=df_columns)
-        except:
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, usecols=df_columns, sep= "|")
+        if df.columns[0].find('|') > 0:
+            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, nrows=100, chunksize=10**4, sep= "|",
+            usecols=df_columns)
+            df = pd.concat(df) 
+        else: 
+                pass
 
         if (len(df.columns) == 1):
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, names = ["PINPOINT"])
+            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1",
+            dtype=str, chunksize=10**4, names = ["PINPOINT"])
+            df = pd.concat(df)
             pivote = df["PINPOINT"].str.split(";", expand=True)
             pivote.columns = labels
             df = pivote
