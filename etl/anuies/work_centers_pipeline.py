@@ -1,3 +1,13 @@
+def format_text(df, cols_names=None, stopwords=None):
+
+    # format
+    for ele in cols_names:
+        df[ele] = df[ele].str.title()
+        for ene in stopwords:
+            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+    return df
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -36,6 +46,16 @@ class TransformStep(PipelineStep):
             'FEDERAL TRANSFERIDO-ESTATAL': 7
         }
         df.type_support.replace(type_support, inplace=True)
+
+        df.name = df.name.str.replace('"', '')
+
+        # stopwords
+        stopwords_es = ['a', 'e', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
+
+        cols_es = ['name']
+
+        #format
+        df = format_text(df, cols_names=cols_es, stopwords=stopwords_es)
 
         return df
 
