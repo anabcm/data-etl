@@ -14,11 +14,14 @@ class ReadStep(PipelineStep):
         # external ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
         ent = pd.read_excel(url, sheet_name='origin', dtypes='str')
-        return df, ent
+        # careers ids
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTji_9aF8v-wvkRu1G0_1Cgq2NxrEjM0ToMoKWwc2eW_b-aOMXScstb8YDpSt2r6a6iU2AQXpkNlfws/pub?output=csv'
+        careers = pd.read_csv(url)
+        return df, ent, careers
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df, ent = prev[0], prev[1]
+        df, ent, careers = prev[0], prev[1], prev[2]
         # type format
         for col in ['ent_id', 'mun_id', 'career', 'type', 'period', 'institution']:
             df[col] = df[col].ffill()
@@ -66,6 +69,10 @@ class TransformStep(PipelineStep):
             'DOCTORADO': 3
         }
         df.type.replace(types, inplace=True)
+
+        # careers ids
+        df.program = df.program.str.strip().str.replace('  ', ' ').str.replace(':', '')
+        df.program.replace(dict(zip(careers.name_es, careers.code)), inplace=True)
         
         for col in ['mun_id', 'career', 'program', 'type', 'sex', 'value', 'age']:
             df[col] = df[col].astype('float')
