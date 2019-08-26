@@ -89,7 +89,7 @@ class EnrollmentPipeline(EasyPipeline):
             'institution': 'String',
             'program':     'UInt64',
             'sex':         'UInt8',
-            'value':       'UInt16',
+            'value':       'UInt32',
             'age':         'UInt8'
         }
         

@@ -88,7 +88,7 @@ class StatusPipeline(EasyPipeline):
             'institution': 'String',
             'program':     'UInt64',
             'stat':        'UInt8',
-            'value':       'UInt16',
+            'value':       'UInt32',
             'sex':         'UInt8'
         }
         

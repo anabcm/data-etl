@@ -87,7 +87,7 @@ class OriginPipeline(EasyPipeline):
             'institution': 'String',
             'program':     'UInt64',
             'origin':      'UInt8',
-            'value':       'UInt16',
+            'value':       'UInt32',
         }
         
         read_step = ReadStep()
