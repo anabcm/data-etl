@@ -93,11 +93,7 @@ class ProgramsCodesPipeline(EasyPipeline):
         # Definition of each step
         read_step = ReadStep()
         transform_step = TransformStep()
-<<<<<<< HEAD
         load_step = LoadStep('dim_shared_careers_anuies', db_connector, if_exists='drop', 
-=======
-        load_step = LoadStep('dim_careers_anuies', db_connector, if_exists='drop', 
->>>>>>> 33bb306351a13d3b9fc586995dec8bcc2bd58afb
                             pk=['code'], dtype=dtype, engine='ReplacingMergeTree')
         
         return [read_step, transform_step, load_step]
