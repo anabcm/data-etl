@@ -7,6 +7,24 @@ from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
 
+DELIMITERS = {
+    "2012": ";",
+    "2013": ";",
+    "2014": ";",
+    "2015": ",",
+    "2016": ",",
+    "2017": "|"
+}
+
+HEADERS = {
+    "2012": None,
+    "2013": None,
+    "2014": None,
+    "2015": 0,
+    "2016": 0,
+    "2017": 0
+}
+
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
@@ -17,33 +35,22 @@ class TransformStep(PipelineStep):
         df_columns = ["EDAD", "SEXO", "ENTRESIDENCIA", "MUNRESIDENCIA", "AFECPRIN", "FECHAINGRESO", "HORAINIATE", "MININIATE", "HORATERATE","MINTERATE"]
 
         # Reading step, testing each format type for emergency files
-        df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, nrows=100, chunksize=10**4)
-        df = pd.concat(df)
 
-        if df.columns[0].find('|') > 0:
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, nrows=100, chunksize=10**4, sep= "|",
-            usecols=df_columns)
-            df = pd.concat(df) 
-        else: 
-                pass
-
-        if (len(df.columns) == 1):
-            df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1",
-            dtype=str, chunksize=10**4, names = ["PINPOINT"])
+        if int(params["year"]) in list(range(2012, 2015)):
+            df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
             df = pd.concat(df)
-            pivote = df["PINPOINT"].str.split(";", expand=True)
-            pivote.columns = labels
-            df = pivote
-        else:
-            pass
+            df.columns = labels
+            df = df[df_columns]
 
-        df = df[df_columns]
-        # First cleaning step to remove '"' from the columns 
-        if df["EDAD"][0].find('"') == 0:
-          for item in df.columns:
-            df[item] = df[item].map(lambda x: x.lstrip('"').rstrip('"')) 
-        else: 
-          pass
+        elif int(params["year"]) in list(range(2015, 2017)):
+            df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
+            df = pd.concat(df)
+            df = df[df_columns]
+
+        else:
+            df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
+            df = pd.concat(df)
+            df = df[df_columns]
 
         # Redefining the datetime column given the 2 types of datetime format
         if df["FECHAINGRESO"][0].find(":") > 0:
