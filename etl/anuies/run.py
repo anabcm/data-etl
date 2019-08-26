@@ -20,3 +20,6 @@ for url in data:
 
 # careers index
 os.system('bamboo-cli --folder . --entry careers_programs')
+
+# campus index
+os.system('bamboo-cli --folder . --entry campus_index_pipeline')
