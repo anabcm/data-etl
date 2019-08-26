@@ -10,52 +10,6 @@ venv/
 .envrc
 *.csv
 economic-census
-etl/trade_balance/*.ipynb
-etl/geo/*.ipynb
-etl/inegi_intercensal_census/*.ipynb
-
 .log
-
-etl/enoe/*.ipynb
-etl/inegi_census/*.ipynb
-
-etl/inegi_intecensal_census_2005/Untitled.ipynb
-etl/enigh/Enigh - Expenses.ipynb
-etl/enigh/Enigh - Population.ipynb
-etl/enoe/Enoe.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/enoe/Enoe.ipynb
-etl/inegi_intecensal_census_2005/Intercensal_census_2005.ipynb
-etl/enoe/Enoe.ipynb
-etl/inegi_intecensal_census_2005/Intercensal_census_2005.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/enigh/Enigh - Concentradohogar.ipynb
-etl/enigh/Enigh - Agro.ipynb
-etl/enigh/Enigh - Gastopersonas.ipynb
-etl/enigh/Enigh - Gastoshogar.ipynb
-etl/enigh/Enigh - Gastotarjetas.ipynb
-etl/enigh/Enigh - Poblacion.ipynb
-etl/enoe/Enoe.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/inegi_intecensal_census_2005/Intercensal_census_2005.ipynb
-etl/inegi_intercensal_census/ETL Julio.ipynb
-etl/inegi_intercensal_census/ETL Julio.ipynb
-etl/enoe/Enoe.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/inegi_intecensal_census_2005/Intercensal_census_2005.ipynb
-etl/enigh/Enigh - Trabajos.ipynb
-etl/enigh/Enigh - Erogaciones (Inversiones).ipynb
-etl/enigh/Enigh - Gastospersona.ipynb
-etl/enigh/Enigh - Gastostarjeta.ipynb
-etl/enigh/Enigh - Hogares.ipynb
-etl/enigh/Enigh - Ingresos.ipynb
-etl/enigh/Enigh - NoAgro.ipynb
-etl/enigh/Enigh - Viviendas.ipynb
-etl/enigh/run.sh
-etl/enoe/Enoe.ipynb
-etl/healthcare/Untitled.ipynb
-etl/inegi_census/population_2010.ipynb
-etl/inegi_intecensal_census_2005/Intercensal_census_2005.ipynb
-etl/inegi_intercensal_census/ETL Julio.ipynb
-etl/inegi_census/population_2010.ipynb
+*.ipynb
+*.dbf

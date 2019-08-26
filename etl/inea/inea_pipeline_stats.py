@@ -74,7 +74,7 @@ class INEAStatsPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "month_id":     "UInt16",
+            "month_id":     "UInt32",
             "ent_id":       "UInt8"
         }
 
