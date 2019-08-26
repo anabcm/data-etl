@@ -89,3 +89,4 @@ zipp==0.5.1
 sklearn
 simpledbf
 google-cloud-storage
+unidecode

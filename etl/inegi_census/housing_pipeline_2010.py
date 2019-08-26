@@ -25,7 +25,7 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        df = df[['ent', 'mun', 'loc50k', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'factor', 'ayuprogob', 'ayupeop']]
+        df = df[['ent', 'mun', 'loc50k', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'factor', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']].copy()
         # data type conversion
         dtypes = {
             'ent': 'str',
@@ -42,7 +42,14 @@ class CleanStep(PipelineStep):
             'ingtrhog': 'float',
             'factor': 'int',
             'ayuprogob': 'int',
-            'ayupeop': 'int'
+            'ayupeop': 'int',
+            'refrig': 'int',
+            'lavadora': 'int', 
+            'autoprop': 'int', 
+            'televi': 'int', 
+            'internet': 'int', 
+            'compu': 'int', 
+            'celular': 'int'
         }
         for key, val in dtypes.items():
             try:
@@ -60,9 +67,12 @@ class TransformStep(PipelineStep):
         # data to replace
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
-        for col in ['clavivp_2010', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart']:
+        for col in ['clavivp_2010', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
             data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
         data['clavivp'] = data.pop('clavivp_2010')
+        data['refrig'] = data.pop('refrigerador')
+        data['televi'] = data.pop('televisor')
+        data['compu'] = data.pop('computadora')
 
         # location id
         df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
@@ -89,8 +99,8 @@ class TransformStep(PipelineStep):
         
         # groupby data
         df.fillna('temp', inplace=True)
-        df = df.groupby(['loc_id', 'factor', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'ayuprogob', 'ayupeop']).sum().reset_index(col_fill='ffill')
-        df = df.rename(columns={'factor': 'inhabitants', 
+        df = df.groupby(['loc_id', 'factor', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']).sum().reset_index(col_fill='ffill')
+        df = df.rename(columns={'factor': 'households', 
                                 'clavivp': 'home_type',
                                 'fadqui': 'acquisition',
                                 'paredes': 'wall', 
@@ -101,13 +111,19 @@ class TransformStep(PipelineStep):
                                 'numpers': 'n_inhabitants',
                                 'ingtrhog': 'income', 
                                 'ayuprogob': 'government_financial_aid', 
-                                'ayupeop': 'foreign_financial_aid'})
+                                'ayupeop': 'foreign_financial_aid',
+                                'refrig': 'fridge', 
+                                'lavadora': 'washing_machine', 
+                                'autoprop': 'vehicle', 
+                                'televi': 'tv', 
+                                'compu': 'computer', 
+                                'celular': 'mobile_phone'})
 
         df.replace('temp', pd.np.nan, inplace=True)
         
         # data type conversion
         for col in df.columns:
-            df[col] = df[col].astype('object')
+            df[col] = df[col].astype('float')
         
         df['year'] = 2010
         df['debt'] = pd.np.nan
@@ -117,16 +133,8 @@ class TransformStep(PipelineStep):
 
 class CoveragePipeline(EasyPipeline):
     @staticmethod
-    def pipeline_id():
-        return 'program-coverage-pipeline'
-
-    @staticmethod
-    def name():
-        return 'Program Coverage Pipeline'
-
-    @staticmethod
     def description():
-        return 'Processes information from 2010 Mexico Census'
+        return 'ETL script for Intercensal Housing Census 2010, México'
 
     @staticmethod
     def website():
@@ -145,7 +153,7 @@ class CoveragePipeline(EasyPipeline):
 
         dtype = {
             'loc_id':                   'UInt32',
-            'inhabitants':              'UInt16',
+            'households':               'UInt16',
             'floor':                    'UInt8',
             'wall':                     'UInt8',
             'roof':                     'UInt8',
@@ -159,7 +167,14 @@ class CoveragePipeline(EasyPipeline):
             'foreign_financial_aid':    'UInt8',
             'n_inhabitants':            'UInt8',
             'total_rooms':              'UInt8',
-            'bedrooms':                 'UInt8'
+            'bedrooms':                 'UInt8',
+            'fridge':                   'UInt8',
+            'washing_machine':          'UInt8',
+            'vehicle':                  'UInt8',
+            'tv':                       'UInt8',
+            'computer':                 'UInt8',
+            'mobile_phone':             'UInt8',
+            'year':                     'UInt16'
         }
 
         http_multi_dl_step = DownloadStep(
@@ -173,9 +188,10 @@ class CoveragePipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
-            nullable_list=['inhabitants', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
+            nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
-                          'n_inhabitants', 'total_rooms', 'bedrooms']
+                          'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
+                          'vehicle', 'tv', 'computer', 'mobile_phone']
         )
         
         return [http_multi_dl_step, read_step, clean_step, transform_step, load_step]

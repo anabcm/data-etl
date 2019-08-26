@@ -52,6 +52,8 @@ class TransformStep(PipelineStep):
         df = df.groupby(['hs8_id', 'code_of_entry_customs_section', 'document_code', 'operation_code', 'ent_id', 'postal_code_taxpayer_address', 'country_taxpayer', 'country_origin_destiny', 'commercial_measure_code', 'date_id']).sum().reset_index(col_fill='ffill')
         df.replace('temp', pd.np.nan, inplace=True)
 
+        df['operation_code'] = df['operation_code'].astype('float')
+
         return df
 
 class CoveragePipeline(EasyPipeline):
@@ -85,7 +87,7 @@ class CoveragePipeline(EasyPipeline):
         dtype = {
 
             'document_code':                    'String',
-            'operation_code':                   'String',
+            'operation_code':                   'UInt8',
             'country_taxpayer':                 'String',
             'country_origin_destiny':           'String',
             

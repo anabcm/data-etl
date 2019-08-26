@@ -55,18 +55,12 @@ class TransformStep(PipelineStep):
 
         df["ent_id"] = df["cve_ent"].astype(int)
         df["mun_id"] = df["cve_mun_full"].astype(int)
-        df["loc_id"] = df["cve_loc_full"].astype(int)
-
-        # Fix weird type issue with altitude values
-        for i in list(range(1, 10)):
-            df.loc[df['altitude'] == '00-{}'.format(i), 'altitude'] = '-00{}'.format(i)
-
-        df["altitude"] = df["altitude"].astype(int)
 
         df = df.drop(columns=[
-            "loc_id", "cve_loc", "loc_name", "zone_id", "cve_loc_full", "cve_mun", "cve_mun_full", "mun_id", "mun_name", "latitude", "longitude", "altitude"
+            "cve_loc", "loc_name", "zone_id", "cve_loc_full", "latitude", "longitude", "altitude"
         ])
-        df = df.drop_duplicates(subset=["ent_id"]).reset_index().drop(columns="index")
+
+        df = df.drop_duplicates(subset=["mun_id"]).reset_index().drop(columns="index")
 
         df["nation_id"] = "mex"
         df["nation_name"] = "México"
@@ -82,31 +76,53 @@ class TransformStep(PipelineStep):
         df["ent_iso2"] = df["ent_id"].replace(ent_iso2)
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
+        df["mun_slug"] = (df["mun_name"] + " mun " + df["ent_iso2"]).apply(slug_parser)
 
-        return df
+        _df = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vRXaWw6h_qObl4bm8J2enmgCLSHPzaMq_ADb0xwfPlWBUYMGPKX2mYi22yUjEadGu1iIxKeaF-OyhE1/pub?output=xlsx")
+
+        df_fact = pd.read_excel(_df, sheet_name="Match")
+        df_labels = pd.read_excel(_df, sheet_name="Labels")
+
+        df1 = df.merge(df_fact, left_on="mun_id", right_on="mun_id", how="right")
+        df1 = df1.merge(df_labels, left_on="self_city_id", right_on="id", how="outer")
+
+        df1 = df1.drop(columns=["id"])
+        df1 = df1.rename(columns={"name": "self_city_name"})
+        df1 = df1.drop_duplicates()
+
+        df1["self_city_id"] = df1["self_city_id"].astype(int)
+        df1["self_city_name"] = df1["self_city_name"].fillna("N/A")
+
+        return df1
 
 
-class DimEntityGeographyPipeline(EasyPipeline):
+class DimSelfCityGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
             "cve_ent":          "String",
+            "cve_mun":          "String",
+            "cve_mun_full":     "String",
             "ent_name":         "String",
+            "mun_name":         "String",
             "ent_id":           "UInt8",
+            "mun_id":           "UInt16",
             "nation_name":      "String",
-            "nation_id":        "String"
+            "nation_id":        "String",
+            "self_city_id":     "UInt8",
+            "self_city_name":   "String"
         }
 
         download_step = DownloadStep(
-            connector='geo-data',
-            connector_path='conns.yaml'
+            connector="geo-data",
+            connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dim_shared_geography_ent", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id']
+            "dim_shared_geography_self_city", db_connector, if_exists="drop", dtype=dtype,
+            pk=["ent_id", "mun_id", "self_city_id"]
         )
 
         return [download_step, transform_step, load_step]

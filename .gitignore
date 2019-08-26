@@ -10,21 +10,6 @@ venv/
 .envrc
 *.csv
 economic-census
-etl/trade_balance/*.ipynb
-etl/geo/*.ipynb
-etl/inegi_intercensal_census/*.ipynb
-etl/inegi_intercensal_survey/*.ipynb
-
 .log
-
-etl/enoe/*.ipynb
-etl/inegi_census/*.ipynb
-etl/enigh/*.ipynb
-etl/healthcare/*.ipynb
-etl/inegi_intercensal_census/*.ipynb
-etl/inegi_intecensal_census_2005/*.ipynb
-
-etl/enigh/Enigh - Expenses.ipynb
-etl/enigh/Enigh - Population.ipynb
-etl/inegi_census/population_2010.ipynb
-
+*.ipynb
+*.dbf

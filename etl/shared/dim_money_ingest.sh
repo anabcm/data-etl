@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry dim_money_pipeline
