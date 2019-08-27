@@ -52,16 +52,17 @@ class TransformStep(PipelineStep):
             df = pd.concat(df)
             df = df[df_columns]
 
-        # Redefining the datetime column given the 2 types of datetime format
+        # Redefining the date_id column given the 2 types of datetime format
         if df["FECHAINGRESO"][0].find(":") > 0:
-            df["FECHAINGRESO"] = df["FECHAINGRESO"].map(lambda x: str(x)[:-9])
-            date = df["FECHAINGRESO"].str.split("-", expand=True)
-            df["hora_id"] = df["HORAINIATE"] + df["MININIATE"]
-            df["date_id"] = date[0] + date[1] + date[2] + df["hora_id"]
+            df["_YEAR"] = df["FECHAINGRESO"].apply(lambda x: str(x)[0:4])
+            df["_MONTH"] = df["FECHAINGRESO"].apply(lambda x: str(x)[5:7])
+            df["_DAY"] = df["FECHAINGRESO"].apply(lambda x: str(x)[8:10])
+            df["date_id"] = df["_YEAR"] + df["_MONTH"] + df["_DAY"]
         else:
-            date = df["FECHAINGRESO"].str.split("/", expand=True)
-            df["hora_id"] = df["HORAINIATE"] + df["MININIATE"]
-            df["date_id"] = date[2] + date[1] + date[0] + df["hora_id"]
+            df["_YEAR"] = df["FECHAINGRESO"].apply(lambda x: str(x)[6:10])
+            df["_MONTH"] = df["FECHAINGRESO"].apply(lambda x: str(x)[0:2])
+            df["_DAY"] = df["FECHAINGRESO"].apply(lambda x: str(x)[3:5])
+            df["date_id"] = df["_YEAR"] + df["_MONTH"] + df["_DAY"]
 
         # Creating mun_id and count column (number of people)
         df["mun_id"] = df["ENTRESIDENCIA"] + df["MUNRESIDENCIA"]
@@ -79,7 +80,8 @@ class TransformStep(PipelineStep):
         df["attention_time"] = 60 * (df["HORATERATE"] - df["HORAINIATE"]) + (df["MINTERATE"] - df["MININIATE"])
 
         # Droping the used columns
-        list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "hora_id", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE"]
+        list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE",
+                        "_YEAR", "_MONTH", "_DAY"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Groupby method
@@ -106,14 +108,14 @@ class EmergencyPipeline(EasyPipeline):
             "age":                 "UInt8",
             "sex_id":              "UInt8",
             "cie10":               "String",
-            "date_id":             "UInt64",
+            "date_id":             "UInt32",
             "mun_id":              "UInt16",
             "attention_time":      "UInt16",
             "count":               "UInt16"
         }
 
         download_step = DownloadStep(
-            connector=["emergency-data"],
+            connector="emergency-data",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
