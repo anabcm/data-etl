@@ -13,8 +13,8 @@ class ReadStep(PipelineStep):
         df.drop(columns=['ent_id', 'mun_id'], inplace=True)
         df.columns = df.columns.str.lower()
         # careers ids
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTji_9aF8v-wvkRu1G0_1Cgq2NxrEjM0ToMoKWwc2eW_b-aOMXScstb8YDpSt2r6a6iU2AQXpkNlfws/pub?output=csv'
-        careers = pd.read_csv(url)
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
+        careers = pd.read_excel(url, sheet_name='careers')
         return df, careers
 
 class TransformStep(PipelineStep):
@@ -94,6 +94,6 @@ class StatusPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_postgraduate_status', db_connector, if_exists='append', pk=['institution', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_postgraduate_status', db_connector, if_exists='append', pk=['institution', 'program', 'period'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
