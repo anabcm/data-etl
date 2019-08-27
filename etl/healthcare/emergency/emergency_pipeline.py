@@ -56,12 +56,12 @@ class TransformStep(PipelineStep):
         if df["FECHAINGRESO"][0].find(":") > 0:
             df["FECHAINGRESO"] = df["FECHAINGRESO"].map(lambda x: str(x)[:-9])
             date = df["FECHAINGRESO"].str.split("-", expand=True)
-            df["hora_id"] = df["HORAINIATE"] + df["MININIATE"]
-            df["date_id"] = date[0] + date[1] + date[2] + df["hora_id"]
+            df["time_id"] = df["HORAINIATE"] + df["MININIATE"]
+            df["date_id"] = date[0] + date[1] + date[2]
         else:
             date = df["FECHAINGRESO"].str.split("/", expand=True)
-            df["hora_id"] = df["HORAINIATE"] + df["MININIATE"]
-            df["date_id"] = date[2] + date[1] + date[0] + df["hora_id"]
+            df["time_id"] = df["HORAINIATE"] + df["MININIATE"]
+            df["date_id"] = date[2] + date[1] + date[0]
 
         # Creating mun_id and count column (number of people)
         df["mun_id"] = df["ENTRESIDENCIA"] + df["MUNRESIDENCIA"]
@@ -79,7 +79,7 @@ class TransformStep(PipelineStep):
         df["attention_time"] = 60 * (df["HORATERATE"] - df["HORAINIATE"]) + (df["MINTERATE"] - df["MININIATE"])
 
         # Droping the used columns
-        list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "hora_id", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE"]
+        list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "time_id", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Groupby method
@@ -106,7 +106,7 @@ class EmergencyPipeline(EasyPipeline):
             "age":                 "UInt8",
             "sex_id":              "UInt8",
             "cie10":               "String",
-            "date_id":             "UInt64",
+            "date_id":             "UInt32",
             "mun_id":              "UInt16",
             "attention_time":      "UInt16",
             "count":               "UInt16"
