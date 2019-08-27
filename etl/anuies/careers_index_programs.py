@@ -29,21 +29,12 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df, df_program = prev[0], prev[1]
 
-        # careers
         # stopwords
         stopwords_es = ['a', 'e', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
         stopwords_en = list(stop_words.ENGLISH_STOP_WORDS)
 
-        cols_es = ['name_es']
-        cols_en = ['name_en']
-
-        #format
-        df = format_text(df, cols_names=cols_es, stopwords=stopwords_es)
-        df = format_text(df, cols_names=cols_en, stopwords=stopwords_en)
-
         for col in ['code', 'area']:
             df[col] = df[col].astype('int')
-
 
         # programs
         cols_es = ['area_es', 'field_es', 'subfield_es', 'speciality_es']

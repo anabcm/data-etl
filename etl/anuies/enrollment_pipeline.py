@@ -1,3 +1,13 @@
+def format_text(df, cols_names=None, stopwords=None):
+
+    # format
+    for ele in cols_names:
+        df[ele] = df[ele].str.title().str.strip()
+        for ene in stopwords:
+            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+    return df
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -7,11 +17,11 @@ class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         df = pd.read_excel(params.get('url'), header=1)
-        df.rename(columns={'Unnamed: 0': 'ent_id', 'Unnamed: 1': 'mun_id', 'Unnamed: 2': 'career', 
-                           'Unnamed: 3': 'type', 'Unnamed: 4': 'period', 'Unnamed: 5': 'institution', 
-                           'Unnamed: 6': 'program'}, inplace=True)
-        df.drop(columns=['ent_id', 'mun_id'], inplace=True)
         df.columns = df.columns.str.lower().str.replace('suma de ', '')
+        df.rename(columns={'entidad': 'ent_id', 'municipio': 'mun_id', 'cve campo unitario': 'career', 
+                           'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'institution', 
+                           'nombre carrera sep': 'program'}, inplace=True)
+        df.drop(columns=['ent_id', 'mun_id'], inplace=True)
         # careers ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
         careers = pd.read_excel(url, sheet_name='careers')
@@ -25,7 +35,11 @@ class TransformStep(PipelineStep):
             df[col] = df[col].ffill()
           
         # totals clean
-        df = df.loc[~df.program.isna()]
+        df.career = df.career.astype('str')
+        for col in ['career', 'type', 'period', 'institution', 'program']:
+            df = df.loc[df[col].str.contains('Total') == False].copy()
+            df[col] = df[col].str.strip().str.replace('  ', ' ').str.replace(':', '')
+        df.career = df.career.str.replace('.', '').astype('int')
 
         # column names format
         df.columns = df.columns.str.replace('suma de ', '').str.replace('pni-', '')
@@ -50,17 +64,22 @@ class TransformStep(PipelineStep):
             'h': 1,
             'm': 2,
         }
+
         df.sex.replace(sex, inplace=True)
         
         types = {
-            'MAESTRÍA': 1,
-            'ESPECIALIDAD': 2,
-            'DOCTORADO': 3
+            'TS': 1,
+            'LEN': 2,
+            'LUT': 3,
+            'MAESTRÍA': 4,
+            'ESPECIALIDAD': 5,
+            'DOCTORADO': 6
         }
         df.type.replace(types, inplace=True)
 
         # careers ids
-        df.program = df.program.str.strip().str.replace('  ', ' ').str.replace(':', '')
+        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        df = format_text(df, ['program'], stopwords=stopwords_es)
         df.program.replace(dict(zip(careers.name_es, careers.code)), inplace=True)
         
         for col in ['career', 'program', 'type', 'sex', 'value', 'age']:
@@ -94,6 +113,6 @@ class EnrollmentPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_postgraduate_enrollment', db_connector, if_exists='append', pk=['institution', 'program', 'period'], dtype=dtype)
+        load_step = LoadStep('anuies_postgraduate_enrollment', db_connector, if_exists='append', pk=['institution', 'program'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
