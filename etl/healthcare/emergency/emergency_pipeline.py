@@ -91,6 +91,8 @@ class TransformStep(PipelineStep):
         for item in ["age", "sex_id", "mun_id", "count", "attention_time"]:
             df[item] = df[item].astype(int)
 
+        df["date_id"] = df["date_id"].astype(float)
+
         return df
 
 class EmergencyPipeline(EasyPipeline):
