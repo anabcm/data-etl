@@ -35,7 +35,6 @@ class TransformStep(PipelineStep):
         df_columns = ["EDAD", "SEXO", "ENTRESIDENCIA", "MUNRESIDENCIA", "AFECPRIN", "FECHAINGRESO", "HORAINIATE", "MININIATE", "HORATERATE","MINTERATE"]
 
         # Reading step, testing each format type for emergency files
-
         if int(params["year"]) in list(range(2012, 2015)):
             df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
             df = pd.concat(df)
@@ -113,7 +112,7 @@ class EmergencyPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["emergency-data"],
+            connector="emergency-data",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
