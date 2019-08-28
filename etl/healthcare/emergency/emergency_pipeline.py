@@ -122,7 +122,7 @@ class EmergencyPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dgis_emergency", db_connector, if_exists="append", pk=["mun_id", "date_id"], dtype=dtype,
+            "dgis_emergency", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype,
             nullable_list=["date_id"]
         )
 
