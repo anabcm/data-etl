@@ -1,3 +1,13 @@
+def format_text(df, cols_names=None, stopwords=None):
+
+    # format
+    for ele in cols_names:
+        df[ele] = df[ele].str.title().str.strip()
+        for ene in stopwords:
+            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+    return df
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -8,6 +18,9 @@ class ReadStep(PipelineStep):
         # read data
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
         df = pd.read_excel(url, sheet_name='campus')
+        # campus names
+        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        df = format_text(df, ['name'], stopwords=stopwords_es)
 
         return df
 

@@ -1,3 +1,13 @@
+def format_text(df, cols_names=None, stopwords=None):
+
+    # format
+    for ele in cols_names:
+        df[ele] = df[ele].str.title().str.strip()
+        for ene in stopwords:
+            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+    return df
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -7,34 +17,43 @@ class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         df = pd.read_excel(params.get('url'), header=1)
-        df.rename(columns={'Unnamed: 0': 'ent_id', 'Unnamed: 1': 'mun_id', 'Unnamed: 2': 'career', 
-                           'Unnamed: 3': 'type', 'Unnamed: 4': 'period', 'Unnamed: 5': 'institution', 
-                           'Unnamed: 6': 'program'}, inplace=True)
-        df.drop(columns=['ent_id', 'mun_id'], inplace=True)
         df.columns = df.columns.str.lower()
+        df.rename(columns={'entidad': 'ent_id', 'municipio': 'mun_id', 'cve campo unitario': 'career', 
+                           'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'institution', 
+                           'nombre carrera sep': 'program'}, inplace=True)
         # external ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
         ent = pd.read_excel(url, sheet_name='origin', dtypes='str')
-        # careers ids
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTji_9aF8v-wvkRu1G0_1Cgq2NxrEjM0ToMoKWwc2eW_b-aOMXScstb8YDpSt2r6a6iU2AQXpkNlfws/pub?output=csv'
-        careers = pd.read_csv(url)
+        careers = pd.read_excel(url, sheet_name='careers')
         return df, ent, careers
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df, ent, careers = prev[0], prev[1], prev[2]
         # type format
-        for col in ['career', 'type', 'period', 'institution']:
+        for col in ['ent_id', 'mun_id', 'career', 'type', 'period', 'institution']:
             df[col] = df[col].ffill()
+        df.ent_id = df.ent_id.str.title()
+
+        # ids replace from external table
+        df.ent_id.replace(dict(zip(ent.origin, ent.id)), inplace=True)
+
+        # municipality level id
+        df.loc[:, 'mun_id'] = df.loc[:, 'ent_id'].astype('str') + df.loc[:, 'mun_id'].astype('str')
+        df.drop(columns=['ent_id'], inplace=True)
 
         # totals clean
-        df = df.loc[~df.program.isna()]
+        df.career = df.career.astype('str')
+        for col in ['mun_id', 'career', 'type', 'period', 'institution', 'program']:
+            df = df.loc[df[col].str.contains('Total') == False].copy()
+            df[col] = df[col].str.strip().str.replace('  ', ' ').str.replace(':', '')
+        df.career = df.career.str.replace('.', '').astype('int')
 
         # column names format
         df.columns = df.columns.str.replace('suma de ', '')
 
         # melt step
-        df = df[['career', 'type', 'period', 'institution', 'program',
+        df = df[['mun_id', 'career', 'type', 'period', 'institution', 'program',
                  'pni-agu', 'pni-bc', 'pni-bcs', 'pni-cam', 'pni-coa',
                  'pni-col', 'pni-chia', 'pni-chih', 'pni-df', 'pni-dur', 'pni-gua',
                  'pni-gue', 'pni-hid', 'pni-jal', 'pni-mex', 'pni-mic', 'pni-mor',
@@ -45,24 +64,28 @@ class TransformStep(PipelineStep):
         # column names format
         df.columns = df.columns.str.replace('pni-', '')
 
-        df = df.melt(id_vars=['career', 'type', 'period', 'institution', 'program'], var_name='origin', value_name='value')
+        df = df.melt(id_vars=['mun_id', 'career', 'type', 'period', 'institution', 'program'], var_name='origin', value_name='value')
         df = df.loc[df.value != 0]
 
         # external ids transfomation
         df['origin'].replace(dict(zip(ent.code, ent.id.astype('int'))), inplace=True)
 
         types = {
-            'MAESTRÍA': 1,
-            'ESPECIALIDAD': 2,
-            'DOCTORADO': 3
+            'TS': 1,
+            'LEN': 2,
+            'LUT': 3,
+            'MAESTRÍA': 4,
+            'ESPECIALIDAD': 5,
+            'DOCTORADO': 6
         }
         df.type.replace(types, inplace=True)
 
         # careers ids
-        df.program = df.program.str.strip().str.replace('  ', ' ').str.replace(':', '')
+        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        df = format_text(df, ['program'], stopwords=stopwords_es)
         df.program.replace(dict(zip(careers.name_es, careers.code)), inplace=True)
 
-        for col in ['career', 'program', 'type', 'origin', 'value']:
+        for col in ['mun_id', 'career', 'program', 'type', 'origin', 'value']:
             df[col] = df[col].astype('float')
         
         df.drop(columns=['career'], inplace=True)
@@ -82,6 +105,7 @@ class OriginPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
+            'mun_id':      'UInt16',
             'type':        'UInt8',
             'period':      'String',
             'institution': 'String',
@@ -92,6 +116,6 @@ class OriginPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_postgraduate_origin', db_connector, if_exists='append', pk=['institution', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_postgraduate_origin', db_connector, if_exists='append', pk=['mun_id', 'institution', 'program'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
