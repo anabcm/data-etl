@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+from datetime import timedelta 
+from datetime import datetime
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.models import Parameter
@@ -52,6 +55,15 @@ class TransformStep(PipelineStep):
             df = pd.concat(df)
             df = df[df_columns]
 
+        # Deleting empty odds spaces in the time and geography columns
+        timers = ["HORAINIATE", "MININIATE", "HORATERATE", "MINTERATE"]
+        for item in timers:
+            df[item] = df[item].str.strip()
+            df[item].replace("99", "00", inplace = True)
+
+        df["ENTRESIDENCIA"] = df["ENTRESIDENCIA"].str.strip()
+        df["MUNRESIDENCIA"] = df["MUNRESIDENCIA"].str.strip()
+
         # Redefining the date_id column given the 2 types of datetime format
         if df["FECHAINGRESO"][0].find(":") > 0:
             df["_YEAR"] = df["FECHAINGRESO"].apply(lambda x: str(x)[0:4])
@@ -64,32 +76,41 @@ class TransformStep(PipelineStep):
             df["_DAY"] = df["FECHAINGRESO"].apply(lambda x: str(x)[3:5])
             df["date_id"] = df["_YEAR"] + df["_MONTH"] + df["_DAY"]
 
+        # No date of admission issue
+        df.drop(df.loc[df["date_id"] == "nan"].index, inplace=True)
+
         # Creating mun_id and count column (number of people)
-        df["mun_id"] = df["ENTRESIDENCIA"] + df["MUNRESIDENCIA"]
+        df["mun_id"] = df["ENTRESIDENCIA"].astype("str").str.zfill(2) + df["MUNRESIDENCIA"].astype("str").str.zfill(3)
         df["count"] = 1
 
         # Renaming useful columns
-        df.rename(index=str, columns={"EDAD": "age", "SEXO": "sex_id", "AFECPRIN": "cie10"}, inplace=True)
+        df.rename(index=str, columns={"EDAD": "age", "SEXO": "sex_id", "AFECPRIN": "cie10", "DERHAB": "social_security"}, inplace=True)
 
         # Calculating attention time per person
-        df["HORAINIATE"] = df["HORAINIATE"].astype(int)
-        df["MININIATE"] = df["MININIATE"].astype(int)
-        df["HORATERATE"] = df["HORATERATE"].astype(int)
-        df["MINTERATE"] = df["MINTERATE"].astype(int)
+        df["datetime_leaving"] = pd.to_datetime(df["FECHAALTA"]).dt.date.astype("str") + " " + df["HORATERATE"].astype("str").str.zfill(2) + ":" + df["MINTERATE"].astype("str").str.zfill(2) + ":" + "00"
+        df["datetime_admission"] = pd.to_datetime(df["FECHAINGRESO"]).dt.date.astype("str") + " " + df["HORAINIATE"].astype("str").str.zfill(2) + ":" + df["MININIATE"].astype("str").str.zfill(2) + ":" + "00"
 
-        df["attention_time"] = 60 * (df["HORATERATE"] - df["HORAINIATE"]) + (df["MINTERATE"] - df["MININIATE"])
+        df["datetime_leaving"] = pd.to_datetime(df["datetime_leaving"], format='%Y-%m-%d %H:%M:%S', errors="coerce")
+        df["datetime_admission"] = pd.to_datetime(df["datetime_admission"], format = '%Y-%m-%d %H:%M:%S', errors="coerce")
+            
+        # attention_time in hours [Some people has NaN values given that they dont have date of admission]
+        df["attention_time"] = df["datetime_leaving"] - df["datetime_admission"]
+        df["attention_time"] = df["attention_time"]/np.timedelta64(1,"h")
 
         # Droping the used columns
         list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE",
-                        "_YEAR", "_MONTH", "_DAY"]
+                    "FECHAALTA", "_YEAR", "_MONTH", "_DAY", "datetime_leaving", "datetime_admission"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Groupby method
-        group_list = ["age", "sex_id", "cie10", "date_id", "mun_id", "attention_time"]
+        group_list = ["age", "sex_id", "social_security", "cie10", "date_id", "mun_id", "attention_time"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
-        for item in ["age", "sex_id", "mun_id", "count", "attention_time"]:
+        for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
             df[item] = df[item].astype(int)
+
+        for item in ["social_security", "attention_time"]:
+            df[item] = df[item].astype(float)
 
         return df
 
@@ -107,9 +128,10 @@ class EmergencyPipeline(EasyPipeline):
         dtype = {
             "age":                 "UInt8",
             "sex_id":              "UInt8",
+            "social_security":     "Float",
             "cie10":               "String",
             "date_id":             "UInt32",
-            "mun_id":              "UInt16",
+            "mun_id":              "UInt32",
             "attention_time":      "UInt16",
             "count":               "UInt16"
         }
