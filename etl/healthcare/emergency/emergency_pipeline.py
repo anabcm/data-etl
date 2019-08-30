@@ -38,7 +38,6 @@ class TransformStep(PipelineStep):
         df_columns = ["EDAD", "SEXO", "ENTRESIDENCIA", "MUNRESIDENCIA", "AFECPRIN", "FECHAINGRESO", "HORAINIATE", "MININIATE", "HORATERATE","MINTERATE"]
 
         # Reading step, testing each format type for emergency files
-
         if int(params["year"]) in list(range(2012, 2015)):
             df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
             df = pd.concat(df)
@@ -100,6 +99,7 @@ class TransformStep(PipelineStep):
         # Droping the used columns
         list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE",
                     "FECHAALTA", "_YEAR", "_MONTH", "_DAY", "datetime_leaving", "datetime_admission"]
+
         df.drop(list_drop, axis=1, inplace=True)
 
         # Groupby method
@@ -112,6 +112,7 @@ class TransformStep(PipelineStep):
         for item in ["social_security", "attention_time"]:
             df[item] = df[item].astype(float)
 
+
         return df
 
 class EmergencyPipeline(EasyPipeline):
@@ -123,7 +124,7 @@ class EmergencyPipeline(EasyPipeline):
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../../conns.yaml"))
 
         dtype = {
             "age":                 "UInt8",
@@ -142,7 +143,8 @@ class EmergencyPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dgis_emergency", db_connector, if_exists="append", pk=["mun_id", "date_id"], dtype=dtype
+            "dgis_emergency", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype,
+            nullable_list=["date_id"]
         )
 
         return [download_step, transform_step, load_step]

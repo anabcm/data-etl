@@ -13,3 +13,4 @@ economic-census
 .log
 *.ipynb
 *.dbf
+*.mat
