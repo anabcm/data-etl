@@ -76,12 +76,12 @@ class PregnancyMortalityPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["pregnancy-mortality-data"],
+            connector="pregnancy-mortality-data",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dgis_pregnancy_mortality", db_connector, if_exists="append", pk=["mun_residence_id", "year_decease"], dtype=dtype
+            "dgis_pregnancy_mortality", db_connector, if_exists="drop", pk=["mun_residence_id", "year_decease"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
