@@ -130,7 +130,7 @@ class EmergencyPipeline(EasyPipeline):
         dtype = {
             "age":                 "UInt8",
             "sex_id":              "UInt8",
-            "social_security":     "Float",
+            "social_security":     "UInt8",
             "cie10":               "String",
             "date_id":             "UInt32",
             "mun_id":              "UInt32",
