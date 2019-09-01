@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry pregnancy_mortality_pipeline
