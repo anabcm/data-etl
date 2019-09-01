@@ -93,7 +93,7 @@ class TransformStep(PipelineStep):
             
         # attention_time in hours [Some people has NaN values given that they dont have date of admission]
         df["attention_time"] = df["datetime_leaving"] - df["datetime_admission"]
-        df["attention_time"] = df["attention_time"]/np.timedelta64(1,"h")
+        df["attention_time"] = df["attention_time"] / np.timedelta64(1, "h")
 
         # Droping the used columns
         list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE",
@@ -107,6 +107,8 @@ class TransformStep(PipelineStep):
 
         for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
             df[item] = df[item].astype(int)
+
+        df["social_security"] = df["social_security"].replace({"G ": pd.np.nan, "P ": pd.np.nan})
 
         for item in ["social_security", "attention_time"]:
             df[item] = df[item].astype(float)
@@ -143,7 +145,7 @@ class EmergencyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dgis_emergency", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype,
-            nullable_list=["date_id"]
+            nullable_list=["date_id", "social_security"]
         )
 
         return [download_step, transform_step, load_step]
