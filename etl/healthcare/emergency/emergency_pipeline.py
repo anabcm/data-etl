@@ -108,7 +108,7 @@ class TransformStep(PipelineStep):
         for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
             df[item] = df[item].astype(int)
 
-        df["social_security"] = df["social_security"].replace({"G ": pd.np.nan, "P ": pd.np.nan})
+        df["social_security"] = df["social_security"].apply(lambda x: x.strip()).replace({"G": pd.np.nan, "P": pd.np.nan})
 
         for item in ["social_security", "attention_time"]:
             df[item] = df[item].astype(float)
