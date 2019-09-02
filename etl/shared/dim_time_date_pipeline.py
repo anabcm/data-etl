@@ -20,7 +20,7 @@ class CreateStep(PipelineStep):
         df["year"] = df.date.dt.year
 
         df.insert(0, "date_id", (df.date.dt.year.astype(str) + df.date.dt.month.astype(str).str.zfill(2) + df.date.dt.day.astype(str).str.zfill(2)).astype(int))
-        df["date"] = pd.to_datetime(df["date"]).dt.date
+        df["date"] = pd.to_datetime(df["date"]).dt.date.astype(str)
 
         return df
 
@@ -64,6 +64,7 @@ class DimTimeDatePipeline(EasyPipeline):
 
         # Definition of each step
         create_step = CreateStep()
-        load_step = LoadStep("dim_shared_date_month_day", db_connector, if_exists="drop", pk=["month_id"], dtype=dtype)
+        load_step = LoadStep("dim_shared_date_month_day", db_connector, if_exists="drop", 
+          pk=["year", "quarter_id", "month_id", "date_id"], dtype=dtype)
         
         return [create_step, load_step]
