@@ -133,7 +133,7 @@ class EmergencyPipeline(EasyPipeline):
             "social_security":     "UInt8",
             "cie10":               "String",
             "date_id":             "UInt32",
-            "mun_id":              "UInt32",
+            "mun_id":              "UInt16",
             "attention_time":      "UInt16",
             "count":               "UInt16"
         }
