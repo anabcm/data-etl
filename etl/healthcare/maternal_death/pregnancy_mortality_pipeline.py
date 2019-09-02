@@ -52,9 +52,7 @@ class TransformStep(PipelineStep):
 class PregnancyMortalityPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return [
-            Parameter(label="Year", name="year", dtype=str)
-        ]
+        return []
 
     @staticmethod
     def steps(params):
