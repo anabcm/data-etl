@@ -84,7 +84,7 @@ class TransformStep(PipelineStep):
         df.rename(index=str, columns={"EDAD": "age", "SEXO": "sex_id", "AFECPRIN": "cie10", "DERHAB": "social_security"}, inplace=True)
 
         # Replacing issues with 2017 file
-        if params["year"] == 2017:
+        if int(params["year"]) == 2017:
             df["FECHAINGRESO"] = df["FECHAINGRESO"].str.replace("2520", "2017")
         # df.drop(df.loc[df["FECHAINGRESO"].str.contains("2520")].index, inplace = True)
 
