@@ -84,7 +84,8 @@ class TransformStep(PipelineStep):
         df.rename(index=str, columns={"EDAD": "age", "SEXO": "sex_id", "AFECPRIN": "cie10", "DERHAB": "social_security"}, inplace=True)
 
         # Replacing issues with 2017 file
-        df["FECHAINGRESO"] = df["FECHAINGRESO"].str.replace("2520", "2017")
+        if int(params["year"]) == 2017:
+            df["FECHAINGRESO"] = df["FECHAINGRESO"].str.replace("2520", "2017")
         # df.drop(df.loc[df["FECHAINGRESO"].str.contains("2520")].index, inplace = True)
 
         # Calculating attention time per person
@@ -96,7 +97,7 @@ class TransformStep(PipelineStep):
             
         # attention_time in hours [Some people has NaN values given that they dont have date of admission]
         df["attention_time"] = df["datetime_leaving"] - df["datetime_admission"]
-        df["attention_time"] = df["attention_time"]/np.timedelta64(1,"m")
+        df["attention_time"] = df["attention_time"] / np.timedelta64(1,"m")
 
         # Replacing issues with 2016 file
         df["MUNRESIDENCIA"].replace("K29", "029", inplace = True)
@@ -130,7 +131,6 @@ class TransformStep(PipelineStep):
         for item in ["social_security", "attention_time"]:
             df[item] = df[item].astype(float)
 
-
         return df
 
 class EmergencyPipeline(EasyPipeline):
@@ -162,7 +162,7 @@ class EmergencyPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dgis_emergency", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype,
+            "dgis_emergency", db_connector, if_exists="append", pk=["sex_id", "mun_id"], dtype=dtype,
             nullable_list=["date_id", "social_security"]
         )
 
