@@ -125,7 +125,10 @@ class TransformStep(PipelineStep):
         for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
             df[item] = df[item].astype(int)
 
-        df["attention_time"] = df["attention_time"].astype(float)
+        df["social_security"] = df["social_security"].apply(lambda x: x.strip()).replace({"G": pd.np.nan, "P": pd.np.nan})
+
+        for item in ["social_security", "attention_time"]:
+            df[item] = df[item].astype(float)
 
 
         return df
@@ -144,7 +147,7 @@ class EmergencyPipeline(EasyPipeline):
         dtype = {
             "age":                 "UInt8",
             "sex_id":              "UInt8",
-            "social_security":     "Float",
+            "social_security":     "UInt8",
             "cie10":               "String",
             "date_id":             "UInt32",
             "mun_id":              "UInt16",
@@ -160,7 +163,7 @@ class EmergencyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dgis_emergency", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype,
-            nullable_list=["date_id"]
+            nullable_list=["date_id", "social_security"]
         )
 
         return [download_step, transform_step, load_step]

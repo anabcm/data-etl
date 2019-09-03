@@ -52,13 +52,11 @@ class TransformStep(PipelineStep):
 class PregnancyMortalityPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return [
-            Parameter(label="Year", name="year", dtype=str)
-        ]
+        return []
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../../conns.yaml"))
 
         dtype = {
             "age":                  "UInt8",
@@ -76,12 +74,12 @@ class PregnancyMortalityPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["pregnancy-mortality-data"],
+            connector="pregnancy-mortality-data",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dgis_pregnancy_mortality", db_connector, if_exists="append", pk=["mun_residence_id", "year_decease"], dtype=dtype
+            "dgis_pregnancy_mortality", db_connector, if_exists="drop", pk=["mun_residence_id", "year_decease"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
