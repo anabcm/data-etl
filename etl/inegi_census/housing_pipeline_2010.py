@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
 
 import pandas as pd
 from simpledbf import Dbf5
@@ -25,7 +23,11 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        df = df[['ent', 'mun', 'loc50k', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'factor', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']].copy()
+        labels = ['factor', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
+                'totcuart', 'numpers', 'ingtrhog', 'ayuprogob', 'ayupeop', 'refrig', 
+                'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']
+
+        df = df[['ent', 'mun', 'loc50k'] + labels].copy()
         # data type conversion
         dtypes = {
             'ent': 'str',
@@ -99,7 +101,7 @@ class TransformStep(PipelineStep):
         
         # groupby data
         df.fillna('temp', inplace=True)
-        df = df.groupby(['loc_id', 'factor', 'clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'numpers', 'ingtrhog', 'ayuprogob', 'ayupeop', 'refrig', 'lavadora', 'autoprop', 'televi', 'internet', 'compu', 'celular']).sum().reset_index(col_fill='ffill')
+        df = df.groupby(['loc_id'] + labels).sum().reset_index(col_fill='ffill')
         df = df.rename(columns={'factor': 'households', 
                                 'clavivp': 'home_type',
                                 'fadqui': 'acquisition',
@@ -174,6 +176,7 @@ class CoveragePipeline(EasyPipeline):
             'tv':                       'UInt8',
             'computer':                 'UInt8',
             'mobile_phone':             'UInt8',
+            'internet':                 'UInt8',
             'year':                     'UInt16'
         }
 
@@ -191,7 +194,7 @@ class CoveragePipeline(EasyPipeline):
             nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
                           'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
-                          'vehicle', 'tv', 'computer', 'mobile_phone']
+                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet']
         )
         
         return [http_multi_dl_step, read_step, clean_step, transform_step, load_step]

@@ -54,10 +54,15 @@ class TransformStep(PipelineStep):
         df.ingtrhog = df.ingtrhog.astype('int')
         df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
 
+        labels = ['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 
+                'deuda', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 
+                'ingr_ayugob', 'ingr_perotropais', 'refrigerador', 'lavadora', 'autoprop', 
+                'televisor', 'internet', 'computadora', 'celular']
+
         # subset of columns
-        df = df[['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 'deuda', 'factor', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 'ingr_ayugob', 'ingr_perotropais', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']].copy()
+        df = df[['factor'] + labels].copy()
         df.fillna('temp', inplace=True)
-        df = df.groupby(['loc_id', 'cobertura', 'clavivp', 'forma_adqui', 'financiamiento', 'deuda', 'ingr_ayugob', 'ingr_perotropais', 'ingtrhog', 'pisos', 'techos', 'paredes', 'numpers', 'totcuart', 'cuadorm', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']).sum().reset_index(col_fill='ffill')
+        df = df.groupby(labels).sum().reset_index(col_fill='ffill')
         df = df.rename(columns={'factor': 'households', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 
                                 'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 
                                 'totcuart': 'total_rooms', 'cuadorm': 'bedrooms', 'refrigerador': 'fridge', 'lavadora': 'washing_machine', 'autoprop': 'vehicle', 'televisor': 'tv', 'computadora': 'computer', 'celular': 'mobile_phone'})
@@ -114,6 +119,7 @@ class CoveragePipeline(EasyPipeline):
             'tv':                       'UInt8',
             'computer':                 'UInt8',
             'mobile_phone':             'UInt8',
+            'internet':                 'UInt8',
             'year':                     'UInt16'
         }
 
@@ -131,7 +137,7 @@ class CoveragePipeline(EasyPipeline):
             nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
                           'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
-                          'vehicle', 'tv', 'computer', 'mobile_phone']
+                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet']
         )
 
         return [download_step, read_step, clean_step, transform_step, load_step]
