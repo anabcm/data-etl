@@ -65,24 +65,27 @@ class TransformStep(PipelineStep):
         # Redefining the date_id column given the 2 types of datetime format
         if df["FECHAINGRESO"][0].find(":") > 0:
             df["_YEAR"] = df["FECHAINGRESO"].apply(lambda x: str(x)[0:4])
+            # Fixed issue with 2017 year file
+            df.loc[df["_YEAR"] == "2520", "_YEAR"] ="0000"
             df["_MONTH"] = df["FECHAINGRESO"].apply(lambda x: str(x)[5:7])
             df["_DAY"] = df["FECHAINGRESO"].apply(lambda x: str(x)[8:10])
             df["date_id"] = df["_YEAR"] + df["_MONTH"] + df["_DAY"]
         else:
-            df["_YEAR"] = df["FECHAINGRESO"].apply(lambda x: str(x)[6:10])
-            df["_MONTH"] = df["FECHAINGRESO"].apply(lambda x: str(x)[0:2])
-            df["_DAY"] = df["FECHAINGRESO"].apply(lambda x: str(x)[3:5])
+            dates = pd.to_datetime(df["FECHAINGRESO"]).dt.date.astype("str")
+            df["_YEAR"] = dates.apply(lambda x: str(x)[0:4])
+            df["_MONTH"] = dates.apply(lambda x: str(x)[5:7])
+            df["_DAY"] = dates.apply(lambda x: str(x)[8:10])
             df["date_id"] = df["_YEAR"] + df["_MONTH"] + df["_DAY"]
 
         # No date of admission issue
         df.drop(df.loc[df["date_id"] == "nan"].index, inplace=True)
 
-        # Creating mun_id and count column (number of people)
-        df["mun_id"] = df["ENTRESIDENCIA"].astype("str").str.zfill(2) + df["MUNRESIDENCIA"].astype("str").str.zfill(3)
-        df["count"] = 1
-
         # Renaming useful columns
         df.rename(index=str, columns={"EDAD": "age", "SEXO": "sex_id", "AFECPRIN": "cie10", "DERHAB": "social_security"}, inplace=True)
+
+        # Replacing issues with 2017 file
+        df["FECHAINGRESO"] = df["FECHAINGRESO"].str.replace("2520", "2017")
+        # df.drop(df.loc[df["FECHAINGRESO"].str.contains("2520")].index, inplace = True)
 
         # Calculating attention time per person
         df["datetime_leaving"] = pd.to_datetime(df["FECHAALTA"]).dt.date.astype("str") + " " + df["HORATERATE"].astype("str").str.zfill(2) + ":" + df["MINTERATE"].astype("str").str.zfill(2) + ":" + "00"
@@ -93,7 +96,21 @@ class TransformStep(PipelineStep):
             
         # attention_time in hours [Some people has NaN values given that they dont have date of admission]
         df["attention_time"] = df["datetime_leaving"] - df["datetime_admission"]
-        df["attention_time"] = df["attention_time"] / np.timedelta64(1, "h")
+        df["attention_time"] = df["attention_time"]/np.timedelta64(1,"m")
+
+        # Replacing issues with 2016 file
+        df["MUNRESIDENCIA"].replace("K29", "029", inplace = True)
+        df["MUNRESIDENCIA"].replace(pd.np.nan, "999", inplace = True)
+        df["ENTRESIDENCIA"].replace(pd.np.nan, "99", inplace = True)
+
+        # Creating mun_id and count column (number of people)
+        df["mun_id"] = df["ENTRESIDENCIA"].astype("str").str.zfill(2) + df["MUNRESIDENCIA"].astype("str").str.zfill(3)
+        df["count"] = 1
+
+        # Fixing issues with switched dates and adding column related to exceding time in urgencies
+        df["attention_time"] = df["attention_time"].abs()
+        df.loc[(df["attention_time"] > 720), "over_time"] = 0
+        df.loc[(df["attention_time"] < 720), "over_time"] = 1
 
         # Droping the used columns
         list_drop = ["ENTRESIDENCIA", "MUNRESIDENCIA", "FECHAINGRESO", "HORAINIATE", "HORATERATE" , "MININIATE", "MINTERATE",
@@ -102,7 +119,7 @@ class TransformStep(PipelineStep):
         df.drop(list_drop, axis=1, inplace=True)
 
         # Groupby method
-        group_list = ["age", "sex_id", "social_security", "cie10", "date_id", "mun_id", "attention_time"]
+        group_list = ["age", "sex_id", "social_security", "cie10", "date_id", "mun_id", "attention_time", "over_time"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
         for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
@@ -135,7 +152,8 @@ class EmergencyPipeline(EasyPipeline):
             "date_id":             "UInt32",
             "mun_id":              "UInt16",
             "attention_time":      "UInt16",
-            "count":               "UInt16"
+            "count":               "UInt16",
+            "over_time":           "UInt8"
         }
 
         download_step = DownloadStep(
