@@ -28,9 +28,7 @@ class TransformStep(PipelineStep):
 
         df['cve_loc'] = df['cve_loc'].astype('int')
 
-        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
-        
-        df.nom_estab = df.nom_estab.str.strip()
+        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun', 'nom_estab'], inplace=True)
 
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
@@ -51,6 +49,7 @@ class TransformStep(PipelineStep):
                 'OCTUBRE': '10',
                 'NOVIEMBRE': '11',
                 'DICIEMBRE': '12'}
+
         for key, val in months.items():
             for date in df.fecha_alta.unique().tolist():
                 if key in date:
@@ -96,7 +95,6 @@ class TransformStep(PipelineStep):
 
         # rename column names
         column_names = {
-            'nom_estab': 'name',
             'codigo_act': 'national_industry_id',
             'per_ocu': 'n_workers',
             'cod_postal': 'postal_code',
@@ -117,7 +115,6 @@ class TransformStep(PipelineStep):
         # data types conversion
         dtypes = {
             'id':                   'int',
-            'name':                 'str',
             'national_industry_id': 'str',
             'directory_added_date': 'int',
             'n_workers':            'int',
@@ -163,7 +160,6 @@ class CoveragePipeline(EasyPipeline):
         
         dtypes = {
             'id':                   'UInt32',
-            'name':                 'String',
             'national_industry_id': 'String',
             'n_workers':            'UInt8',
             'postal_code':          'String',
@@ -181,6 +177,6 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
-                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
+                                nullable_list=['n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
                                 'lower', 'middle', 'upper'])
         return [read_step, transform_step, load_step]
