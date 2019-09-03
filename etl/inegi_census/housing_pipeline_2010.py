@@ -60,11 +60,11 @@ class CleanStep(PipelineStep):
             except:
                 # if contains nan values, values will contain 1.0 format.
                 df.loc[:, key] = df[key].astype('float')
-        return df
+        return df, labels
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, labels = prev[0], prev[1]
         
         # data to replace
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
