@@ -16,8 +16,7 @@ class TransformStep(PipelineStep):
         df = prev
 
         # type conversion
-        for col in ['sostenimiento', 'campus']:
-            df[col] = df[col].astype('float')
+        df['sostenimiento'] = df['sostenimiento'].astype('float')
         
         return df
 
@@ -30,13 +29,12 @@ class EnrollmentPipeline(EasyPipeline):
         dtype = {
             'work_center_id':   'String',
             'work_center_name': 'String',
-            'campus':           'UInt16',
             'sostenimiento':    'UInt8'
         }
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('dim_shared_work_centers', db_connector, if_exists='append', 
+        load_step = LoadStep('dim_shared_work_centers', db_connector, if_exists='drop', 
                             pk=['work_center_id'], dtype=dtype, engine='ReplacingMergeTree')
 
         return [read_step, transform_step, load_step]
