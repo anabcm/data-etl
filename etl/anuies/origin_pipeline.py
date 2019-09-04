@@ -116,6 +116,6 @@ class OriginPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_postgraduate_origin', db_connector, if_exists='append', pk=['mun_id', 'institution', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_origin', db_connector, if_exists='append', pk=['mun_id', 'institution', 'program'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
