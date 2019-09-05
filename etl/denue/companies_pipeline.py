@@ -53,8 +53,11 @@ class TransformStep(PipelineStep):
         for key, val in months.items():
             for date in df.fecha_alta.unique().tolist():
                 if key in date:
-                    temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
-                    df.fecha_alta = df.fecha_alta.str.replace(date, temp)
+                    try:
+                        temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
+                        df.fecha_alta = df.fecha_alta.str.replace(date, temp)
+                    except:
+                        continue
 
         #range creation
         df['lower'] = pd.np.nan
