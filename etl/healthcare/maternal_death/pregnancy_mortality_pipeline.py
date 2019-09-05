@@ -42,6 +42,13 @@ class TransformStep(PipelineStep):
                       "year_decease", "cie10", "year_of_register", "mun_residence_id", "mun_happening_id"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
+        # Setting academic_degree and social_security ids to match the previous datasets
+        filling = ["academic_degree", "social_security"]
+        for sheet in filling:
+            df_l = pd.read_excel(df_labels, sheet)
+            df[sheet] = df[sheet].astype(float)
+            df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
+
         # Transforming to int type columns
         for item in ["age", "marital_status", "occupation", "academic_degree", "social_security", "medical_center",
                       "year_decease","year_of_register", "mun_residence_id", "mun_happening_id", "count"]:

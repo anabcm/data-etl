@@ -15,3 +15,4 @@ economic-census
 *.dbf
 *.mat
 *.xlsx
+etl/healthcare/emergency/run.py
