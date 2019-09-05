@@ -9,9 +9,14 @@ from bamboo_lib.steps import LoadStep
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 1, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
-        df.columns = ['id', 'nom_estab', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
-                   'tipounieco', 'latitud', 'longitud', 'fecha_alta']
+        try:
+            df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                    'tipounieco', 'latitud', 'longitud', 'fecha_alta']
+        except:
+            df = pd.read_csv(params['url'], encoding='latin-1', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                    'tipounieco', 'latitud', 'longitud', 'fecha_alta']
         return df
 
 class TransformStep(PipelineStep):
@@ -28,7 +33,7 @@ class TransformStep(PipelineStep):
 
         df['cve_loc'] = df['cve_loc'].astype('int')
 
-        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun', 'nom_estab'], inplace=True)
+        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
 
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
@@ -52,12 +57,12 @@ class TransformStep(PipelineStep):
 
         for key, val in months.items():
             for date in df.fecha_alta.unique().tolist():
-                if key in date:
-                    try:
+                try:
+                    if key in date:
                         temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
                         df.fecha_alta = df.fecha_alta.str.replace(date, temp)
-                    except:
-                        continue
+                except:
+                    continue
 
         #range creation
         df['lower'] = pd.np.nan
@@ -148,7 +153,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class DENUEPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [

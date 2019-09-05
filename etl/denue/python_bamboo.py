@@ -19,4 +19,4 @@ for blob in blobs:
         os.system("bamboo-cli --folder . --entry companies_pipeline --date=" + date + " --url=" + url)
 
 # create date dimension table
-os.system("bamboo-cli --folder . --entry date_dim_table")
+os.system('bamboo-cli --folder . --entry companies_index_ingest')
