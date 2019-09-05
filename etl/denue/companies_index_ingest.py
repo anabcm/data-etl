@@ -9,6 +9,10 @@ class ReadStep(PipelineStep):
         url = 'https://storage.googleapis.com/datamexico-data/denue/companies_index.csv'
         df = pd.read_csv(url, encoding='latin-1')
         df.fecha_alta = df.fecha_alta.str.replace('-', '')
+
+        for col in ['id', 'date', 'fecha_alta']:
+            df[col] = df[col].astype('float')
+
         return df
 
 class DENUECompaniesPipeline(EasyPipeline):
@@ -26,5 +30,6 @@ class DENUECompaniesPipeline(EasyPipeline):
         }
 
         read_step = ReadStep()
-        load_step = LoadStep('inegi_denue_companies', connector=db_connector, if_exists='drop', pk=['id'], dtype=dtypes)
+        load_step = LoadStep('inegi_denue_companies', connector=db_connector, if_exists='drop', pk=['id'], dtype=dtypes, 
+                            nullable_list=['nom_estab', 'raz_social', 'fecha_alta'])
         return [read_step, load_step]
