@@ -10,7 +10,7 @@ blobs = bucket.list_blobs()
 urls = []
 years = []
 for blob in blobs:
-    if 'denue' in blob.name:
+    if ('denue' in blob.name) and ('index' not in blob.name):
         #urls.append('https://storage.googleapis.com/datamexico-data/' + str(blob.name))
         url = 'https://storage.googleapis.com/datamexico-data/' + str(blob.name)
         date = blob.name.split('denue/')[1].split('/')[0].replace('_', '-')
@@ -18,5 +18,5 @@ for blob in blobs:
         # runs pipeline
         os.system("bamboo-cli --folder . --entry companies_pipeline --date=" + date + " --url=" + url)
 
-# create date dimension table
-os.system("bamboo-cli --folder . --entry date_dim_table")
+# create dimension table
+os.system('bamboo-cli --folder . --entry companies_index_ingest')
