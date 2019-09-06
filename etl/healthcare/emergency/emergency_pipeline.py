@@ -123,13 +123,16 @@ class TransformStep(PipelineStep):
         group_list = ["age", "sex_id", "social_security", "cie10", "date_id", "mun_id", "attention_time", "over_time"]
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
+        # Setting values to the right types
         for item in ["age", "sex_id", "mun_id", "count", "date_id"]:
             df[item] = df[item].astype(int)
 
         df["social_security"] = df["social_security"].apply(lambda x: x.strip()).replace({"G": pd.np.nan, "P": "10", "3":"5", "4": "5", "6": "4", "7": "6", "2": "3", "1": "2", "8": "1", "0": "8", "9": "0"})
-
         for item in ["social_security", "attention_time"]:
             df[item] = df[item].astype(float)
+
+        # Cases of unknown age
+        df.loc[(df["age"] < 0), "age"] = 999
 
         return df
 

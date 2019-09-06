@@ -15,10 +15,10 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-
+								
         # Setting column names to set in format
-        cols_es = ["categoria_letra_es", "cie10_3_es", "cie10_4_es"]
-        cols_en = ["categoria_letra_en", "cie10_3_en", "cie10_4_en"]
+        cols_es = ["category_es", "cie10_3digit_es", "cie10_4digit_es"]
+        cols_en = ["category_en", "cie10_3digit_en", "cie10_4digit_en"]
         stopwords_es = ["a", "ante", "con", "contra", "de", "desde", "la", "lo", "las", "los", "y"]
 
         # Step for spanish words
@@ -34,8 +34,8 @@ class CleanStep(PipelineStep):
                 df[ele] = df[ele].str.replace(" " + ene.title() + " ", " " + ene + " ")
 
         # Groupby step
-        grouped = ["letra_id", "categoria_letra_es", "categoria_letra_en", "cie10_3_digitos", "cie10_3_es", "cie10_3_en",
-           "cie10_4_digitos", "cie10_4_es", "cie10_4_en"]
+        grouped = ["letter_id", "category_es", "category_en", "cie10_3digit", "cie10_3digit_es", "cie10_3digit_en",
+           "cie10_4digit", "cie10_4digit_es", "cie10_4digit_en"]
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
@@ -56,15 +56,15 @@ class CoveragePipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
 
-            "letra_id":                "String",
-            "categoria_letra_es":      "String",
-            "categoria_letra_en":      "String",
-            "cie10_3_digitos":         "String",
-            "cie10_3_es":              "String",
-            "cie10_3_en":              "String",
-            "cie10_4_digitos":         "String",
-            "cie10_4_es":              "String",
-            "cie10_4_en":              "String"
+            "letter_id":                "String",
+            "category_es":              "String",
+            "category_en":              "String",
+            "cie10_3digit":             "String",
+            "cie10_3digit_es":          "String",
+            "cie10_3digit_en":          "String",
+            "cie10_4digit":             "String",
+            "cie10_4digit_es":          "String",
+            "cie10_4digit_en":          "String"
         }
 
         # Definition of each step
