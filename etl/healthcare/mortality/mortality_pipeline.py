@@ -58,7 +58,7 @@ class ENOEPipeline(EasyPipeline):
             "mun_id":                   "UInt16",
             "description_id":           "UInt32",
             "year":                     "UInt16",
-            "count":                    "UInt16",
+            "count":                    "UInt16"
         }
 
         download_step = DownloadStep(
@@ -67,7 +67,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_mortality", db_connector, if_exists="append", pk=["mun_id", "description_id", "year"], dtype=dtype
+            "inegi_mortality", db_connector, if_exists="drop", pk=["mun_id", "description_id", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
