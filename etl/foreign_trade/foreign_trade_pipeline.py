@@ -27,7 +27,7 @@ class TransformStep(PipelineStep):
         df = df.loc[~(df['product'].str.len() == 4)].copy()
         df['product'] = df['product'].str.zfill(6)
         df['foreign_destination_origin'] = df['foreign_destination_origin'].str.lower()
-        df['date'] = '20' + url[-6:-4] + url[-8:-6]
+        df['month_id'] = '20' + url[-6:-4] + url[-8:-6]
         df.value.replace('C', pd.np.nan, inplace=True)
         
         # hs codes
@@ -36,7 +36,7 @@ class TransformStep(PipelineStep):
         
         # type conversion
         for col in df.columns[df.columns != 'foreign_destination_origin']:
-            df[col] = df[col].astype('float')
+            df[col] = df[col].astype('int')
             
         # rename columns
         names = {
@@ -61,7 +61,7 @@ class ForeignTradePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            'date':                       'UInt32',
+            'month_id':                   'UInt32',
             'mun_id':                     'UInt16',
             'partner_country':            'String',
             'product':                    'UInt32',
@@ -72,8 +72,8 @@ class ForeignTradePipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('foreign_trade', db_connector, 
-                             if_exists='append', pk=['date', 'mun_id', 'partner_country', 'product'], 
+        load_step = LoadStep('economy_foreign_trade', db_connector, 
+                             if_exists='append', pk=['month_id', 'mun_id', 'partner_country', 'product'], 
                              dtype=dtype, nullable_list=['value'])
 
         return [read_step, transform_step, load_step]
