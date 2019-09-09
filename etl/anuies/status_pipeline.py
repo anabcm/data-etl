@@ -81,12 +81,12 @@ class TransformStep(PipelineStep):
         df.sex.replace(sex, inplace=True)
 
         types = {
-            'TS': 1,
-            'LEN': 2,
-            'LUT': 3,
-            'MAESTRÍA': 4,
-            'ESPECIALIDAD': 5,
-            'DOCTORADO': 6
+            'TS': 8,
+            'LEN': 10,
+            'LUT': 11,
+            'ESPECIALIDAD': 12,
+            'MAESTRÍA': 13,
+            'DOCTORADO': 14
         }
         df.type.replace(types, inplace=True)
 
