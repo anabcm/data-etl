@@ -9,9 +9,14 @@ from bamboo_lib.steps import LoadStep
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 1, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
-        df.columns = ['id', 'nom_estab', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
-                   'tipounieco', 'latitud', 'longitud', 'fecha_alta']
+        try:
+            df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                    'tipounieco', 'latitud', 'longitud', 'fecha_alta']
+        except:
+            df = pd.read_csv(params['url'], encoding='latin-1', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
+                    'tipounieco', 'latitud', 'longitud', 'fecha_alta']
         return df
 
 class TransformStep(PipelineStep):
@@ -29,8 +34,6 @@ class TransformStep(PipelineStep):
         df['cve_loc'] = df['cve_loc'].astype('int')
 
         df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
-        
-        df.nom_estab = df.nom_estab.str.strip()
 
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
@@ -51,11 +54,15 @@ class TransformStep(PipelineStep):
                 'OCTUBRE': '10',
                 'NOVIEMBRE': '11',
                 'DICIEMBRE': '12'}
+
         for key, val in months.items():
             for date in df.fecha_alta.unique().tolist():
-                if key in date:
-                    temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
-                    df.fecha_alta = df.fecha_alta.str.replace(date, temp)
+                try:
+                    if key in date:
+                        temp = date.replace(key, val).split()[1] + date.replace(key, val).split()[0]
+                        df.fecha_alta = df.fecha_alta.str.replace(date, temp)
+                except:
+                    continue
 
         #range creation
         df['lower'] = pd.np.nan
@@ -96,7 +103,6 @@ class TransformStep(PipelineStep):
 
         # rename column names
         column_names = {
-            'nom_estab': 'name',
             'codigo_act': 'national_industry_id',
             'per_ocu': 'n_workers',
             'cod_postal': 'postal_code',
@@ -117,7 +123,6 @@ class TransformStep(PipelineStep):
         # data types conversion
         dtypes = {
             'id':                   'int',
-            'name':                 'str',
             'national_industry_id': 'str',
             'directory_added_date': 'int',
             'n_workers':            'int',
@@ -148,7 +153,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class DENUEPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
@@ -163,7 +168,6 @@ class CoveragePipeline(EasyPipeline):
         
         dtypes = {
             'id':                   'UInt32',
-            'name':                 'String',
             'national_industry_id': 'String',
             'n_workers':            'UInt8',
             'postal_code':          'String',
@@ -181,6 +185,6 @@ class CoveragePipeline(EasyPipeline):
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
-                                nullable_list=['name', 'n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
+                                nullable_list=['n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
                                 'lower', 'middle', 'upper'])
         return [read_step, transform_step, load_step]

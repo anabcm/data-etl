@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry enigh_population_pipeline

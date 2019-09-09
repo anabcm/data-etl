@@ -19,7 +19,7 @@ class ReadStep(PipelineStep):
         df = pd.read_excel(params.get('url'), header=1)
         df.columns = df.columns.str.lower()
         df.rename(columns={'entidad': 'ent_id', 'municipio': 'mun_id', 'cve campo unitario': 'career', 
-                           'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'institution', 
+                           'nivel': 'type', 'ciclo': 'period', 'clave institución': 'institution', 
                            'nombre carrera sep': 'program'}, inplace=True)
         # careers ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'

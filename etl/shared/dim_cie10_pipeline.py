@@ -34,7 +34,7 @@ class CleanStep(PipelineStep):
                 df[ele] = df[ele].str.replace(" " + ene.title() + " ", " " + ene + " ")
 
         # Groupby step
-        grouped = ["letter_id", "category_es", "category_en", "cie10_3digit", "cie10_3digit_es", "cie10_3digit_en",
+        grouped = ["chapter_id", "category_es", "category_en", "cie10_3digit", "cie10_3digit_es", "cie10_3digit_en",
            "cie10_4digit", "cie10_4digit_es", "cie10_4digit_en"]
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
@@ -55,8 +55,7 @@ class CoveragePipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-
-            "letter_id":                "String",
+            "chapter_id":                "String",
             "category_es":              "String",
             "category_en":              "String",
             "cie10_3digit":             "String",
@@ -70,6 +69,8 @@ class CoveragePipeline(EasyPipeline):
         # Definition of each step
         read_step = ReadStep()
         clean_step = CleanStep()
-        load_step = LoadStep("dim_shared_cie10", db_connector, if_exists="drop", pk=["letra_id", "cie10_3_digitos", "cie10_4_digitos"], dtype=dtype)
+        load_step = LoadStep(
+            "dim_shared_cie10", db_connector, if_exists="drop", pk=["chapter_id", "cie10_3digit", "cie10_4digit"], dtype=dtype
+        )
         
         return [read_step, clean_step, load_step]

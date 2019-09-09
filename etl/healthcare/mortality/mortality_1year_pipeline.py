@@ -61,7 +61,7 @@ class ENOEPipeline(EasyPipeline):
             "mun_id":                   "UInt16",
             "gender_id":                "UInt8",
             "year":                     "UInt16",
-            "count":                    "UInt16",
+            "count":                    "UInt16"
         }
 
         download_step = DownloadStep(

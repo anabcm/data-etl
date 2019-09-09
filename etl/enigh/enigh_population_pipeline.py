@@ -82,7 +82,7 @@ class TransformStep(PipelineStep):
             "redsoc_3": "near_support_work",
             "redsoc_4": "near_support_doctor",
             "redsoc_5": "near_support_neighborhood",
-            "redsoc_6": "near_support_childrens",
+            "redsoc_6": "near_support_children",
             "nivelaprob": "academic_degree",
             "hor_1": "working_hours",
             "segpop": "popular_insurance",
@@ -101,7 +101,7 @@ class TransformStep(PipelineStep):
         group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
         "social_security", "social_security_years", "social_security_months", "near_support_money",
         "near_support_sickness", "near_support_work", "near_support_doctor", "near_support_neighborhood",
-        "near_support_childrens", "popular_insurance", "health_attention", "working_hours",
+        "near_support_children", "popular_insurance", "health_attention", "working_hours",
         "inst_1", "inst_2", "inst_3", "inst_4", "inst_5", "inst_6", "work_last_month", "job_absence",
         "act_pnea1", "act_pnea2", "number_jobs", "eco_stratum", "mun_id", "near_healthcare_center",
         "waiting_health_attention"]
@@ -114,7 +114,7 @@ class TransformStep(PipelineStep):
         # Changing types for certains columns
         null_list = ["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
             "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
-            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
+            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_children",
             "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
             "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs",
             "near_healthcare_center", "waiting_health_attention"]
@@ -149,7 +149,7 @@ class EnighPopulationPipeline(EasyPipeline):
             "near_support_work":               "UInt8",
             "near_support_doctor":             "UInt8",
             "near_support_neighborhood":       "UInt8",
-            "near_support_childrens":          "UInt8",
+            "near_support_children":          "UInt8",
             "working_hours":                   "UInt16",
             "popular_insurance":               "UInt8",
             "health_attention":                "UInt8",
@@ -177,10 +177,10 @@ class EnighPopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enigh_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
+            "inegi_enigh_population", db_connector, if_exists="drop", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
             "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
-            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_childrens",
+            "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_children",
             "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
             "inst_5", "inst_6", "work_last_month", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
         )
