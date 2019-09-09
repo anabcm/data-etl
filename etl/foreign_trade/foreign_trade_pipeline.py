@@ -37,7 +37,7 @@ class TransformStep(PipelineStep):
         # type conversion
         for col in df.columns[df.columns != 'foreign_destination_origin']:
             try:
-                df[col] = df[col].astype('int')
+                df[col] = df[col].astype('float')
             except:
                 print('NaN values in column:', col)
                 continue
@@ -50,7 +50,11 @@ class TransformStep(PipelineStep):
         }
         df.rename(columns=names, inplace=True)
 
+        # new id
         df.mun_id.replace(0, 50000, inplace=True)
+
+        # drop column
+        df.drop(columns=['date'], inplace=True)
 
         return df
 
