@@ -42,6 +42,7 @@ class TransformStep(PipelineStep):
         names = {
             'municipality_code': 'mun_id',
             'foreign_destination_origin': 'partner_country',
+            'trade_flow': 'flow_id'
         }
         df.rename(columns=names, inplace=True)
 
@@ -64,7 +65,7 @@ class ForeignTradePipeline(EasyPipeline):
             'mun_id':                     'UInt16',
             'partner_country':            'String',
             'product':                    'UInt32',
-            'trade_flow':                 'UInt8',
+            'flow_id':                    'UInt8',
             'value':                      'UInt32',
             'firms':                      'UInt16'
         }
