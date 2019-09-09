@@ -36,8 +36,14 @@ class TransformStep(PipelineStep):
         
         # type conversion
         for col in df.columns[df.columns != 'foreign_destination_origin']:
-            df[col] = df[col].astype('int')
-            
+            try:
+                df[col] = df[col].astype('int')
+            except:
+                print('NaN values in column:', col)
+                continue
+
+        df.mun_id.replace(0, 50000, inplace=True)
+
         # rename columns
         names = {
             'municipality_code': 'mun_id',
