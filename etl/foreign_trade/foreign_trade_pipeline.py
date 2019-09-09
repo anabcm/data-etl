@@ -42,8 +42,6 @@ class TransformStep(PipelineStep):
                 print('NaN values in column:', col)
                 continue
 
-        df.mun_id.replace(0, 50000, inplace=True)
-
         # rename columns
         names = {
             'municipality_code': 'mun_id',
@@ -51,6 +49,8 @@ class TransformStep(PipelineStep):
             'trade_flow': 'flow_id'
         }
         df.rename(columns=names, inplace=True)
+
+        df.mun_id.replace(0, 50000, inplace=True)
 
         return df
 
