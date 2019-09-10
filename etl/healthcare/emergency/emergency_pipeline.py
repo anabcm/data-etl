@@ -134,6 +134,13 @@ class TransformStep(PipelineStep):
         # Cases of unknown age
         df.loc[(df["age"] < 0), "age"] = 999
 
+        # Droping overextended stay in emergencies
+        df.drop(df.loc[(df["date_id"] < 20120101)].index, inplace=True)
+        df.drop(df.loc[(df["date_id"] > 20171230)].index, inplace=True)
+
+        # Reseting Index
+        df = df.reset_index(drop=True)
+
         return df
 
 class EmergencyPipeline(EasyPipeline):
