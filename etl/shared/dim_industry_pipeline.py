@@ -59,7 +59,7 @@ class CoveragePipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'sector_id':            'UInt8',
+            'sector_id':            'String',
             'sector_es':            'String',
             'sector_en':            'String',
             'subsector_id':         'UInt16',
