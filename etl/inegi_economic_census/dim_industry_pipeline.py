@@ -17,7 +17,7 @@ from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQT1vtQutSWbdqZKLQokDIHq410zqU3fMTuqdhqc2A84DjI0IlTQb0nqu4h-oIxE7b2oza6S0_Tcpqv/pub?output=xlsx'
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRf6ecVlEDTaBNfp2VSd7Ti-AnAQDyQlMjF7uek-cQHQ49ihWv4zeSXgN8z0gJV72ogir3hYvYTu8iX/pub?output=xlsx'
         df = pd.read_excel(url, dtype='str')
         return df
 
