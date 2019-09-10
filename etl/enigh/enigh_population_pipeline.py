@@ -72,7 +72,7 @@ class TransformStep(PipelineStep):
             "sexo": "sex", 
             "edad": "age",
             "hablaind": "speaks_native",
-            "etnia": "etnicity",
+            "etnia": "ethnicity",
             "residencia": "reference_city",
             "segsoc": "social_security",
             "ss_aa": "social_security_years",
@@ -98,7 +98,7 @@ class TransformStep(PipelineStep):
         df["population"] = df["population"].astype(int)
         df["working_hours"].replace(999999, 0, inplace = True)
 
-        group_list = ["sex", "age", "speaks_native", "etnicity", "academic_degree", "reference_city",
+        group_list = ["sex", "age", "speaks_native", "ethnicity", "academic_degree", "reference_city",
         "social_security", "social_security_years", "social_security_months", "near_support_money",
         "near_support_sickness", "near_support_work", "near_support_doctor", "near_support_neighborhood",
         "near_support_children", "popular_insurance", "health_attention", "working_hours",
@@ -112,7 +112,7 @@ class TransformStep(PipelineStep):
         df["working_hours"].replace(0, pd.np.nan, inplace = True)
 
         # Changing types for certains columns
-        null_list = ["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
+        null_list = ["speaks_native", "ethnicity", "academic_degree", "reference_city", "social_security",
             "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
             "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_children",
             "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
@@ -138,7 +138,7 @@ class EnighPopulationPipeline(EasyPipeline):
 
         dtype = {
             "speaks_native":                   "UInt8",
-            "etnicity":                        "UInt8",
+            "ethnicity":                       "UInt8",
             "academic_degree":                 "UInt8",
             "reference_city":                  "UInt8",
             "social_security":                 "UInt8",
@@ -149,7 +149,7 @@ class EnighPopulationPipeline(EasyPipeline):
             "near_support_work":               "UInt8",
             "near_support_doctor":             "UInt8",
             "near_support_neighborhood":       "UInt8",
-            "near_support_children":          "UInt8",
+            "near_support_children":           "UInt8",
             "working_hours":                   "UInt16",
             "popular_insurance":               "UInt8",
             "health_attention":                "UInt8",
@@ -178,7 +178,7 @@ class EnighPopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_enigh_population", db_connector, if_exists="drop", pk=["mun_id", "sex"], dtype=dtype, 
-            nullable_list=["speaks_native", "etnicity", "academic_degree", "reference_city", "social_security",
+            nullable_list=["speaks_native", "ethnicity", "academic_degree", "reference_city", "social_security",
             "social_security_years", "social_security_months", "near_support_money", "near_support_sickness",
             "near_support_work", "near_support_doctor", "near_support_neighborhood", "near_support_children",
             "working_hours", "popular_insurance", "health_attention", "inst_1", "inst_2", "inst_3", "inst_4",
