@@ -2,7 +2,7 @@ import os
 
 period = 'Monthly'
 for depth in ['2D', '4D', '6D']:
-  for year in range(6, 19):
+  for year in range(6, 20):
     for month in range(1, 13):
       for url in [
         'https://storage.googleapis.com/datamexico-data/foreign_trade/Municipal/HS_' + depth + '/' + period + '/' + depth + '_mun_month' + str(month).zfill(2) + str(year).zfill(2) + '.csv',
