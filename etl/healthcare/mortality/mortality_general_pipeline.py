@@ -18,6 +18,7 @@ class TransformStep(PipelineStep):
 
         # Droping rows related to "Estados Unidos Mexicanos" or national/entity/municipality totals
         df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0) ].index, inplace=True)
+        df["municipio"].replace({996: 999}, inplace=True)
 
         # Creating news geo ids
         df["mun_id"] = df["entidad"].astype("str").str.zfill(2) + df["municipio"].astype("str").str.zfill(3)
