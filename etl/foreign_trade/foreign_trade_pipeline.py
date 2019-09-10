@@ -84,7 +84,7 @@ class TransformStep(PipelineStep):
             'municipality_code': 'mun_id',
             'foreign_destination_origin': 'partner_country',
             'trade_flow': 'flow_id',
-            'product': 'hs_0' + str(depth)
+            'product': 'hs' + str(depth) + '_id'
         }
         df.rename(columns=names, inplace=True)
 
@@ -92,7 +92,7 @@ class TransformStep(PipelineStep):
         df.mun_id.replace(0, 50000, inplace=True)
 
         # order
-        df = df[['mun_id', 'hs_02', 'hs_04', 'hs_06', 'flow_id', 'partner_country', 'firms', 'value', 'month_id', 'year']].copy()
+        df = df[['mun_id', 'hs2_id', 'hs4_id', 'hs6_id', 'flow_id', 'partner_country', 'firms', 'value', 'month_id', 'year']].copy()
 
         # negative values
         df = df.loc[df.value > 0].copy()
@@ -113,9 +113,9 @@ class ForeignTradePipeline(EasyPipeline):
         
         dtype = {
             'mun_id':                     'UInt16',
-            'hs_02':                      'UInt16',
-            'hs_04':                      'UInt32',
-            'hs_06':                      'UInt32',
+            'hs2_id':                     'UInt16',
+            'hs4_id':                     'UInt32',
+            'hs6_id':                     'UInt32',
             'flow_id':                    'UInt8',
             'partner_country':            'String',   
             'firms':                      'UInt16',
@@ -126,7 +126,7 @@ class ForeignTradePipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('economy_foreign_trade', db_connector, 
+        load_step = LoadStep('economy_foreign_trade_mun', db_connector, 
                              if_exists='append', pk=['mun_id', 'partner_country'], 
                              dtype=dtype, nullable_list=['hs_02', 'hs_04', 'hs_06',
                                                         'value', 'month_id', 'year'])
