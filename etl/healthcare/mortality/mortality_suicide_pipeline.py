@@ -60,14 +60,14 @@ class TransformStep(PipelineStep):
 
         return df
 
-class ENOEPipeline(EasyPipeline):
+class MortalitySuicidePipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return []
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../../conns.yaml"))
 
         dtype = {
             "ent_id":                       "UInt8",
@@ -83,7 +83,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_suicides_over_mortality", db_connector, if_exists="append", pk=["ent_id", "year"], dtype=dtype
+            "inegi_suicides_over_mortality", db_connector, if_exists="drop", pk=["ent_id", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
