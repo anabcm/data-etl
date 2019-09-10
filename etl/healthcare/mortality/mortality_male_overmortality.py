@@ -16,34 +16,32 @@ class TransformStep(PipelineStep):
         # Columns with columns besides annual totals
         _years = [str(i) for i in range(1994,2017)]
 
-        # Keeping columns related to general deaths by gender
-        df = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032)| (df["id_indicador"] == 1002000033)]
+        # Rows related to overmortality (number of men dying over 100 females)
+        df = df.loc[(df["id_indicador"] == 6200240468)]
 
-        # Droping rows related to "Estados Unidos Mexicanos" or national/entity/municipality totals
-        df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0) ].index, inplace=True)
+        # Droping rows related to "Estados Unidos Mexicanos" or national/entity totals
+        df.drop(df.loc[(df["entidad"] == 0)].index, inplace=True)
 
         # Creating news geo ids
-        df["mun_id"] = df["entidad"].astype("str").str.zfill(2) + df["municipio"].astype("str").str.zfill(3)
+        df["ent_id"] = df["entidad"].astype("str").str.zfill(2)
 
         # Droping used columns, as well years that only had national totals
         df.drop(["entidad", "municipio", "desc_entidad", "desc_municipio", "indicador", "unidad_medida",
                 "1990", "1991", "1992", "1993"], axis=1, inplace=True)
 
-        # Division per gender (totals) [1: male, 2: female, 0: unknownj]
-        df["id_indicador"].replace({1002000031: 1, 1002000032: 2, 1002000033: 0}, inplace=True)
-
         # Melt step in order to get file in tidy data format
-        df = pd.melt(df, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
+        df = pd.melt(df, id_vars = ["ent_id"], value_vars = _years)
 
         # Renaming columns from spanish to english
-        df.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "count"}, inplace=True)
+        df.rename(columns = {"variable": "year", "value": "male_overmortality_index"}, inplace=True)
 
-        # Groupby step, in order to set count values from NaN to 0
-        df = df.groupby(["mun_id", "sex_id", "year"]).sum().reset_index(col_fill="ffill")
+        # Droping last columns
+        df.drop(["id_indicador", "code"], axis=1, inplace=True)
 
         # Setting types
-        for item in ["mun_id", "sex_id", "year", "count"]:
+        for item in ["ent_id", "year"]:
             df[item] = df[item].astype(int)
+        df["male_overmortality_index"] = df["male_overmortality_index"].astype(float)
 
         return df
 
@@ -57,10 +55,9 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "mun_id":                   "UInt16",
-            "sex_id":                   "UInt8",
-            "year":                     "UInt16",
-            "count":                    "UInt16",
+            "ent_id":                           "UInt8",
+            "year":                             "UInt16",
+            "male_overmortality_index":         "Float32"
         }
 
         download_step = DownloadStep(
@@ -69,7 +66,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex_id", "year"], dtype=dtype
+            "inegi_overmortality_mortality", db_connector, if_exists="append", pk=["ent_id", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]

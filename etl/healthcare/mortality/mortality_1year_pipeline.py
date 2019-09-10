@@ -14,8 +14,7 @@ class TransformStep(PipelineStep):
         df = pd.read_excel(prev, index_col=None, header=0)
 
         # Columns with columns besides annual totals
-        _years = ["1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005",
-                  "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
+        _years = [str(i) for i in range(1994,2017)]
 
         # Division per gender (1 year olds)
         df = df[(df["id_indicador"] == 1002000035) | (df["id_indicador"] == 1002000036)| (df["id_indicador"] == 1002000037)]
@@ -37,13 +36,13 @@ class TransformStep(PipelineStep):
         df = pd.melt(df, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
 
         # Renaming columns from spanish to english
-        df.rename(columns = {"id_indicador": "gender_id", "variable": "year", "value": "count"}, inplace=True)
+        df.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "count"}, inplace=True)
 
         # Groupby step, in order to set count values from NaN to 0
-        df = df.groupby(["mun_id", "gender_id", "year"]).sum().reset_index(col_fill="ffill")
+        df = df.groupby(["mun_id", "sex_id", "year"]).sum().reset_index(col_fill="ffill")
 
         # Setting types
-        for item in ["mun_id", "gender_id", "year", "count"]:
+        for item in ["mun_id", "sex_id", "year", "count"]:
             df[item] = df[item].astype(int)
 
         return df
@@ -59,7 +58,7 @@ class ENOEPipeline(EasyPipeline):
 
         dtype = {
             "mun_id":                   "UInt16",
-            "gender_id":                "UInt8",
+            "sex_id":                   "UInt8",
             "year":                     "UInt16",
             "count":                    "UInt16"
         }
@@ -70,7 +69,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_1years_mortality", db_connector, if_exists="append", pk=["mun_id", "gender_id", "year"], dtype=dtype
+            "inegi_1years_mortality", db_connector, if_exists="append", pk=["mun_id", "sex_id", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
