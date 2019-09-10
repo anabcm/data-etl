@@ -14,10 +14,10 @@ class TransformStep(PipelineStep):
         df = pd.read_excel(prev, index_col=None, header=0)
 
         # Columns with columns besides annual totals
-        _years = [str(i) for i in range(1994,2017)]
+        _years = [str(i) for i in range(1994, 2017)]
 
         # Droping rows related to "Estados Unidos Mexicanos" or national/entity/municipality totals
-        df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0) ].index, inplace=True)
+        df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0)].index, inplace=True)
 
         # Creating news geo ids
         df["mun_id"] = df["entidad"].astype("str").str.zfill(2) + df["municipio"].astype("str").str.zfill(3)
@@ -27,7 +27,7 @@ class TransformStep(PipelineStep):
                 "1990", "1991", "1992", "1993"], axis=1, inplace=True)
 
         # Keeping columns related to general deaths by gender
-        df_1 = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032)| (df["id_indicador"] == 1002000033)]
+        df_1 = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032) | (df["id_indicador"] == 1002000033)]
 
         # Division per gender (totals) [1: male, 2: female, 0: unknown]
         df_1["id_indicador"].replace({1002000031: 1, 1002000032: 2, 1002000033: 0}, inplace=True)
@@ -73,7 +73,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class ENOEPipeline(EasyPipeline):
+class MortalityGeneralPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return []
@@ -96,7 +96,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex_id", "year"], dtype=dtype
+            "inegi_general_mortality", db_connector, if_exists="drop", pk=["mun_id", "sex_id", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
