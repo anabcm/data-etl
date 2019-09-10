@@ -86,7 +86,7 @@ class MortalityGeneralPipeline(EasyPipeline):
             "sex_id":                   "UInt8",
             "year":                     "UInt16",
             "general_deaths":           "UInt16",
-            "one_year_deaths":             "UInt16"
+            "one_year_deaths":          "UInt16"
         }
 
         download_step = DownloadStep(
