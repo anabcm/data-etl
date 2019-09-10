@@ -67,7 +67,7 @@ class MortalitySuicidePipeline(EasyPipeline):
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../../conns.yaml"))
 
         dtype = {
             "ent_id":                       "UInt8",
