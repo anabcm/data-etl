@@ -15,6 +15,37 @@ class ReadStep(PipelineStep):
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df, url = prev[0], prev[1]
+        # initial paramas
+        params = {
+            'period': ['Annual', 'Monthly'],
+            'depth': {'HS_2D': 2,
+                    'HS_4D': 4,
+                    'HS_6D': 6}
+        }
+
+        # get params
+        for ele in params['period']:
+            if ele in url:
+                period = ele
+                break
+        for k, v in params['depth'].items():
+            if k in url:
+                depth = v
+            else:
+                df['hs_0' + str(v)] = pd.np.nan
+
+        # date/month
+        if period == 'Annual':
+            df.rename(columns={'date': 'year'}, inplace=True)
+            df['month_id'] = pd.np.nan
+        elif period == 'Monthly':
+            df['month_id'] = '20' + url[-6:-4] + url[-8:-6]
+            df['year'] = pd.np.nan
+            df.drop(columns=['date'], inplace=True)
+        
+        for col in ['product_2d', 'product_4d']:
+            df.rename(columns={col: 'product'}, inplace=True)
+
         # type conversion
         types = {
             'municipality_code': int,
@@ -22,18 +53,24 @@ class TransformStep(PipelineStep):
         }
         for key,val in types.items():
             df[key] = df[key].astype(val)
-        
-        # columns creation
-        df = df.loc[~(df['product'].str.len() == 4)].copy()
-        df['product'] = df['product'].str.zfill(6)
+
+        # special case
+        if depth == 6:
+            df.loc[df['product'].str.len() == 4, 'product'] = df.loc[df['product'].str.len() == 4, 'product'] + '00'
+        if depth == 4:
+            df.loc[df['product'].str.len() == 2, 'product'] = df.loc[df['product'].str.len() == 2, 'product'] + '00'
+
+        df['product'] = df['product'].str.zfill(depth)
+
+        # iso3 names
         df['foreign_destination_origin'] = df['foreign_destination_origin'].str.lower()
-        df['month_id'] = '20' + url[-6:-4] + url[-8:-6]
+
         df.value.replace('C', pd.np.nan, inplace=True)
-        
+
         # hs codes
         for row in df['product'].unique():
             df['product'].replace(row, hs6_converter(row), inplace=True)
-        
+
         # type conversion
         for col in df.columns[df.columns != 'foreign_destination_origin']:
             try:
@@ -46,15 +83,19 @@ class TransformStep(PipelineStep):
         names = {
             'municipality_code': 'mun_id',
             'foreign_destination_origin': 'partner_country',
-            'trade_flow': 'flow_id'
+            'trade_flow': 'flow_id',
+            'product': 'hs_0' + str(depth)
         }
         df.rename(columns=names, inplace=True)
 
-        # new id
+        # muncipality '0'
         df.mun_id.replace(0, 50000, inplace=True)
 
-        # drop column
-        df.drop(columns=['date'], inplace=True)
+        # order
+        df = df[['mun_id', 'hs_02', 'hs_04', 'hs_06', 'flow_id', 'partner_country', 'firms', 'value', 'month_id', 'year']].copy()
+
+        # negative values
+        df = df.loc[df.value > 0].copy()
 
         return df
 
@@ -71,19 +112,23 @@ class ForeignTradePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            'month_id':                   'UInt32',
             'mun_id':                     'UInt16',
-            'partner_country':            'String',
-            'product':                    'UInt32',
+            'hs_02':                      'UInt16',
+            'hs_04':                      'UInt32',
+            'hs_06':                      'UInt32',
             'flow_id':                    'UInt8',
-            'value':                      'UInt32',
-            'firms':                      'UInt16'
+            'partner_country':            'String',   
+            'firms':                      'UInt16',
+            'value':                      'UInt32',           
+            'month_id':                   'UInt32',
+            'year':                       'UInt16'
         }
         
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('economy_foreign_trade', db_connector, 
-                             if_exists='append', pk=['month_id', 'mun_id', 'partner_country', 'product'], 
-                             dtype=dtype, nullable_list=['value'])
+                             if_exists='append', pk=['mun_id', 'partner_country'], 
+                             dtype=dtype, nullable_list=['hs_02', 'hs_04', 'hs_06',
+                                                        'value', 'month_id', 'year'])
 
         return [read_step, transform_step, load_step]
