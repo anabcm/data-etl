@@ -128,7 +128,7 @@ class ForeignTradePipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep('economy_foreign_trade_mun', db_connector, 
                              if_exists='append', pk=['mun_id', 'partner_country'], 
-                             dtype=dtype, nullable_list=['hs_02', 'hs_04', 'hs_06',
+                             dtype=dtype, nullable_list=['hs2_id', 'hs4_id', 'hs6_id',
                                                         'value', 'month_id', 'year'])
 
         return [read_step, transform_step, load_step]
