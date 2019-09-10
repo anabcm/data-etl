@@ -51,7 +51,7 @@ class TransformStep(PipelineStep):
         df_2 = pd.melt(df_2, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
 
         # Renaming columns from spanish to english
-        df_2.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "1year_deaths"}, inplace=True)
+        df_2.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "one_year_deaths"}, inplace=True)
 
         # Groupby step
         df_2 = df_2.groupby(["mun_id", "year", "sex_id"]).sum().reset_index(col_fill="ffill")
@@ -61,15 +61,14 @@ class TransformStep(PipelineStep):
         df_2["code"] = df_2["mun_id"].astype("str").str.zfill(5) + df_2["year"].astype("str") + df_2["sex_id"].astype("str")
 
         # Merge step
-        df = pd.merge(df_1, df_2[["code", "1year_deaths"]], on="code", how="left")
+        df = pd.merge(df_1, df_2[["code", "one_year_deaths"]], on="code", how="left")
 
         # Droping code column
         df.drop(["code"], axis=1, inplace=True)
 
         # Turning to int values
-        for item in ["mun_id", "sex_id", "year", "general_deaths", "1year_deaths"]:
+        for item in ["mun_id", "sex_id", "year", "general_deaths", "one_year_deaths"]:
             df[item] = df[item].astype(int)
-
 
         return df
 
@@ -87,7 +86,7 @@ class MortalityGeneralPipeline(EasyPipeline):
             "sex_id":                   "UInt8",
             "year":                     "UInt16",
             "general_deaths":           "UInt16",
-            "1year_deaths":             "UInt16"
+            "one_year_deaths":             "UInt16"
         }
 
         download_step = DownloadStep(
