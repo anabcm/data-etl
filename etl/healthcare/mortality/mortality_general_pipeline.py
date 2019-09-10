@@ -16,9 +16,6 @@ class TransformStep(PipelineStep):
         # Columns with columns besides annual totals
         _years = [str(i) for i in range(1994,2017)]
 
-        # Keeping columns related to general deaths by gender
-        df = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032)| (df["id_indicador"] == 1002000033)]
-
         # Droping rows related to "Estados Unidos Mexicanos" or national/entity/municipality totals
         df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0) ].index, inplace=True)
 
@@ -29,21 +26,50 @@ class TransformStep(PipelineStep):
         df.drop(["entidad", "municipio", "desc_entidad", "desc_municipio", "indicador", "unidad_medida",
                 "1990", "1991", "1992", "1993"], axis=1, inplace=True)
 
-        # Division per gender (totals) [1: male, 2: female, 0: unknownj]
-        df["id_indicador"].replace({1002000031: 1, 1002000032: 2, 1002000033: 0}, inplace=True)
+        # Keeping columns related to general deaths by gender
+        df_1 = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032)| (df["id_indicador"] == 1002000033)]
+
+        # Division per gender (totals) [1: male, 2: female, 0: unknown]
+        df_1["id_indicador"].replace({1002000031: 1, 1002000032: 2, 1002000033: 0}, inplace=True)
 
         # Melt step in order to get file in tidy data format
-        df = pd.melt(df, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
+        df_1 = pd.melt(df_1, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
 
         # Renaming columns from spanish to english
-        df.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "count"}, inplace=True)
+        df_1.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "general_deaths"}, inplace=True)
 
-        # Groupby step, in order to set count values from NaN to 0
-        df = df.groupby(["mun_id", "sex_id", "year"]).sum().reset_index(col_fill="ffill")
+        # Groupby step
+        df_1 = df_1.groupby(["mun_id", "sex_id", "year"]).sum().reset_index(col_fill="ffill")
 
-        # Setting types
-        for item in ["mun_id", "sex_id", "year", "count"]:
+        # Division per gender (1 year olds)
+        df_2 = df[(df["id_indicador"] == 1002000035) | (df["id_indicador"] == 1002000036)| (df["id_indicador"] == 1002000037)]
+
+        # Division per gender (totals) [1: male, 2: female, 0: unknown]
+        df_2["id_indicador"].replace({1002000035: 1, 1002000036: 2, 1002000037: 0}, inplace=True)
+
+        # Melt step in order to get file in tidy data format
+        df_2 = pd.melt(df_2, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
+
+        # Renaming columns from spanish to english
+        df_2.rename(columns = {"id_indicador": "sex_id", "variable": "year", "value": "1year_deaths"}, inplace=True)
+
+        # Groupby step
+        df_2 = df_2.groupby(["mun_id", "year", "sex_id"]).sum().reset_index(col_fill="ffill")
+
+        # Create code to merge step
+        df_1["code"] = df_1["mun_id"].astype("str").str.zfill(5) + df_1["year"].astype("str") + df_1["sex_id"].astype("str")
+        df_2["code"] = df_2["mun_id"].astype("str").str.zfill(5) + df_2["year"].astype("str") + df_2["sex_id"].astype("str")
+
+        # Merge step
+        df = pd.merge(df_1, df_2[["code", "1year_deaths"]], on="code", how="left")
+
+        # Droping code column
+        df.drop(["code"], axis=1, inplace=True)
+
+        # Turning to int values
+        for item in ["mun_id", "sex_id", "year", "general_deaths", "1year_deaths"]:
             df[item] = df[item].astype(int)
+
 
         return df
 
@@ -60,7 +86,8 @@ class ENOEPipeline(EasyPipeline):
             "mun_id":                   "UInt16",
             "sex_id":                   "UInt8",
             "year":                     "UInt16",
-            "count":                    "UInt16",
+            "general_deaths":           "UInt16",
+            "1year_deaths":             "UInt16"
         }
 
         download_step = DownloadStep(
