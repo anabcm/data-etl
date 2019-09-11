@@ -39,6 +39,9 @@ class CleanStep(PipelineStep):
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
+        for col in ["affected_legal_good_id", "crime_type_id", "crime_subtype_id"]:
+            df[col] = df[col].astype(int)
+
         return df
 
 class CrimesSubtypePipeline(EasyPipeline):
