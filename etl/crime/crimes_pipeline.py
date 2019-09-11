@@ -75,7 +75,7 @@ class CrimesPipeline(EasyPipeline):
             "crime_subtype_id":     "UInt32",
             "crime_modality_id":    "UInt8",
             "value":                "UInt16",
-            "month_id":             "UInt32
+            "month_id":             "UInt32"
         }
 
         download_step = DownloadStep(
