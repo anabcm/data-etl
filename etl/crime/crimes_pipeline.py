@@ -64,8 +64,7 @@ class TransformStep(PipelineStep):
 class CrimesPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return [
-        ]
+        return []
 
     @staticmethod
     def steps(params):
