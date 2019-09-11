@@ -55,6 +55,6 @@ class DimCountriesPipeline(EasyPipeline):
         }
         
         transform_step = TransformStep()
-        load_step = LoadStep('dim_shared_hs12_6digit', db_connector, if_exists='drop', pk=['hs4_id', 'hs2_id', 'chapter'], dtype=dtype)
+        load_step = LoadStep('dim_shared_hs12_4digit', db_connector, if_exists='drop', pk=['hs4_id', 'hs2_id', 'chapter'], dtype=dtype)
 
         return [transform_step, load_step]
