@@ -97,6 +97,7 @@ class TransformStep(PipelineStep):
             
         # attention_time in hours [Some people has NaN values given that they dont have date of admission]
         df["attention_time"] = df["datetime_leaving"] - df["datetime_admission"]
+        #pylint: disable-msg=too-many-arguments
         df["attention_time"] = df["attention_time"] / np.timedelta64(1,"m")
 
         # Replacing issues with 2016 file
