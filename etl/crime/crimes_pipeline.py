@@ -59,6 +59,12 @@ class TransformStep(PipelineStep):
         for col in ["mun_id", "crime_subtype_id", "crime_modality_id", "value", "month_id"]:
             df[col] = df[col].astype(int)
 
+        # Droping -1 values (3 instances)
+        df.drop(df.loc[(df["value"] < 0)].index, inplace=True)
+
+        # Reseting Index
+        df = df.reset_index(drop=True)
+
         return df
 
 class CrimesPipeline(EasyPipeline):
