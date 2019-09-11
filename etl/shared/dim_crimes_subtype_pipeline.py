@@ -9,7 +9,7 @@ from sklearn.feature_extraction import stop_words
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6a5TEhnjteU3aa96H7iG4OoNAMkCgsQJ52HPbycoStRBIer66JnfsSbS5tbmlkdQ6jwn2dp8xBb0U/pub?output=xlsx"
-        df = pd.read_excel(url, "crime_subtype", dtype="str")
+        df = pd.read_excel(url, sheet_name="crime_subtype", dtype="str")
         return df
 
 class CleanStep(PipelineStep):
@@ -38,6 +38,9 @@ class CleanStep(PipelineStep):
                    "affected_legal_good_en", "crime_type_en", "crime_subtype_en"]
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
+
+        for col in ["affected_legal_good_id", "crime_type_id", "crime_subtype_id"]:
+            df[col] = df[col].astype(int)
 
         return df
 
