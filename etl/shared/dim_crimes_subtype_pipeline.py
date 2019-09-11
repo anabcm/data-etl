@@ -41,7 +41,7 @@ class CleanStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class CrimesSubtypePipeline(EasyPipeline):
     @staticmethod
     def description():
         return "Processes crimes codification to Mexico Crimes Data"
