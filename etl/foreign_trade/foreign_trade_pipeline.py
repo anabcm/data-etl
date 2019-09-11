@@ -130,6 +130,7 @@ class ForeignTradePipeline(EasyPipeline):
             Parameter('year', dtype=str),
             Parameter('month', dtype=str),
             Parameter('column_name', dtype=str),
+            Parameter('type', dtype=str)
         ]
 
     @staticmethod
@@ -137,7 +138,7 @@ class ForeignTradePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            params.get('column_name')+'_id': 'UInt16',
+            params.get('column_name')+'_id': params.get('type'),
             'hs2_id':                        'UInt16',
             'hs4_id':                        'UInt32',
             'hs6_id':                        'UInt32',
