@@ -41,7 +41,7 @@ class CleanStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class CrimesSubtypePipeline(EasyPipeline):
     @staticmethod
     def description():
         return "Processes crimes codification to Mexico Crimes Data"
@@ -55,9 +55,9 @@ class CoveragePipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "affected_legal_good_id":                "String",
-            "crime_type_id":                         "String",
-            "crime_subtype_id":                      "String",
+            "affected_legal_good_id":                "UInt8",
+            "crime_type_id":                         "UInt16",
+            "crime_subtype_id":                      "UInt32",
             "affected_legal_good_es":                "String",
             "crime_type_es":                         "String",
             "crime_subtype_es":                      "String",

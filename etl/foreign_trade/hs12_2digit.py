@@ -36,7 +36,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class DimCountriesPipeline(EasyPipeline):
+class HSCodesPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         
