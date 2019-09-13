@@ -30,11 +30,11 @@ class EnrollmentPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            'work_center_id':   'String',
-            'work_center_name': 'String',
-            'campus_name':      'String',
-            'campus_id':        'UInt16',
-            'sostenimiento':    'UInt8'
+            'campus_id':       'String',
+            'campus_name':     'String',
+            'institution_name':'String',
+            'institution_id':  'UInt16',
+            'sostenimiento':   'UInt8'
         }
         
         read_step = ReadStep()
