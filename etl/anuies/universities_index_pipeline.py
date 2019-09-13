@@ -40,6 +40,6 @@ class EnrollmentPipeline(EasyPipeline):
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_work_centers', db_connector, if_exists='drop', 
-                            pk=['work_center_id', 'campus_id'], dtype=dtype, engine='ReplacingMergeTree')
+                            pk=['institution_id', 'campus_id'], dtype=dtype, engine='ReplacingMergeTree')
 
         return [read_step, transform_step, load_step]
