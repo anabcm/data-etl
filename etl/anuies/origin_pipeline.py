@@ -19,7 +19,7 @@ class ReadStep(PipelineStep):
         df = pd.read_excel(params.get('url'), header=1)
         df.columns = df.columns.str.lower()
         df.rename(columns={'entidad': 'ent_id', 'municipio': 'mun_id', 'cve campo unitario': 'career', 
-                           'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'institution', 
+                           'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'campus_id', 
                            'nombre carrera sep': 'program'}, inplace=True)
         # external ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
@@ -31,7 +31,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df, ent, careers = prev[0], prev[1], prev[2]
         # type format
-        for col in ['ent_id', 'mun_id', 'career', 'type', 'period', 'institution']:
+        for col in ['ent_id', 'mun_id', 'career', 'type', 'period', 'campus_id']:
             df[col] = df[col].ffill()
         df.ent_id = df.ent_id.str.title()
 
@@ -44,7 +44,7 @@ class TransformStep(PipelineStep):
 
         # totals clean
         df.career = df.career.astype('str')
-        for col in ['mun_id', 'career', 'type', 'period', 'institution', 'program']:
+        for col in ['mun_id', 'career', 'type', 'period', 'campus_id', 'program']:
             df = df.loc[df[col].str.contains('Total') == False].copy()
             df[col] = df[col].str.strip().str.replace('  ', ' ').str.replace(':', '')
         df.career = df.career.str.replace('.', '').astype('int')
@@ -53,7 +53,7 @@ class TransformStep(PipelineStep):
         df.columns = df.columns.str.replace('suma de ', '')
 
         # melt step
-        df = df[['mun_id', 'career', 'type', 'period', 'institution', 'program',
+        df = df[['mun_id', 'career', 'type', 'period', 'campus_id', 'program',
                  'pni-agu', 'pni-bc', 'pni-bcs', 'pni-cam', 'pni-coa',
                  'pni-col', 'pni-chia', 'pni-chih', 'pni-df', 'pni-dur', 'pni-gua',
                  'pni-gue', 'pni-hid', 'pni-jal', 'pni-mex', 'pni-mic', 'pni-mor',
@@ -64,7 +64,7 @@ class TransformStep(PipelineStep):
         # column names format
         df.columns = df.columns.str.replace('pni-', '')
 
-        df = df.melt(id_vars=['mun_id', 'career', 'type', 'period', 'institution', 'program'], var_name='origin', value_name='value')
+        df = df.melt(id_vars=['mun_id', 'career', 'type', 'period', 'campus_id', 'program'], var_name='origin', value_name='value')
         df = df.loc[df.value != 0]
 
         # external ids transfomation
@@ -108,7 +108,7 @@ class OriginPipeline(EasyPipeline):
             'mun_id':      'UInt16',
             'type':        'UInt8',
             'period':      'String',
-            'institution': 'String',
+            'campus_id': 'String',
             'program':     'UInt64',
             'origin':      'UInt8',
             'value':       'UInt32',
@@ -116,6 +116,6 @@ class OriginPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_origin', db_connector, if_exists='append', pk=['mun_id', 'institution', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_origin', db_connector, if_exists='append', pk=['mun_id', 'campus_id', 'program'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
