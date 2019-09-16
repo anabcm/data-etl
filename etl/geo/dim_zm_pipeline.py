@@ -71,7 +71,7 @@ class DimZMGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_zm", db_connector, if_exists="drop", dtype=dtype,
-            pk=["sun_id", "mun_id"]
+            pk=["zm_id", "mun_id"]
         )
 
         return [transform_step, load_step]
