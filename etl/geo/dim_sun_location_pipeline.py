@@ -115,7 +115,7 @@ class DimSUNLocationGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_sun_loc", db_connector, if_exists="drop", dtype=dtype,
-            pk=["sun_id", "mun_id"], nullable_list=["loc_id", "loc_name"]
+            pk=["sun_id", "mun_id", "loc_id"]
         )
 
         return [transform_step, load_step]
