@@ -54,6 +54,9 @@ class TransformStep(PipelineStep):
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
         df["sun_slug"] = (df["sun_name"] + " sun mx").apply(slug_parser)
 
+        df = df.drop(columns=["loc_name", "loc_id"])
+        df = df.drop_duplicates()
+
         return df
 
 class DimSUNGeographyPipeline(EasyPipeline):
@@ -68,8 +71,6 @@ class DimSUNGeographyPipeline(EasyPipeline):
             "sun_name":     "String",
             "mun_id":       "UInt16",
             "mun_name":     "String",
-            "loc_id":       "UInt32",
-            "loc_name":     "String",
             "nation_name":  "String",
             "nation_id":    "String"
         }
@@ -77,7 +78,7 @@ class DimSUNGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_sun", db_connector, if_exists="drop", dtype=dtype,
-            pk=["sun_id", "mun_id"], nullable_list=["loc_id", "loc_name"]
+            pk=["sun_id", "mun_id"]
         )
 
         return [transform_step, load_step]
