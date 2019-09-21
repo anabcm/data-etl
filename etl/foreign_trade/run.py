@@ -25,22 +25,18 @@ for level, values in params['level'].items():
           os.system(command)
 
 # annual
-"""period = params['period'][0]
+period = params['period'][0]
 for level, values in params['level'].items():
   for k,v in params['depth'].items():
     for year in params['years']:
-      if level == 'State' and k != '2D':
+      if k != '2D':
         command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --prefix={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, values[0], k, v, period, str(year).zfill(2), values[1], values[2])
         os.system(command)
-      elif level == 'Municipal' and k != '2D':
-        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --prefix={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, values[0], k, v, period, str(year).zfill(2), values[1], values[2])
-        os.system(command)
-      elif level == 'National' and k != '2D':
-        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --prefix={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, values[0], k, v, period, str(year).zfill(2), values[1], values[2])
-        os.system(command)"""
 
 # countries
 #os.system('bamboo-cli --folder . --entry countries_ingest')
 
-# hs6 2012
-#os.system('bamboo-cli --folder . --entry hs_codes_ingest')
+# hs6 codes
+os.system('bamboo-cli --folder . --entry hs12_2digit')
+os.system('bamboo-cli --folder . --entry hs12_4digit')
+os.system('bamboo-cli --folder . --entry hs12_6digit')
