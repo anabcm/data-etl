@@ -8,35 +8,31 @@ class ReadStep(PipelineStep):
     def run_step(self, prev, params, base_url='https://storage.googleapis.com/datamexico-data/foreign_trade/'):
         # params
         level = params.get('level')
+        prefix = params.get('prefix')
         period = params.get('period')
         depth_name = params.get('depth_name')
         month = params.get('month')
         year = params.get('year')
         # read data
         if period == 'Annual':
-            url = ('{}{}/HS_{}/{}/{}_{}_annual{}.csv').format(base_url, level, depth_name, period, depth_name, level.lower(), year)
+            url = ('{}{}/HS_{}/{}/{}_{}_annual{}.csv').format(base_url, level, depth_name, period, depth_name, prefix, year)
             df = pd.read_csv(url)
+            print(url)
 
         elif level == 'State' and depth_name == '2D':
+            url = ('{}{}/HS_{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, depth_name, prefix, month, year)
+            print(url)
+            df = pd.read_csv(url)
+
+        #elif period == 'Monthly':
+        else:
             try:
-                url = ('{}{}/HS_{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, depth_name, level.lower(), month, year)
+                url = ('{}{}/HS_{}/{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, period, depth_name, prefix, month, year)
+                print(url)
                 df = pd.read_csv(url)
             except:
-                url = ('{}{}/HS_{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, depth_name, level.lower(), month, year)
-                df = pd.read_csv(url)
-        elif period == 'Monthly' and level == 'State':
-            try:
-                url = ('{}{}/HS_{}/{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, period, depth_name, level.lower(), month, year)
-                df = pd.read_csv(url)
-            except:
-                url = ('{}{}/HS_{}/{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, period, depth_name, level.lower(), month, year)
-                df = pd.read_csv(url)
-        elif period == 'Monthly' and level == 'Municipal':
-            try:
-                url = ('{}{}/HS_{}/{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, period, depth_name, level.lower()[:3], month, year)
-                df = pd.read_csv(url)
-            except:
-                url = ('{}{}/HS_{}/{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, period, depth_name, level.lower()[:3], month, year)
+                url = ('{}{}/HS_{}/{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, period, depth_name, prefix, month, year)
+                print(url)
                 df = pd.read_csv(url)
 
         df.columns = df.columns.str.lower()
@@ -117,6 +113,10 @@ class TransformStep(PipelineStep):
         # negative values
         df = df.loc[df.value > 0].copy()
 
+        # national ent id
+        if 'National' in url:
+            df['ent_id'] = 0
+
         return df
 
 class ForeignTradePipeline(EasyPipeline):
@@ -124,6 +124,7 @@ class ForeignTradePipeline(EasyPipeline):
     def parameter_list():
         return [
             Parameter('level', dtype=str),
+            Parameter('prefix', dtype=str),
             Parameter('depth_name', dtype=str),
             Parameter('depth_value', dtype=int),
             Parameter('period', dtype=str),
