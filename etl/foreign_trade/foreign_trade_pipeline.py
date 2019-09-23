@@ -24,7 +24,6 @@ class ReadStep(PipelineStep):
             print(url)
             df = pd.read_csv(url)
 
-        #elif period == 'Monthly':
         else:
             try:
                 url = ('{}{}/HS_{}/{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, period, depth_name, prefix, month, year)
