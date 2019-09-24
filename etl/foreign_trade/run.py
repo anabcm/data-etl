@@ -17,10 +17,10 @@ for level in params['level']:
     for year in params['years']:
       for month in params['months']:
         if level == 'State':
-          command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --month={} --column_name={}').format(level, k, v, period, str(year).zfill(2), str(month).zfill(2), 'ent')
+          command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --month={} --column_name={} --type={}').format(level, k, v, period, str(year).zfill(2), str(month).zfill(2), 'ent', 'UInt8')
           os.system(command)
         elif level == 'Municipal':
-          command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --month={} --column_name={}').format(level, k, v, period, str(year).zfill(2), str(month).zfill(2), 'mun')
+          command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --month={} --column_name={} --type={}').format(level, k, v, period, str(year).zfill(2), str(month).zfill(2), 'mun', 'UInt16')
           os.system(command)
           
 
@@ -32,10 +32,10 @@ for level in params['level']:
       if k == '2D' and level == 'State':
         continue
       elif level == 'State':
-        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --column_name={}').format(level, k, v, period, str(year).zfill(2), 'ent')
+        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, k, v, period, str(year).zfill(2), 'ent', 'UInt8')
         os.system(command)
       elif level == 'Municipal':
-        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --column_name={}').format(level, k, v, period, str(year).zfill(2), 'mun')
+        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, k, v, period, str(year).zfill(2), 'mun', 'UInt16')
         os.system(command)
 
 # countries

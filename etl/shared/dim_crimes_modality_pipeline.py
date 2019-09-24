@@ -32,6 +32,8 @@ class CleanStep(PipelineStep):
         grouped = ["crime_modality_id", "crime_modality_es", "crime_modality_en"]
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
+        df["crime_modality_id"] = df["crime_modality_id"].astype(int)
+
         return df
 
 class CrimesModalityPipeline(EasyPipeline):

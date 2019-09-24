@@ -53,13 +53,48 @@ class TransformStep(PipelineStep):
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
         df["sun_slug"] = (df["sun_name"] + " sun mx").apply(slug_parser)
-
         df = df.drop(columns=["loc_name", "loc_id"])
-        df = df.drop_duplicates()
 
-        return df
+        df1 = pd.read_csv("https://storage.googleapis.com/datamexico-data/geo/AGEEML_2019517152111.csv", low_memory=False, chunksize=10**4)
+        df1 = pd.concat(df1)
 
-class DimSUNGeographyPipeline(EasyPipeline):
+        df1.columns = df1.columns.str.lower()
+
+        df1["temp_cve_ent"] = df1["cve_ent"].astype(str).str.zfill(2)
+        df1["temp_cve_mun"] = df1["cve_mun"].astype(str).str.zfill(3)
+        df1["temp_cve_loc"] = df1["cve_loc"].astype(str).str.zfill(4)
+
+        df1["mun_id"] = df1["temp_cve_ent"] + df1["temp_cve_mun"]
+        df1["loc_id"] = df1["temp_cve_ent"] + df1["temp_cve_mun"] + df1["temp_cve_loc"]
+
+        df1.rename(columns={"nom_loc": "loc_name", "nom_mun": "mun_name"}, inplace=True)
+
+        df1["mun_id"] = df1["mun_id"].astype(int)
+        df1["loc_id"] = df1["loc_id"].astype(int)
+
+        df1 = df1[["mun_id", "mun_name", "loc_id", "loc_name"]].drop_duplicates().reset_index()
+
+        df_other_loc = []
+        for item in df1.itertuples():
+
+            df_other_loc.append({
+                "loc_id": item.mun_id * 10000,
+                "loc_name": "Otras localidades de {}".format(item.mun_name),
+                "mun_id": item.mun_id
+            })
+
+        df_other_loc = pd.DataFrame(df_other_loc)
+        df1 = df1.append(df_other_loc)
+
+        df1 = df1.drop(columns=["mun_name"])
+
+        df_output = df1.merge(df, on="mun_id")
+
+        df_output = df_output[["ent_id", "ent_name", "sun_id", "sun_name", "sun_slug", "mun_id", "mun_name", "loc_name", "loc_id"]]
+        df_output = df_output.drop_duplicates()
+        return df_output
+
+class DimSUNLocationGeographyPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open("../conns.yaml"))
@@ -71,14 +106,16 @@ class DimSUNGeographyPipeline(EasyPipeline):
             "sun_name":     "String",
             "mun_id":       "UInt16",
             "mun_name":     "String",
+            "loc_id":       "UInt32",
+            "loc_name":     "String",
             "nation_name":  "String",
             "nation_id":    "String"
         }
 
         transform_step = TransformStep()
         load_step = LoadStep(
-            "dim_shared_geography_sun", db_connector, if_exists="drop", dtype=dtype,
-            pk=["sun_id", "mun_id"]
+            "dim_shared_geography_sun_loc", db_connector, if_exists="drop", dtype=dtype,
+            pk=["sun_id", "mun_id", "loc_id"]
         )
 
         return [transform_step, load_step]
