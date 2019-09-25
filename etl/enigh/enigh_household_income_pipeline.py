@@ -78,7 +78,7 @@ class EnighIncomeHousePipeline(EasyPipeline):
             "mun_id":                   "UInt16",
             "monthly_average":          "UInt32",
             "population":               "UInt16",
-            "year"                      "UInt16"
+            "year":                     "UInt16"
         }
 
         download_step = DownloadStep(
