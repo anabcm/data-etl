@@ -90,6 +90,8 @@ class TransformStep(PipelineStep):
                 df[col] = df[col].astype('float')
             except:
                 continue
+
+        df['year'] = int(params.get('year'))
         
         return df
 
@@ -127,6 +129,7 @@ class ENVIPEPipeline(EasyPipeline):
             'judges_trust': 'UInt8',
             'homes_factor': 'UInt16', 
             'people_factor': 'UInt16',
+            'year': 'UInt16'
         }
 
         download_step = DownloadStep(
@@ -136,7 +139,7 @@ class ENVIPEPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_envipe', db_connector, if_exists='append', pk=['mun_id'], 
+        load_step = LoadStep('inegi_envipe', db_connector, if_exists='append', pk=['mun_id', 'year'], 
                              dtype=dtype, nullable_list=['expenses_in_protection_against_crime',
                                                         'traffic_police_trust', 'municipal_preventive_police_trust',
                                                         'state_police_trust', 'federal_police_trust',

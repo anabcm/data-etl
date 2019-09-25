@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry dim_shared_ensu_cities
