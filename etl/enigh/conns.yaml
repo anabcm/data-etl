@@ -1,11 +1,19 @@
 enigh-population:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enigh/poblacion.csv
+  uri: https://storage.googleapis.com/datamexico-data/enigh/poblacion_<year>.csv
 
 enigh-housing:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enigh/viviendas.csv
+  uri: https://storage.googleapis.com/datamexico-data/enigh/viviendas_<year>.csv
 
 enigh-job:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enigh/trabajos.csv
+  uri: https://storage.googleapis.com/datamexico-data/enigh/trabajos_<year>.csv
+
+enigh-income:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/enigh/ingresos_<year>.csv
+
+enigh-household:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/enigh/concentradohogar_<year>.csv
