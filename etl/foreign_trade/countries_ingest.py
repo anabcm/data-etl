@@ -33,9 +33,6 @@ class TransformStep(PipelineStep):
         df['continent'].replace(continents, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
 
-        # missing iso2 country
-        df.loc[df.iso3 == 'blx', 'iso2'] = 'lu'
-
         return df
 
 class CountryPipeline(EasyPipeline):
@@ -54,6 +51,7 @@ class CountryPipeline(EasyPipeline):
         }
         
         transform_step = TransformStep()
-        load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], dtype=dtype)
+        load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], 
+                            dtype=dtype, engine='ReplacingMergeTree', nullable_list=['iso2'])
 
         return [transform_step, load_step]
