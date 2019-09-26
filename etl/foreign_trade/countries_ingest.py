@@ -8,6 +8,7 @@ class TransformStep(PipelineStep):
         # read data
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
         df = pd.read_excel(url, sheet_name='Country Groupings')
+        countries = pd.read_excel(url, sheet_name='countries')
 
         df.columns = df.columns.str.lower()
 
@@ -18,6 +19,7 @@ class TransformStep(PipelineStep):
                            'id': 'iso3'}, inplace=True)
 
         df['continent'] = df['continent_id']
+        df['iso2'] = df['iso3']
 
         continents = {
             'af': 'Africa',
@@ -29,6 +31,10 @@ class TransformStep(PipelineStep):
             'sa': 'South America'
         }
         df['continent'].replace(continents, inplace=True)
+        df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
+
+        # missing iso2 country
+        df.loc[df.iso3 == 'blx', 'iso2'] = 'lu'
 
         return df
 
@@ -39,6 +45,7 @@ class CountryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
+            'iso2': 'String',
             'iso3': 'String', 
             'country_name': 'String', 
             'continent_id': 'String',
@@ -47,6 +54,6 @@ class CountryPipeline(EasyPipeline):
         }
         
         transform_step = TransformStep()
-        load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=[ 'iso3'], dtype=dtype)
+        load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], dtype=dtype)
 
         return [transform_step, load_step]
