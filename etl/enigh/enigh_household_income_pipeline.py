@@ -57,10 +57,11 @@ class TransformStep(PipelineStep):
         # Adding respective year to the Dataframes, given Inegis update (2016-2018)
         df["year"] = params["year"]
 
+        # Reseting index
+        df_1 = df_1.reset_index()
         # Setting all columns to int 
         for item in ["mun_id", "population", "monthly_average", "year"]:
-            df[item] = df[item].astype(int)
-
+            df[item] = df[item].astype(float)
         return df
 
 class EnighIncomeHousePipeline(EasyPipeline):
@@ -76,7 +77,7 @@ class EnighIncomeHousePipeline(EasyPipeline):
 
         dtype = {
             "mun_id":                   "UInt16",
-            "monthly_average":          "UInt32",
+            "monthly_average":          "Float64",
             "population":               "UInt16",
             "year":                     "UInt16"
         }
