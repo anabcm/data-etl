@@ -57,8 +57,10 @@ class TransformStep(PipelineStep):
         # Adding respective year to the Dataframes, given Inegis update (2016-2018)
         df["year"] = params["year"]
 
-        # Reseting index
-        df_1 = df_1.reset_index()
+        # Groupby method
+        group_list = ["mun_id", "monthly_average", "year"]
+        df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
+
         # Setting all columns to int 
         for item in ["mun_id", "population", "monthly_average", "year"]:
             df[item] = df[item].astype(float)
@@ -68,7 +70,7 @@ class EnighIncomeHousePipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-          Parameter(label="Year", name="year", dtype=str)
+            Parameter(label="Year", name="year", dtype=str)
         ]
 
     @staticmethod
@@ -88,7 +90,7 @@ class EnighIncomeHousePipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enigh_household_income", db_connector, if_exists="drop", pk=["mun_id"], dtype=dtype
+            "inegi_enigh_household_income", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]

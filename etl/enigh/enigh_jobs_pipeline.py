@@ -63,7 +63,7 @@ class TransformStep(PipelineStep):
         df.drop(list_drop, axis=1, inplace=True)
 
         # Renaming the columns to english
-        params = {
+        params_naming = {
             "sexo": "sex", 
             "edad": "age",
             "id_trabajo": "job_id",
@@ -80,8 +80,9 @@ class TransformStep(PipelineStep):
             "tam_emp": "business_size",
             "clas_emp": "business_type"
         }
-        df.rename(index=str, columns=params, inplace=True)
+        df.rename(index=str, columns=params_naming, inplace=True)
 
+        # Groupby method
         group_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id",
             "eco_stratum","business_size", "mun_id", "pay_mode", "contract",
             "contract_type", "business_type"]
@@ -95,9 +96,12 @@ class TransformStep(PipelineStep):
         # Replacing previous empty cells with nan after groupby method
         df.replace(999999, pd.np.nan, inplace = True)
 
+        # Adding respective year to the Dataframes, given Inegis update (2016-2018)
+        df["year"] = params["year"]
+
         # Changing types for certains columns
         not_null_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id", "eco_stratum",
-                        "business_size", "mun_id", "worked_hours", "population"]
+                        "business_size", "mun_id", "worked_hours", "population", "year"]
 
         for col in ["pay_mode", "contract", "contract_type", "business_type"]:
             df[col] = df[col].astype(float)
@@ -110,7 +114,9 @@ class TransformStep(PipelineStep):
 class EnighJobsPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return []
+        return [
+            Parameter(label="Year", name="year", dtype=str)
+        ]
 
     @staticmethod
     def steps(params):
@@ -130,7 +136,8 @@ class EnighJobsPipeline(EasyPipeline):
             "mun_id":                          "UInt16",
             "population":                      "UInt16",
             "sex":                             "UInt8",
-            "age":                             "UInt8"
+            "age":                             "UInt8",
+            "year":                            "UInt16"
         }
 
         download_step = DownloadStep(
@@ -139,7 +146,7 @@ class EnighJobsPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enigh_jobs", db_connector, if_exists="drop", pk=["mun_id", "sex"], dtype=dtype, 
+            "inegi_enigh_jobs", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["pay_mode", "contract", "contract_type", "business_type"]
         )
 

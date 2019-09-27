@@ -145,7 +145,7 @@ class EnighPopulationPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-          Parameter(label="Year", name="year", dtype=str)
+            Parameter(label="Year", name="year", dtype=str)
         ]
 
     @staticmethod
@@ -192,7 +192,7 @@ class EnighPopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enigh_population", db_connector, if_exists="drop", pk=["mun_id", "sex"], dtype=dtype, 
+            "inegi_enigh_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["near_support_money", "near_support_sickness", "near_support_work", "near_support_doctor",
             "near_support_neighborhood", "near_support_children", "worked_hours_last_week", "inst_1", "inst_2", "inst_3",
             "inst_4", "inst_5", "inst_6", "job_absence", "act_pnea1", "act_pnea2", "number_jobs"]
