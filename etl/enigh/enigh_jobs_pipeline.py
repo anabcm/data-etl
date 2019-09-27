@@ -55,7 +55,6 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-
         df.replace(" ", 999999, inplace = True)
 
         # Droping already used columns
@@ -82,10 +81,13 @@ class TransformStep(PipelineStep):
         }
         df.rename(index=str, columns=params_naming, inplace=True)
 
+        # Turning population to int value columns
+        df["population"] = df["population"].astype(int)
+
         # Groupby method
         group_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id",
             "eco_stratum","business_size", "mun_id", "pay_mode", "contract",
-            "contract_type", "business_type"]
+            "contract_type", "business_type", "worked_hours"]
 
         df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
 
@@ -101,9 +103,9 @@ class TransformStep(PipelineStep):
 
         # Changing types for certains columns
         not_null_list = ["sex", "age", "job_id", "national_job", "sinco_id", "scian_id", "eco_stratum",
-                        "business_size", "mun_id", "worked_hours", "population", "year"]
+                        "business_size", "mun_id", "population", "year"]
 
-        for col in ["pay_mode", "contract", "contract_type", "business_type"]:
+        for col in ["pay_mode", "contract", "contract_type", "business_type", "worked_hours"]:
             df[col] = df[col].astype(float)
 
         for item in not_null_list:
@@ -127,7 +129,7 @@ class EnighJobsPipeline(EasyPipeline):
             "pay_mode":                        "UInt8",
             "contract":                        "UInt8",
             "contract_type":                   "UInt8",
-            "worked_hours":                    "UInt8",
+            "worked_hours":                    "Float32",
             "sinco_id":                        "UInt16",
             "scian_id":                        "UInt16",
             "business_type":                   "UInt8",
