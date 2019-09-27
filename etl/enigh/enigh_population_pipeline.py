@@ -72,7 +72,7 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         # Renaming step
-        params = {
+        params_naming = {
                 "sexo": "sex",
                 "edad": "age",
                 "hablaind": "speaks_native",
@@ -96,7 +96,7 @@ class TransformStep(PipelineStep):
                 "tam_loc": "loc_size",
                 "factor": "population"}
 
-        df.rename(index=str, columns=params, inplace=True)
+        df.rename(index=str, columns=params_naming, inplace=True)
 
         # Deleting already used columns
         list_drop = ["folioviv", "foliohog", "ss_aa", "ss_mm", "hh_lug", "mm_lug", "hh_esp", "mm_esp", "code", "ubica_geo"]
@@ -121,18 +121,17 @@ class TransformStep(PipelineStep):
         df.replace(999999, pd.np.nan, inplace = True)
 
         # Adding respective year to the Dataframes, given Inegis update (2016-2018)
-        # print(params.get("year"))
-        # df["year"] = params["year"]
+        df["year"] = params["year"]
 
         # Changing types for certains columns
         null_list = ["near_support_money", "near_support_sickness", "near_support_work", "near_support_doctor",
             "near_support_neighborhood", "near_support_children", "worked_hours_last_week", "inst_1", "inst_2", "inst_3",
             "inst_4", "inst_5", "inst_6", "job_absence", "act_pnea1", "act_pnea2", "number_jobs", "near_healthcare_center",
-            "waiting_health_attention"]
+            "waiting_health_attention", "year"]
 
         non_null_list = ["mun_id", "sex", "age", "speaks_native", "ethnicity", "academic_degree", "previous_entity_5_years",
             "social_security", "months_social_security", "popular_insurance", "health_attention", "work_last_month", "eco_stratum",
-            "population" ] # "year"
+            "population"]
 
         for col in null_list:
             df[col] = df[col].astype(float)
@@ -146,7 +145,7 @@ class EnighPopulationPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(name="year", dtype=str)
+          Parameter(label="Year", name="year", dtype=str)
         ]
 
     @staticmethod
@@ -183,8 +182,8 @@ class EnighPopulationPipeline(EasyPipeline):
             "population":                      "UInt16",
             "eco_stratum":                     "UInt8",
             "sex":                             "UInt8",
-            "age":                             "UInt8"
-            # "year":                            "UInt16"
+            "age":                             "UInt8",
+            "year":                            "UInt16"
         }
 
         download_step = DownloadStep(
