@@ -76,7 +76,7 @@ class TransformStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
+class HousingPipeline(EasyPipeline):
     @staticmethod
     def description():
         return 'ETL script for Intercensal Housing Census 2015, México'
