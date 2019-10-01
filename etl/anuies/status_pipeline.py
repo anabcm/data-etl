@@ -1,14 +1,5 @@
-def format_text(df, cols_names=None, stopwords=None):
-
-    # format
-    for ele in cols_names:
-        df[ele] = df[ele].str.title().str.strip()
-        for ene in stopwords:
-            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
-
-    return df
-
 import pandas as pd
+from helpers import format_text
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
@@ -24,7 +15,7 @@ class ReadStep(PipelineStep):
         # careers ids
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
         ent = pd.read_excel(url, sheet_name='origin', dtypes='str')
-        careers = pd.read_excel(url, sheet_name='careers')
+        careers = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSry9xO5_KVDA7bWVTKPrFgjnDbU6CP6f9lNrGX5zqfJH3HBc2-3EPeIBfCS92_UyiSnBnt5XeEpb2T/pub?output=csv')
         return df, ent, careers
 
 class TransformStep(PipelineStep):
@@ -99,14 +90,17 @@ class TransformStep(PipelineStep):
             df[col] = df[col].astype('float')
 
         df.drop(columns=['career'], inplace=True)
-        print(df.period.unique())
+
+        df['period'] = params.get('period')
+
         return df
 
 class StatusPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(name='url', dtype=str)
+            Parameter(name='url', dtype=str),
+            Parameter(name='period', dtype=str)
         ]
 
     @staticmethod
