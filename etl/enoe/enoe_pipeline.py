@@ -126,6 +126,7 @@ class TransformStep(PipelineStep):
         # Turning back NaN values in the respective columns
         df.replace(999999, pd.np.nan, inplace=True)
         df["actual_job_days_worked_lastweek"].replace("9", pd.np.nan, inplace=True)
+        df["actual_job_hrs_worked_lastweek"].replace("999", pd.np.nan, inplace=True)
         df["income_id"].replace(99, pd.np.nan, inplace=True)
 
         #Setting types
