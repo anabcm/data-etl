@@ -48,10 +48,6 @@ class TransformStep(PipelineStep):
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
-        # Getting values of year and respective quarter for the survey
-        df["quarter_id"] = "20" + params["year"] + params["quarter"]
-        df["quarter_id"] = df["quarter_id"].astype(int)
-
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
         part2 = pd.read_excel(df_labels, "part2")
@@ -144,6 +140,10 @@ class TransformStep(PipelineStep):
 
         # Filter population for 15 and/or older
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
+
+        # Getting values of year and respective quarter for the survey
+        df["quarter_id"] = "20" + params["year"] + params["quarter"]
+        df["quarter_id"] = df["quarter_id"].astype(int)
 
         return df
 
