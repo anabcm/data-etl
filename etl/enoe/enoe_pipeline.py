@@ -10,7 +10,6 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        # Loading labels from spredsheet
         excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg-NM8Jt_vHnuIcJ3fjHMxcae_IkK7sresHvhUs_G7NSM5CN5NGYiCf-BP_GMPw3jwmm791CXPLpqJ/pub?output=xlsx"
         df_labels = pd.ExcelFile(excel_url)
 
@@ -32,6 +31,7 @@ class TransformStep(PipelineStep):
                 except:
                     continue
 
+        print(prev[1])
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
 
@@ -48,6 +48,18 @@ class TransformStep(PipelineStep):
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
+        # Loading social-demographic table, adding gender and active/inactive economic population
+        social_ = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str,
+                          usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c"])
+        social_.columns = social_.columns.str.lower()
+
+        # Creating same code value to identified individual values
+        social_["code"] = social_["ent"] + social_["con"] + social_["v_sel"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
+
+        # Merging just the needed column from social-demographic
+        df = pd.merge(df, social_[["code", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c"]],
+                              on="code", how="left")
+
         # Getting values of year and respective quarter for the survey
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
@@ -61,7 +73,7 @@ class TransformStep(PipelineStep):
         df.rename(columns = dict(zip(part2.column, part2.new_column)), inplace=True)
 
         # Loading table with mun and loc values
-        housing = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str, 
+        housing = pd.read_csv(prev[3], index_col=None, header=0, encoding="latin-1", dtype=str, 
                         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
         housing.columns = housing.columns.str.lower()
 
@@ -97,16 +109,16 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        # Reorder of sum() column
         df["population"] = df["population"].astype(int)
 
         # Add groupby method
-        grouped = ["mun_id", "quarter_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
+        grouped = ["mun_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
                 "search_start_business", "search_no_search", "search_no_knowledge", "search_job_year", "time_looking_job",
                 "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
                 "actual_job_days_worked_lastweek", "actual_frecuency_payments",
                 "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention", "second_activity",
-                "second_activity_group_id", "second_activity_task"]
+                "second_activity_group_id", "second_activity_task", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
+                "female_15yrs_children"]
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
@@ -134,7 +146,8 @@ class TransformStep(PipelineStep):
                     "search_no_search", "search_job_year", "time_looking_job", "actual_job_position", "actual_job_industry_group_id",
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "represented_city",
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
-                   "second_activity", "second_activity_task", "second_activity_group_id", "income_id"]:
+                    "second_activity", "second_activity_task", "second_activity_group_id", "income_id", "sex", "eap",
+                    "occ_unocc_pop", "eap_comp", "_48hrs_less_1", "female_15yrs_children"]:
             df[col] = df[col].astype(float)
 
         for item in ["age", "mun_id"]:
@@ -185,11 +198,17 @@ class ENOEPipeline(EasyPipeline):
             "second_activity":                      "UInt8",
             "second_activity_task":                 "UInt16",
             "second_activity_group_id":             "UInt16",
-            "income_id":                            "UInt8"
+            "income_id":                            "UInt8",
+            "sex":                                  "UInt8",
+            "eap":                                  "UInt8",
+            "occ_unocc_pop":                        "UInt8",
+            "eap_comp":                             "UInt8",
+            "_48hrs_less_1":                        "UInt8",
+            "female_15yrs_children":                "UInt8"
         }
 
         download_step = DownloadStep(
-            connector=["enoe-1-data", "enoe-2-data", "housing-data"],
+            connector=["enoe-1-data", "enoe-2-data", "social-data", "housing-data"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
@@ -200,7 +219,8 @@ class ENOEPipeline(EasyPipeline):
               "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
               "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
               "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
-              "actual_minimal_wages_proportion", "represented_city", "income_id"]
+              "actual_minimal_wages_proportion", "represented_city", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
+              "female_15yrs_children", "income_id"]
         )
 
         return [download_step, transform_step, load_step]
