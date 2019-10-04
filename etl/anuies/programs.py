@@ -1,15 +1,5 @@
-
-def format_text(df, cols_names=None, stopwords=None):
-
-    # format
-    for ele in cols_names:
-        df[ele] = df[ele].str.title()
-        for ene in stopwords:
-            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
-
-    return df
-
 import pandas as pd
+from helpers import format_text
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
@@ -18,8 +8,8 @@ from sklearn.feature_extraction import stop_words
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # careers
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzv8dN6-Cn7vR_v9UO5aPOBqumAy_dXlcnVOFBzxCm0C3EOO4ahT5FdIOyrtcC7p-akGWC_MELKTcM/pub?output=xlsx'
-        df = pd.read_excel(url, sheet_name='careers')
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSry9xO5_KVDA7bWVTKPrFgjnDbU6CP6f9lNrGX5zqfJH3HBc2-3EPeIBfCS92_UyiSnBnt5XeEpb2T/pub?output=csv'
+        df = pd.read_csv(url)
         # programs
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTRqe4aa9Maq0WOZTq6DzpflyyGUhTHMoy5l_nfrrmL0fG0f5ccnRoEDg8klrl1JbynwPuwIuTDhy-z/pub?output=csv'
         df_program = pd.read_csv(url)
