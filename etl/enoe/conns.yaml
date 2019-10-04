@@ -6,6 +6,10 @@ enoe-2-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/enoe/coe2t<quarter><year>.CSV
 
+social-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: "https://storage.googleapis.com/datamexico-data/enoe/sdemt<quarter><year>.CSV"
+
 housing-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/enoe/vivt<quarter><year>.CSV

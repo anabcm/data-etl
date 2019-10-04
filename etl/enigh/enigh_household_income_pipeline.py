@@ -50,12 +50,13 @@ class TransformStep(PipelineStep):
         # Renaming columns to the used standard
         df.rename(index=str, columns={"ubica_geo": "mun_id", "factor": "population"}, inplace=True)
 
-        # Getting actual mun_id deleting last 4 digits from the values
-        df["mun_id"] = df["mun_id"].astype(str).str.zfill(9)
-        df["mun_id"] = df["mun_id"].str.slice(0,5)
-
         # Adding respective year to the Dataframes, given Inegis update (2016-2018)
         df["year"] = params["year"]
+
+        # Getting actual mun_id deleting last 4 digits from the values (2016 issue)
+        if (df["year"][0] == 2016):
+            df["mun_id"] = df["mun_id"].astype(str).str.zfill(9)
+            df["mun_id"] = df["mun_id"].str.slice(0,5)
 
         # Groupby method
         group_list = ["mun_id", "monthly_average", "year"]
