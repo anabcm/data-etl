@@ -19,6 +19,12 @@ class TransformStep(PipelineStep):
         # read data
         df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vT0959aScOQnJcoxJTgvPqwma0jxsdyGZGswl4z8yl9KqiPeZleckFHoFyA2KHCMP3HrE8n7EwLyQAR/pub?output=csv')
         df.drop(columns=['hs6_id', 'hs6_es', 'hs6_en'], inplace=True)
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeFs5_Cv49nNo4leJAMwoUZU_smOPwjCnoRprDuqkOVWB7UZSqm3j16mXv6N0aRRek-rtlikP5ZJ46/pub?output=xlsx'
+        exports = pd.read_excel(url, sheet_name='HS4 Exports')
+        imports = pd.read_excel(url, sheet_name='HS4 Imports')
+        exports.columns = exports.columns.str.lower()
+        imports.columns = imports.columns.str.lower()
+        top_hs = exports.append(imports)
 
         cols_es = ['chapter_es', 'hs2_es', 'hs4_es']
         cols_en = ['chapter_en', 'hs2_en', 'hs4_en']
@@ -34,6 +40,14 @@ class TransformStep(PipelineStep):
         df = df.groupby(['chapter', 'chapter_es', 'chapter_en', 'hs2_id', 'hs2_es', 
             'hs2_en', 'hs4_id', 'hs4_es', 'hs4_en']).sum().reset_index(col_fill='ffill')
 
+        # top 50
+        df['hs4_es_short'] = df['hs4_es']
+        df['hs4_en_short'] = df['hs4_en']
+
+        for ele in top_hs['hs4 id'].unique():
+            df.loc[df.hs4_id == ele, 'hs4_es_short'] = top_hs.loc[top_hs['hs4 id'] == ele, 'name_es'].values[0]
+            df.loc[df.hs4_id == ele, 'hs4_en_short'] = top_hs.loc[top_hs['hs4 id'] == ele, 'name_en'].values[0]
+
         return df
 
 class HSCodesPipeline(EasyPipeline):
@@ -43,15 +57,17 @@ class HSCodesPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            'chapter':    'UInt8',
-            'chapter_es': 'String',
-            'chapter_en': 'String',
-            'hs2_id':     'UInt16',
-            'hs2_es':     'String',
-            'hs2_en':     'String',
-            'hs4_id':     'UInt32',
-            'hs4_es':     'String',
-            'hs4_en':     'String',
+            'chapter':      'UInt8',
+            'chapter_es':   'String',
+            'chapter_en':   'String',
+            'hs2_id':       'UInt16',
+            'hs2_es':       'String',
+            'hs2_en':       'String',
+            'hs4_id':       'UInt32',
+            'hs4_es':       'String',
+            'hs4_en':       'String',
+            'hs4_es_short': 'String',
+            'hs4_en_short': 'String'
         }
         
         transform_step = TransformStep()
