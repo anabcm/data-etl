@@ -24,6 +24,9 @@ class TransformStep(PipelineStep):
         exports.columns = exports.columns.str.lower()
         imports.columns = imports.columns.str.lower()
         top_hs = exports.append(imports)
+        exports = pd.read_excel(url, sheet_name='HS4 Exports')
+        imports = pd.read_excel(url, sheet_name='HS4 Imports')
+        top_hs_4 = exports.append(imports)
 
         cols_es = ['chapter_es', 'hs2_es', 'hs4_es', 'hs6_es']
         cols_en = ['chapter_en', 'hs2_en', 'hs4_en', 'hs6_en']
@@ -36,12 +39,19 @@ class TransformStep(PipelineStep):
         for col in ['hs6_id', 'hs4_id', 'hs2_id', 'chapter']:
             df[col] = df[col].astype('int')
 
+        # top 50
         df['hs6_es_short'] = df['hs6_es']
         df['hs6_en_short'] = df['hs6_en']
+        df['hs4_es_short'] = df['hs4_es']
+        df['hs4_en_short'] = df['hs4_en']
 
         for ele in top_hs['hs6 id'].unique():
             df.loc[df.hs6_id == ele, 'hs6_es_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_es'].values[0]
             df.loc[df.hs6_id == ele, 'hs6_en_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_en'].values[0]
+
+        for ele in top_hs_4['hs4 id'].unique():
+            df.loc[df.hs4_id == ele, 'hs4_es_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_es'].values[0]
+            df.loc[df.hs4_id == ele, 'hs4_en_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_en'].values[0]
 
         return df
 
@@ -61,6 +71,8 @@ class HSCodesPipeline(EasyPipeline):
             'hs4_id':       'UInt32',
             'hs4_es':       'String',
             'hs4_en':       'String',
+            'hs4_es_short': 'String',
+            'hs4_en_short': 'String',
             'hs6_id':       'UInt32',
             'hs6_es':       'String',
             'hs6_en':       'String',
