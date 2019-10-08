@@ -27,6 +27,8 @@ class TransformStep(PipelineStep):
         exports = pd.read_excel(url, sheet_name='HS4 Exports')
         imports = pd.read_excel(url, sheet_name='HS4 Imports')
         top_hs_4 = exports.append(imports)
+        exports.columns = exports.columns.str.lower()
+        imports.columns = imports.columns.str.lower()
 
         cols_es = ['chapter_es', 'hs2_es', 'hs4_es', 'hs6_es']
         cols_en = ['chapter_en', 'hs2_en', 'hs4_en', 'hs6_en']
