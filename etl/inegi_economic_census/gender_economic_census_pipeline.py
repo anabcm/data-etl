@@ -13,24 +13,8 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(prev, index_col=None, encoding="latin-1", low_memory=False)
 
         ren_cols = {
-          "H001B": "Employed workers",
-          "H000B": "Personal dependent on the social reason",
-          "H010B": "Paid staff",
-          "H101B": "Production personnel, sales and service",
-          "H203B": "Administrative, accounting and managerial staff",
-          "H020B": "Owners, family and other unpaid workers",
-          "I000B": "Staff not dependent on the social reason",
-          "I100B": "Personnel provided by another company name",
-          "I200B": "Staff for fees or commissions without basic salary",
-          "H001C": "Employed workers",
-          "H000C": "Personal dependent on the social reason",
-          "H010C": "Paid staff",
-          "H101C": "Production personnel, sales and service",
-          "H203C": "Administrative, accounting and managerial staff",
-          "H020C": "Owners, family and other unpaid workers",
-          "I000C": "Staff not dependent on the social reason",
-          "I100C": "Personnel provided by another company name",
-          "I200C": "Staff for fees or commissions without basic salary"}
+          "H001B": "1", "H000B": "2", "H010B": "3", "H101B": "4", "H203B": "5", "H020B": "6", "I000B": "7", "I100B": "8", "I200B": "9",
+          "H001C": "1", "H000C": "2", "H010C": "3", "H101C": "4", "H203C": "5", "H020C": "6", "I000C": "7", "I100C": "8", "I200C": "9"}
 
         # Deleting no usable rows
         df.drop_duplicates(subset=["Año Censal", "Entidad", "Municipio", "Actividad Económica", "UE Unidades económicas"], inplace=True)
@@ -101,7 +85,7 @@ class TransformStep(PipelineStep):
         df = df.groupby(["year", "mun_id", "national_industry_id", "sex", "classification"]).sum().reset_index(col_fill="ffill")
 
         # Setting types
-        for item in ["year", "mun_id", "sex", "count"]:
+        for item in ["year", "mun_id", "sex", "count", "classification"]:
             df[item] = df[item].astype(int)
 
         return df
@@ -120,7 +104,7 @@ class EconomicCensusGenderPipeline(EasyPipeline):
             "year":                                 "UInt16",
             "sex":                                  "UInt8",
             "national_industry_id":                 "String",
-            "classification":                       "String",
+            "classification":                       "UInt8",
             "count":                                "UInt32"
         }
 
