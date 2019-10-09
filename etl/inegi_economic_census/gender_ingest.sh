@@ -1,1 +1,0 @@
-bamboo-cli --folder . --entry gender_economic_census_pipeline

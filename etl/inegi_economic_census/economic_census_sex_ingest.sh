@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry economic_census_sex_pipeline
