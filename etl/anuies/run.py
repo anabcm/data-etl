@@ -30,3 +30,5 @@ for year in range(2016, 2019):
 for year in range(2016, 2019):
   for command in cmd:
     os.system(('{} --url=https://storage.googleapis.com/datamexico-data/anuies/posgrado_{}-{}.xlsx --period={}').format(command, str(year), str(year+1), str(year) + '-' + str(year+1)))
+
+os.system('bamboo-cli --folder . --entry post_processing')

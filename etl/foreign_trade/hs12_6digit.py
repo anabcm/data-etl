@@ -18,6 +18,17 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vT0959aScOQnJcoxJTgvPqwma0jxsdyGZGswl4z8yl9KqiPeZleckFHoFyA2KHCMP3HrE8n7EwLyQAR/pub?output=csv')
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeFs5_Cv49nNo4leJAMwoUZU_smOPwjCnoRprDuqkOVWB7UZSqm3j16mXv6N0aRRek-rtlikP5ZJ46/pub?output=xlsx'
+        exports = pd.read_excel(url, sheet_name='HS6 Exports')
+        imports = pd.read_excel(url, sheet_name='HS6 Imports')
+        exports.columns = exports.columns.str.lower()
+        imports.columns = imports.columns.str.lower()
+        top_hs = exports.append(imports)
+        exports = pd.read_excel(url, sheet_name='HS4 Exports')
+        imports = pd.read_excel(url, sheet_name='HS4 Imports')
+        exports.columns = exports.columns.str.lower()
+        imports.columns = imports.columns.str.lower()
+        top_hs_4 = exports.append(imports)
 
         cols_es = ['chapter_es', 'hs2_es', 'hs4_es', 'hs6_es']
         cols_en = ['chapter_en', 'hs2_en', 'hs4_en', 'hs6_en']
@@ -30,6 +41,20 @@ class TransformStep(PipelineStep):
         for col in ['hs6_id', 'hs4_id', 'hs2_id', 'chapter']:
             df[col] = df[col].astype('int')
 
+        # top 50
+        df['hs6_es_short'] = df['hs6_es']
+        df['hs6_en_short'] = df['hs6_en']
+        df['hs4_es_short'] = df['hs4_es']
+        df['hs4_en_short'] = df['hs4_en']
+
+        for ele in top_hs['hs6 id'].unique():
+            df.loc[df.hs6_id == ele, 'hs6_es_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_es'].values[0]
+            df.loc[df.hs6_id == ele, 'hs6_en_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_en'].values[0]
+
+        for ele in top_hs_4['hs4 id'].unique():
+            df.loc[df.hs4_id == ele, 'hs4_es_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_es'].values[0]
+            df.loc[df.hs4_id == ele, 'hs4_en_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_en'].values[0]
+
         return df
 
 class HSCodesPipeline(EasyPipeline):
@@ -39,18 +64,22 @@ class HSCodesPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            'chapter':    'UInt8',
-            'chapter_es': 'String',
-            'chapter_en': 'String',
-            'hs2_id':     'UInt16',
-            'hs2_es':     'String',
-            'hs2_en':     'String',
-            'hs4_id':     'UInt32',
-            'hs4_es':     'String',
-            'hs4_en':     'String',
-            'hs6_id':     'UInt32',
-            'hs6_es':     'String',
-            'hs6_en':     'String'
+            'chapter':      'UInt8',
+            'chapter_es':   'String',
+            'chapter_en':   'String',
+            'hs2_id':       'UInt16',
+            'hs2_es':       'String',
+            'hs2_en':       'String',
+            'hs4_id':       'UInt32',
+            'hs4_es':       'String',
+            'hs4_en':       'String',
+            'hs4_es_short': 'String',
+            'hs4_en_short': 'String',
+            'hs6_id':       'UInt32',
+            'hs6_es':       'String',
+            'hs6_en':       'String',
+            'hs6_es_short': 'String',
+            'hs6_en_short': 'String'
         }
         
         transform_step = TransformStep()
