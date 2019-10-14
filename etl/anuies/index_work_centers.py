@@ -3,7 +3,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.helpers import grab_connector
-from helpers import format_text, create_index, query_to_df
+from helpers import format_text, create_index, query_to_df, word_case
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
@@ -42,13 +42,25 @@ class TransformStep(PipelineStep):
             if '-' in ele:
                 df.loc[df['institution_name'] == ele, 'institution_name'] = ele.split(' - ')[0]
 
-        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
 
         df = format_text(df, ['institution_name', 'campus_name'], stopwords=stopwords_es)
 
         operations = {
             '  ': ' ',
-            ',': ''
+            ',': '',
+            ')': '',
+            '(': '',
+            '“L2”': '"L2"',
+            '–': '-',
+            'U P N': 'UPN',
+            'U.P.N.': 'UPN',
+            'A. C.': 'A.C.',
+            'S. C.': 'S.C.',
+            'Centro A+ D': 'Centro A+D',
+            'IfcpeS.C.': 'IFCP S.C.',
+            'Unideal': 'Universidad de Altamira',
+            'Ingenihum': 'IngeniHum',
         }
         for k, v in operations.items():
             df.institution_name = df.institution_name.str.replace(k, v)
@@ -70,6 +82,41 @@ class TransformStep(PipelineStep):
                 df.drop_duplicates(subset=['campus_id'], inplace=True)
         except:
             None
+
+        # replace
+        replace = { 'Universidad Ucugs': 'Universidad CUGS', 
+                    'Universidad de Cuautitlán I.': 'Universidad de Cuautitlán Izcalli',
+                    'Universidad Anglohispanomexicana': 'Universidad AngloHispanoMexicana',
+                    'U N a R T E': 'UNARTE',
+                    'Universidad Unilider': 'Universidad UNILÍDER',
+                    'Ceni Jur-Centro de Investigación Jurídica A. C.': 'CENIJUR Centro de Investigación Jurídica A. C.',
+                    'Ep de México': 'EP de México',
+                    'In-Q-Ba Formación de Emprendedores': 'in.Q.ba Formación de Emprendedores',
+                    'Profa. Adela Márquez de Martinez': 'Profesora Adela Márquez de Martinez',
+                    'Instituto Henri Dumagt': 'Instituto Henri Dunant',
+                    'Escuela de Terapias del Cree del Difem': 'Escuela de Terapias del CREE del DIFEM',
+                    'Acai para la Formación y El Desarrollo': 'ACaI para la Formación y El Desarrollo',
+                    'Instituto de Investigación Para las Ciencias Ambientales Ac': 'Instituto de Investigación Para las Ciencias Ambientales A.c.'}
+        df.institution_name.replace(replace, inplace=True)
+
+        campus = [' Ucugs ', ' Upn ', ' Dcm ']
+        for ele in campus:
+            df.campus_name = df.campus_name.str.replace(ele, ele.upper())
+        df.campus_name = df.campus_name.str.replace(' UCUGS ', ' CUGS ')
+
+        institutions = ['Cut', 'Crea', 'Ugc', 'Ssc', 'Oca', 'Pgjdf', 'Upn', 'Upn', 'Udlap', 'U.P.N', 'Cidh', 'Unir', 'Dcm', 'Iseti', 'Imei',
+                     'Icon', 'Xxi', 'Inecuh', 'Etac', 'Uteg', 'Une', 'Cade', 'Cecomsi', 'Ises', 'Ifra', 'Utt', 'Itian', 'Ceickor', 'Cedva',
+                     'Cescet', 'Cudec', 'Ralj', 'Cipae', 'Ceuni', 'Siati', 'Cup ', 'Am', 'Snte', 'Ives', 'Infocap', 'Ui', 'Ceval', 'Ii', 'Iap',
+                     'Fstse', 'Sae', 'Iii', 'Cecyt', 'Ceunico', 'Ion', 'Cup', 'Udes', 'Arpac', 'Isic', 'Itec', 'Itca', 'Cife', 'Uniem', 'Asec',
+                     'Ymca', 'Inace', 'Ort', 'Isec', 'Issste', 'Icel', 'Ilef', 'Ipn', 'Cnci']
+
+        for ele in institutions:
+            if word_case(df.institution_name, ele) == None:
+                None
+            else:
+                word_case(df.institution_name, ele, inplace=True)
+
+        df.institution_name.loc[df.institution_name.str.contains('Inst Nac')] = 'Instituto Nacional de Ortodoncia y Ortopedia Maxilar'
 
         ### institution id
         df = create_index(df, 'institution_name', 'institution_id').copy()
