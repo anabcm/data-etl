@@ -108,7 +108,7 @@ class TransformStep(PipelineStep):
                      'Icon', 'Xxi', 'Inecuh', 'Etac', 'Uteg', 'Une', 'Cade', 'Cecomsi', 'Ises', 'Ifra', 'Utt', 'Itian', 'Ceickor', 'Cedva',
                      'Cescet', 'Cudec', 'Ralj', 'Cipae', 'Ceuni', 'Siati', 'Cup ', 'Am', 'Snte', 'Ives', 'Infocap', 'Ui', 'Ceval', 'Ii', 'Iap',
                      'Fstse', 'Sae', 'Iii', 'Cecyt', 'Ceunico', 'Ion', 'Cup', 'Udes', 'Arpac', 'Isic', 'Itec', 'Itca', 'Cife', 'Uniem', 'Asec',
-                     'Ymca', 'Inace', 'Ort', 'Isec', 'Issste', 'Icel', 'Ilef', 'Ipn', 'Cnci']
+                     'Ymca', 'Inace', 'Ort', 'Isec', 'Issste', 'Icel', 'Ilef', 'Ipn', 'Cnci', 'Univer']
 
         for ele in institutions:
             if word_case(df.institution_name, ele) == None:
