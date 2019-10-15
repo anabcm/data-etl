@@ -33,8 +33,6 @@ class TransformStep(PipelineStep):
         for col in df.columns:
             df[col] = df[col].ffill()
 
-        df.drop_duplicates(subset=['campus_id'], inplace=True)
-
         df = df.loc[df['campus_name'].str.contains('Total') == False].copy()
         df['campus_name'] = df['campus_name'].str.strip().str.replace('  ', ' ').str.replace(':', '')
 
@@ -79,7 +77,7 @@ class TransformStep(PipelineStep):
             temp.drop(columns=['institution_id'], inplace=True)
             if temp.shape[0] > 0:
                 df = df.append(temp)
-                df.drop_duplicates(subset=['campus_id'], inplace=True)
+                df.drop_duplicates(subset=['campus_id'], keep='last', inplace=True)
         except:
             None
 
