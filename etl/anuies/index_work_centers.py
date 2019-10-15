@@ -1,9 +1,20 @@
+def query_to_df(connector_obj, raw_query, table_name):
+    result = connector_obj.raw_query(raw_query)
+    # default column names
+    try:
+        columns = connector_obj.raw_query(('describe {}').format(table_name))
+        columns = [x[0] for x in columns]
+    except:
+        return print('Table does not exist.')
+
+    return pd.DataFrame(result, columns=columns)
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.helpers import grab_connector
-from helpers import format_text, create_index, query_to_df, word_case
+from helpers import format_text, create_index, word_case
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
