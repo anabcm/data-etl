@@ -112,10 +112,11 @@ class TransformStep(PipelineStep):
             query = "SELECT * from dim_shared_work_centers"
             temp = query_to_df(db_connector, query, table_name='dim_shared_work_centers')
             temp.drop(columns=['institution_id'], inplace=True)
-            df = df.append(temp, sort=True)
+            df = df.append(temp, sort=True).copy()
+            df.drop_duplicates(subset=['campus_id'], keep='last', inplace=True)
         except:
             None
-
+        print(df.shape)
         ### institution id
         df = create_index(df, 'institution_name', 'institution_id').copy()
 
