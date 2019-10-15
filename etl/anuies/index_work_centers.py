@@ -1,3 +1,16 @@
+def query_to_df(connector_obj, raw_query, table_name):
+    import pandas as pd
+    from bamboo_lib.connectors.models import Connector
+    result = connector_obj.raw_query(raw_query)
+    # default column names
+    try:
+        columns = connector_obj.raw_query(('describe {}').format(table_name))
+        columns = [x[0] for x in columns]
+    except Exception as e:
+        print(e)
+        return print('Table does not exist.')
+    return pd.DataFrame(result, columns=columns)
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
