@@ -114,7 +114,8 @@ class TransformStep(PipelineStep):
             temp.drop(columns=['institution_id'], inplace=True)
             df = df.append(temp, sort=True).copy()
             df.drop_duplicates(subset=['campus_id'], keep='last', inplace=True)
-        except:
+        except Exception as e:
+            print(e)
             None
         print(df.shape)
         ### institution id
