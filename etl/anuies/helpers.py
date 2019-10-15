@@ -14,10 +14,10 @@ def create_index(df, col, target):
     df[target].replace(ran, inplace=True)
     return df
 
-def query_to_df(connector_obj, raw_query, table_name):
+def query_to_df(connector_obj, query, table_name):
     import pandas as pd
     from bamboo_lib.connectors.models import Connector
-    result = connector_obj.raw_query(raw_query)
+    result = connector_obj.raw_query(query)
     # default column names
     try:
         columns = connector_obj.raw_query(('describe {}').format(table_name))
