@@ -16,6 +16,7 @@ def create_index(df, col, target):
 
 def query_to_df(connector_obj, raw_query, table_name):
     import pandas as pd
+    from bamboo_lib.connectors.models import Connector
     result = connector_obj.raw_query(raw_query)
     # default column names
     try:
