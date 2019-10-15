@@ -68,18 +68,6 @@ class TransformStep(PipelineStep):
             'PARTICULAR': 2
         }
         df.sostenimiento.replace(sost, inplace=True)
-        
-        # comprobar existencia de datos
-        try:
-            db_connector = grab_connector("../conns.yaml", "clickhouse-database")
-            query = "SELECT * from dim_shared_work_centers"
-            temp = query_to_df(db_connector, query, table_name='dim_shared_work_centers')
-            temp.drop(columns=['institution_id'], inplace=True)
-            if temp.shape[0] > 0:
-                df = df.append(temp)
-                df.drop_duplicates(subset=['campus_id'], keep='last', inplace=True)
-        except:
-            None
 
         # replace
         replace = { 'Universidad Ucugs': 'Universidad CUGS', 
@@ -115,6 +103,17 @@ class TransformStep(PipelineStep):
                 word_case(df.institution_name, ele, inplace=True)
 
         df.institution_name.loc[df.institution_name.str.contains('Inst Nac')] = 'Instituto Nacional de Ortodoncia y Ortopedia Maxilar'
+
+        # comprobar existencia de datos
+        df.drop_duplicates(subset=['campus_id'], keep='last', inplace=True)
+        try:
+            db_connector = grab_connector("../conns.yaml", "clickhouse-database")
+            query = "SELECT * from dim_shared_work_centers"
+            temp = query_to_df(db_connector, query, table_name='dim_shared_work_centers')
+            temp.drop(columns=['institution_id'], inplace=True)
+            df = df.append(temp)
+        except:
+            None
 
         ### institution id
         df = create_index(df, 'institution_name', 'institution_id').copy()
