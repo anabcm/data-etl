@@ -35,6 +35,7 @@ class TransformStep(PipelineStep):
 
         df = df.loc[df['campus_name'].str.contains('Total') == False].copy()
         df['campus_name'] = df['campus_name'].str.strip().str.replace('  ', ' ').str.replace(':', '')
+        df['campus_id'] = df['campus_id'].str.strip()
 
         for ele in df['institution_name'].unique():
             if '-' in ele:
