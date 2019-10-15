@@ -111,7 +111,7 @@ class TransformStep(PipelineStep):
             query = "SELECT * from dim_shared_work_centers"
             temp = query_to_df(db_connector, query, table_name='dim_shared_work_centers')
             temp.drop(columns=['institution_id'], inplace=True)
-            df = df.append(temp)
+            df = df.append(temp, sort=True)
         except:
             None
 
