@@ -33,8 +33,16 @@ class TransformStep(PipelineStep):
         df['code'] = df['code'].ffill().astype('int')
         df['name_es'] = df['name_es'].ffill().str.replace('  ', ' ').str.replace(':', '')
 
+        # characters
+        operations = {
+            '“L2”': '"L2"',
+            '–': '-'
+        }
+        for k, v in operations.items():
+            df.name_es = df.name_es.str.replace(k, v)
+
         # careers ids
-        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
         df = format_text(df, ['name_es'], stopwords=stopwords_es)
 
         df.drop_duplicates(subset=['name_es'], inplace=True)

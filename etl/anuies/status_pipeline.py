@@ -82,7 +82,13 @@ class TransformStep(PipelineStep):
         df.type.replace(types, inplace=True)
 
         # careers ids
-        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        operations = {
+            '“L2”': '"L2"',
+            '–': '-'
+        }
+        for k, v in operations.items():
+            df.program = df.program.str.replace(k, v)
+        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
         df = format_text(df, ['program'], stopwords=stopwords_es)
         df.program.replace(dict(zip(careers.name_es, careers.code)), inplace=True)
 

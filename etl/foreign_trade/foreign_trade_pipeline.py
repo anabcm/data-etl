@@ -53,15 +53,15 @@ class TransformStep(PipelineStep):
             if k in url:
                 depth = v
             else:
-                df['hs' + str(v) + '_id'] = pd.np.nan
+                df['hs' + str(v) + '_id'] = 0
 
         # date/month
         if 'annual' in url:
             df.rename(columns={'date': 'year'}, inplace=True)
-            df['month_id'] = pd.np.nan
+            df['month_id'] = 0
         elif ('monthly' in url) or ('month' in url):
             df['month_id'] = '20' + url[-6:-4] + url[-8:-6]
-            df['year'] = pd.np.nan
+            df['year'] = 0
             df.drop(columns=['date'], inplace=True)
         
         # column name management
@@ -152,7 +152,8 @@ class ForeignTradePipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('economy_foreign_trade_' + params.get('column_name'), db_connector, if_exists='append', pk=[params.get('column_name')+'_id', 'partner_country'], 
-                             dtype=dtype, nullable_list=['hs2_id', 'hs4_id', 'hs6_id', 'value', 'month_id', 'year'])
+        load_step = LoadStep('economy_foreign_trade_' + params.get('column_name'), db_connector, if_exists='append', 
+                            pk=[params.get('column_name')+'_id', 'partner_country', 'month_id', 'year', 'hs2_id', 'hs4_id', 'hs6_id'], 
+                             dtype=dtype, nullable_list=['value'])
 
         return [read_step, transform_step, load_step]

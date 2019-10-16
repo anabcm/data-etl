@@ -14,9 +14,10 @@ def create_index(df, col, target):
     df[target].replace(ran, inplace=True)
     return df
 
-def query_to_df(connector_obj, raw_query, table_name):
+def query_to_df(connector_obj, query, table_name):
     import pandas as pd
-    result = connector_obj.raw_query(raw_query)
+    from bamboo_lib.connectors.models import Connector
+    result = connector_obj.raw_query(query)
     # default column names
     try:
         columns = connector_obj.raw_query(('describe {}').format(table_name))
@@ -33,3 +34,19 @@ def gouped_index(df, column=None, objetive='id'):
         ran = range(1, df.loc[df[column].str[:2] == area, column].shape[0] + 1)
         df.loc[df[column].str[:2] == area, objetive] = ran
     return df
+
+def word_case(series, target, inplace=False):
+    # upper() fixed
+    try:       
+        unique_rows = series.loc[series.str.contains(target)].unique()
+        for ele in unique_rows:
+            val = ele.split()
+            for v in range(len(val)):
+                if val[v].lower() == target.lower():
+                    val[v] = val[v].upper()
+            if inplace:
+                series.loc[series == ele] = ' '.join(val).strip()
+            else:
+                return ' '.join(val).strip()
+    except:
+        return 'Target: {} not found'.format(target)
