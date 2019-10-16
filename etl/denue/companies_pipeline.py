@@ -150,6 +150,7 @@ class TransformStep(PipelineStep):
                     print(e)
         
         df['publication_date'] = int(params['date'])
+        df['companies'] = 1
 
         return df
 
@@ -179,7 +180,8 @@ class DENUEPipeline(EasyPipeline):
             'middle':               'Float32',
             'upper':                'UInt8',
             'publication_date':     'UInt32',
-            'directory_added_date': 'UInt32'
+            'directory_added_date': 'UInt32',
+            'companies':            'UInt8'
         }
 
         read_step = ReadStep()
