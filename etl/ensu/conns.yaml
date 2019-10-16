@@ -1,3 +1,7 @@
-ensu-data:
+ensu-1-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/ensu/ENSU_CB_<quarter>t_<year>.DBF
+
+ensu-2-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/ensu/ENSU_CS_<quarter>t_<year>.DBF
