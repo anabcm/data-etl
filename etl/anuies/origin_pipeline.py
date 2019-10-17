@@ -85,9 +85,9 @@ class TransformStep(PipelineStep):
         for col in ['mun_id', 'career', 'program', 'type', 'origin', 'value']:
             df[col] = df[col].astype('float')
         
-        df.drop(columns=['career'], inplace=True)
+        df.drop(columns=['career', 'period'], inplace=True)
 
-        df['period'] = params.get('period')
+        df['year'] = params.get('period')
         
         return df
 
@@ -107,7 +107,7 @@ class OriginPipeline(EasyPipeline):
         dtype = {
             'mun_id':      'UInt16',
             'type':        'UInt8',
-            'period':      'String',
+            'year':        'String',
             'campus_id':   'String',
             'program':     'UInt64',
             'origin':      'UInt8',
