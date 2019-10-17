@@ -108,7 +108,7 @@ class OriginPipeline(EasyPipeline):
             'mun_id':      'UInt16',
             'type':        'UInt8',
             'period':      'String',
-            'campus_id': 'String',
+            'campus_id':   'String',
             'program':     'UInt64',
             'origin':      'UInt8',
             'value':       'UInt32',
