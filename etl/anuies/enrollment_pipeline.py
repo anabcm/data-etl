@@ -124,6 +124,6 @@ class EnrollmentPipeline(EasyPipeline):
         
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('anuies_enrollment', db_connector, if_exists='append', pk=['mun_id', 'campus_id', 'program'], dtype=dtype)
+        load_step = LoadStep('anuies_enrollment', db_connector, if_exists='append', pk=['mun_id', 'campus_id', 'program', 'year'], dtype=dtype)
 
         return [read_step, transform_step, load_step]
