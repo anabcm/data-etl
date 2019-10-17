@@ -4,8 +4,6 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 
-## TODO update urls
-
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
@@ -32,7 +30,10 @@ class TransformStep(PipelineStep):
         df.ent_id.replace(dict(zip(ent.origin, ent.id)), inplace=True)
 
         # municipality level id
-        df.loc[:, 'mun_id'] = df.loc[:, 'ent_id'].astype('str') + df.loc[:, 'mun_id'].astype('str')
+        try:
+            df.loc[:, 'mun_id'] = df.loc[:, 'ent_id'].astype('str') + df.loc[:, 'mun_id'].astype('int').astype('str').str.zfill(3)
+        except:
+            df.loc[:, 'mun_id'] = df.loc[:, 'ent_id'].astype('str') + df.loc[:, 'mun_id'].astype('str')
         df.drop(columns=['ent_id'], inplace=True)
           
         # totals clean
