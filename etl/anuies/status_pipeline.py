@@ -109,7 +109,7 @@ class StatusPipeline(EasyPipeline):
     def parameter_list():
         return [
             Parameter(name='url', dtype=str),
-            Parameter(name='period', dtype=str)
+            Parameter(name='period', dtype=int)
         ]
 
     @staticmethod
@@ -120,7 +120,7 @@ class StatusPipeline(EasyPipeline):
         dtype = {
             'mun_id':      'UInt16',
             'type':        'UInt8',
-            'year':        'String',
+            'year':        'UInt16',
             'campus_id':   'String',
             'program':     'UInt64',
             'stat':        'UInt8',
