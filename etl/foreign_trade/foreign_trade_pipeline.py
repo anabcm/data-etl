@@ -20,9 +20,14 @@ class ReadStep(PipelineStep):
             print(url)
 
         elif level == 'State' and depth_name == '2D':
-            url = ('{}{}/HS_{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, depth_name, prefix, month, year)
-            print(url)
-            df = pd.read_csv(url)
+            try:
+                url = ('{}{}/HS_{}/{}_{}_monthly{}{}.csv').format(base_url, level, depth_name, depth_name, prefix, month, year)
+                print(url)
+                df = pd.read_csv(url)
+            except:
+                url = ('{}{}/HS_{}/{}_{}_month{}{}.csv').format(base_url, level, depth_name, depth_name, prefix, month, year)
+                print(url)
+                df = pd.read_csv(url)
 
         else:
             try:
@@ -115,7 +120,7 @@ class TransformStep(PipelineStep):
         # national ent id
         if 'National' in url:
             df['ent_id'] = 0
-
+        
         return df
 
 class ForeignTradePipeline(EasyPipeline):
