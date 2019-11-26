@@ -21,10 +21,10 @@ class TransformStep(PipelineStep):
         # Replacing NaN values with "X" (Not this df.fillna("0", inplace=True)) 
         # in order to not drop values by GroupBy method
         li_spa = ["tie_traslado_trab", "med_traslado_trab1", "tie_traslado_escu",
-                    "med_traslado_esc1", "conact", "mun_id_trab"]
+                    "med_traslado_esc1", "conact", "mun_id_trab", "nacionalidad"]
 
         li_eng = ["time_to_work", "transport_mean_work", "time_to_ed_facilities",
-                    "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab"]
+                    "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "nationality"]
 
         for item in li_spa:
             df[item].fillna("0", inplace=True)
@@ -44,11 +44,13 @@ class TransformStep(PipelineStep):
         # List of columns for the next df
         params = ["sexo", "parent", "sersalud", "dhsersal1", 
         "conact", "tie_traslado_trab", "med_traslado_trab1",
-        "nivacad", "tie_traslado_escu", "med_traslado_esc1"]
+        "nivacad", "tie_traslado_escu", "med_traslado_esc1",
+        "nacionalidad"]
 
         params_translated = ["sex", "parent", "sersalud", "dhsersal1",
         "laboral_condition", "time_to_work", "transport_mean_work",
-        "academic_degree", "time_to_ed_facilities", "transport_mean_ed_facilities"]
+        "academic_degree", "time_to_ed_facilities", "transport_mean_ed_facilities",
+        "nationality"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -66,7 +68,8 @@ class TransformStep(PipelineStep):
                             "med_traslado_trab1": "transport_mean_work",
                             "nivacad": "academic_degree",
                             "tie_traslado_escu": "time_to_ed_facilities",
-                            "med_traslado_esc1": "transport_mean_ed_facilities"}, inplace=True)
+                            "med_traslado_esc1": "transport_mean_ed_facilities",
+                            "nacionalidad": "nationality"}, inplace=True)
 
         # Condense df around params list, mun_id and loc_id, and sum over population (factor)
         df = df.groupby(params_translated + ["loc_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
@@ -102,6 +105,7 @@ class PopulationPipeline(EasyPipeline):
             "loc_id":                       "UInt32",
             "population":                   "UInt64",
             "parent":                       "UInt8",
+            "nationality":                  "UInt8",
             "sersalud":                     "UInt8",
             "dhsersal1":                    "UInt8",
             "laboral_condition":            "UInt8",
@@ -123,7 +127,8 @@ class PopulationPipeline(EasyPipeline):
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", "time_to_ed_facilities", 
-            "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "academic_degree"]
+            "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "academic_degree", 
+            "nationality"]
         )
 
         return [download_step, transform_step, load_step]
