@@ -15,6 +15,7 @@ class TransformStep(PipelineStep):
         dbf = Dbf5(prev, codec="latin-1")
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
+        print(df.columns)
 
         # Adding ID columns, year and age(edad)
         df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
@@ -92,7 +93,9 @@ class TransformStep(PipelineStep):
                     "time_to_work", "transport_mean_work", "mun_id_trab", "age",
                     "academic_degree", "time_to_ed_facilities", "transport_mean_ed_facilities"]:
             df[col] = df[col].astype("object")
-
+        
+        df["nationality"] = pd.np.nan
+        
         return df
 
 class PopulationPipeline(EasyPipeline):
@@ -110,6 +113,7 @@ class PopulationPipeline(EasyPipeline):
             "sex":                          "UInt8",
             "loc_id":                       "UInt32",
             "population":                   "UInt64",
+            "nationality":                  "UInt8",
             "parent":                       "UInt8",
             "sersalud":                     "UInt8",
             "dhsersal1":                    "UInt8",
@@ -132,7 +136,7 @@ class PopulationPipeline(EasyPipeline):
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab", "academic_degree",
-            "time_to_ed_facilities","transport_mean_ed_facilities"]
+            "time_to_ed_facilities","transport_mean_ed_facilities", "nationality"]
         )
 
         return [download_step, transform_step, load_step]
