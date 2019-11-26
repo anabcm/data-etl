@@ -15,7 +15,6 @@ class TransformStep(PipelineStep):
         dbf = Dbf5(prev, codec="latin-1")
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
-        print(df.columns)
 
         # Adding ID columns, year and age(edad)
         df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
