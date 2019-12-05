@@ -6,6 +6,14 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
+        # translations
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
+        df = pd.read_excel(url, sheet_name='translations')
+
+        df = df.loc[(df.lang == 'es'), ['origin_id', 'lang', 'name']].copy()
+        translations = df.copy()
+
+        # countries
         url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
         df = pd.read_excel(url, sheet_name='Country Groupings')
         countries = pd.read_excel(url, sheet_name='countries')
@@ -33,6 +41,10 @@ class TransformStep(PipelineStep):
         df['continent'].replace(continents, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
 
+        # name es
+        df['country_name_es'] = df['continent_id'] + df['iso3']
+        df['country_name_es'].replace(dict(zip(translations['origin_id'], translations['name'])), inplace=True)
+
         return df
 
 class CountryPipeline(EasyPipeline):
@@ -44,7 +56,8 @@ class CountryPipeline(EasyPipeline):
         dtype = {
             'iso2': 'String',
             'iso3': 'String', 
-            'country_name': 'String', 
+            'country_name': 'String',
+            'country_name_es': 'String',
             'continent_id': 'String',
             'continent': 'String',
             'oecd': 'UInt8'
