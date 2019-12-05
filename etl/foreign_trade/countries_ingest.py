@@ -23,10 +23,11 @@ class TransformStep(PipelineStep):
         df = df[['id', 'country', 'continent', 'oecd']].copy()
 
         df.rename(columns={'continent': 'continent_id',
-                           'country': 'country_name',
-                           'id': 'iso3'}, inplace=True)
+                        'country': 'country_name',
+                        'id': 'iso3'}, inplace=True)
 
         df['continent'] = df['continent_id']
+        df['continent_es'] = df['continent_id']
         df['iso2'] = df['iso3']
 
         continents = {
@@ -38,7 +39,19 @@ class TransformStep(PipelineStep):
             'eu': 'Europe',
             'sa': 'South America'
         }
+
+        continents_es = {
+            'af': 'África',
+            'na': 'América del Norte',
+            'oc': 'Oceanía',
+            'an': 'Antártida',
+            'as': 'Asia',
+            'eu': 'Europa',
+            'sa': 'América del Sur'
+        }
+
         df['continent'].replace(continents, inplace=True)
+        df['continent_es'].replace(continents_es, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
 
         # name es
@@ -54,13 +67,14 @@ class CountryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            'iso2': 'String',
-            'iso3': 'String', 
-            'country_name': 'String',
+            'iso2':            'String',
+            'iso3':            'String', 
+            'country_name':    'String',
             'country_name_es': 'String',
-            'continent_id': 'String',
-            'continent': 'String',
-            'oecd': 'UInt8'
+            'continent_id':    'String',
+            'continent':       'String',
+            'continent_es':    'String',
+            'oecd':            'UInt8'
         }
         
         transform_step = TransformStep()
