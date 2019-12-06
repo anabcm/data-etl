@@ -150,7 +150,7 @@ class ForeignTradePipeline(EasyPipeline):
             'flow_id':                       'UInt8',
             'partner_country':               'String',   
             'firms':                         'UInt16',
-            'value':                         'UInt32',           
+            'value':                         'UInt64',           
             'month_id':                      'UInt32',
             'year':                          'UInt16'
         }
