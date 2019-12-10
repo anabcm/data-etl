@@ -1,11 +1,16 @@
 def format_text(df, cols_names=None, stopwords=None):
-
     # format
     for ele in cols_names:
         df[ele] = df[ele].str.title().str.strip()
         for ene in stopwords:
             df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
 
+    return df
+
+def fill_values(df, target, base):
+    """fill nan values with another column where there are values"""
+    mask = df[target].isnull()
+    df.loc[mask, target] = df.loc[mask, base]
     return df
 
 import pandas as pd
@@ -17,45 +22,62 @@ from sklearn.feature_extraction import stop_words
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vT0959aScOQnJcoxJTgvPqwma0jxsdyGZGswl4z8yl9KqiPeZleckFHoFyA2KHCMP3HrE8n7EwLyQAR/pub?output=csv')
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeFs5_Cv49nNo4leJAMwoUZU_smOPwjCnoRprDuqkOVWB7UZSqm3j16mXv6N0aRRek-rtlikP5ZJ46/pub?output=xlsx'
-        exports = pd.read_excel(url, sheet_name='HS6 Exports')
-        imports = pd.read_excel(url, sheet_name='HS6 Imports')
-        exports.columns = exports.columns.str.lower()
-        imports.columns = imports.columns.str.lower()
-        top_hs = exports.append(imports)
-        exports = pd.read_excel(url, sheet_name='HS4 Exports')
-        imports = pd.read_excel(url, sheet_name='HS4 Imports')
-        exports.columns = exports.columns.str.lower()
-        imports.columns = imports.columns.str.lower()
-        top_hs_4 = exports.append(imports)
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0959aScOQnJcoxJTgvPqwma0jxsdyGZGswl4z8yl9KqiPeZleckFHoFyA2KHCMP3HrE8n7EwLyQAR/pub?output=xlsx'
+        hs2 = pd.read_excel(url, sheet_name='hs2')
+        hs4 = pd.read_excel(url, sheet_name='hs4')
+        hs6 = pd.read_excel(url, sheet_name='hs6')
+        chapter = pd.read_excel(url, sheet_name='chapter')
 
-        cols_es = ['chapter_es', 'hs2_es', 'hs4_es', 'hs6_es']
-        cols_en = ['chapter_en', 'hs2_en', 'hs4_en', 'hs6_en']
+        ran = {'hs2': 4, 
+               'hs4': 6, 
+               'chapter': 2}
+        langs = ['es', 'en']
+
+        for k, v in ran.items():
+            ids = hs6['id'].astype('str').str.zfill(8).str[:v].astype('int')
+            hs6['{}_id'.format(k)] = ids
+            for lan in langs:
+                hs6['{}_{}'.format(k, lan)] = ids
+                hs6['{}_{}_short'.format(k, lan)] = ids
+
+        ran = {'hs2': hs2, 
+               'hs4': hs4, 
+               'hs6': hs6, 
+               'chapter': chapter}
+        for k, v in ran.items():
+            for lan in langs:
+                target = '{}_{}_short'.format(k, lan)
+                base = '{}_{}'.format(k, lan)
+                v = fill_values(v, target, base)
+
+        for k, v in ran.items():
+            for lan in langs:
+                target = '{}_{}_short'.format(k, lan)
+                base = '{}_{}'.format(k, lan)
+                hs6[target].replace(dict(zip(v['id'], v[target])), inplace=True)
+                hs6[base].replace(dict(zip(v['id'], v[base])), inplace=True)
+
+        hs6.drop(columns=['trade_value'], inplace=True)
+
+        hs6.rename(columns={'id': 'hs6_id',
+                            'chapter_id': 'chapter'}, inplace=True)
+
+        hs6.sort_values(by='hs6_id', inplace=True)
+
+        cols_es = ['chapter_es', 'chapter_es_short', 'hs2_es', 'hs2_es_short', 'hs4_es', 'hs4_es_short', 'hs6_es', 'hs6_es_short']
+        cols_en = ['chapter_en', 'chapter_en_short', 'hs2_en', 'hs2_en_short', 'hs4_en', 'hs4_es_short', 'hs6_en', 'hs6_es_short']
 
         # codes ids
-        stopwords_es = ['a', 'e', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
-        df = format_text(df, cols_es, stopwords=stopwords_es)
-        df = format_text(df, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
+        stopwords_es = ['a', 'e', 'en', 'para', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        hs6 = format_text(hs6, cols_es, stopwords=stopwords_es)
+        hs6 = format_text(hs6, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
         for col in ['hs6_id', 'hs4_id', 'hs2_id', 'chapter']:
-            df[col] = df[col].astype('int')
+            hs6[col] = hs6[col].astype('int')
+        
+        hs6.drop_duplicates(subset='hs6_id', inplace=True)
 
-        # top 50
-        df['hs6_es_short'] = df['hs6_es']
-        df['hs6_en_short'] = df['hs6_en']
-        df['hs4_es_short'] = df['hs4_es']
-        df['hs4_en_short'] = df['hs4_en']
-
-        for ele in top_hs['hs6 id'].unique():
-            df.loc[df.hs6_id == ele, 'hs6_es_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_es'].values[0]
-            df.loc[df.hs6_id == ele, 'hs6_en_short'] = top_hs.loc[top_hs['hs6 id'] == ele, 'name_en'].values[0]
-
-        for ele in top_hs_4['hs4 id'].unique():
-            df.loc[df.hs4_id == ele, 'hs4_es_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_es'].values[0]
-            df.loc[df.hs4_id == ele, 'hs4_en_short'] = top_hs_4.loc[top_hs_4['hs4 id'] == ele, 'name_en'].values[0]
-
-        return df
+        return hs6
 
 class HSCodesPipeline(EasyPipeline):
     @staticmethod
@@ -64,22 +86,26 @@ class HSCodesPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            'chapter':      'UInt8',
-            'chapter_es':   'String',
-            'chapter_en':   'String',
-            'hs2_id':       'UInt16',
-            'hs2_es':       'String',
-            'hs2_en':       'String',
-            'hs4_id':       'UInt32',
-            'hs4_es':       'String',
-            'hs4_en':       'String',
-            'hs4_es_short': 'String',
-            'hs4_en_short': 'String',
-            'hs6_id':       'UInt32',
-            'hs6_es':       'String',
-            'hs6_en':       'String',
-            'hs6_es_short': 'String',
-            'hs6_en_short': 'String'
+            'chapter':          'UInt8',
+            'chapter_es':       'String',
+            'chapter_en':       'String',
+            'chapter_es_short': 'String',
+            'chapter_en_short': 'String',
+            'hs2_id':           'UInt16',
+            'hs2_es':           'String',
+            'hs2_en':           'String',
+            'hs2_es_short':     'String',
+            'hs2_en_short':     'String',
+            'hs4_id':           'UInt32',
+            'hs4_es':           'String',
+            'hs4_en':           'String',
+            'hs4_es_short':     'String',
+            'hs4_en_short':     'String',
+            'hs6_id':           'UInt32',
+            'hs6_es':           'String',
+            'hs6_en':           'String',
+            'hs6_es_short':     'String',
+            'hs6_en_short':     'String'
         }
         
         transform_step = TransformStep()
