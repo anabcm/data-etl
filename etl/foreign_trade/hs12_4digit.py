@@ -65,10 +65,10 @@ class TransformStep(PipelineStep):
         hs6.sort_values(by='hs6_id', inplace=True)
 
         cols_es = ['chapter_es', 'chapter_es_short', 'hs2_es', 'hs2_es_short', 'hs4_es', 'hs4_es_short', 'hs6_es', 'hs6_es_short']
-        cols_en = ['chapter_en', 'chapter_en_short', 'hs2_en', 'hs2_en_short', 'hs4_en', 'hs4_es_short', 'hs6_en', 'hs6_es_short']
+        cols_en = ['chapter_en', 'chapter_en_short', 'hs2_en', 'hs2_en_short', 'hs4_en', 'hs4_en_short', 'hs6_en', 'hs6_en_short']
 
         # codes ids
-        stopwords_es = ['a', 'e', 'en', 'para', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        stopwords_es = ['a', 'e', 'o', 'en', 'para', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
         hs6 = format_text(hs6, cols_es, stopwords=stopwords_es)
         hs6 = format_text(hs6, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
