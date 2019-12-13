@@ -12,7 +12,7 @@ class TransformStep(PipelineStep):
 
         # read file
         household_cols = ['folioviv', 'ubica_geo', 'factor', 'tot_integ', 'trabajo']
-        df = pd.read_csv('concentradohogar_2016.csv', index_col=None, header=0, encoding='latin-1', usecols = household_cols)
+        df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1', usecols = household_cols)
 
         # Turning Factor to int value
         df['factor'] = df['factor'].astype(int)
