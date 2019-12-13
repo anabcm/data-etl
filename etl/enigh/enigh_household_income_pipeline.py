@@ -10,88 +10,71 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        # List to useful columns from income and household
-        income_cols = ["folioviv", "foliohog", "ing_1", "ing_2", "ing_3", "ing_4", "ing_5", "ing_6"]
-        household_cols = ["folioviv", "foliohog", "ubica_geo", "factor"]
-
-        # Loading income file 
-        df_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", usecols = income_cols)
-
-        # Filling empty cells about not answered income
-        for item in ["ing_1", "ing_2", "ing_3", "ing_4", "ing_5", "ing_6"]:
-            df_1[item].replace(" ", 0 ,inplace=True)
-            df_1[item] = df_1[item].astype(int)
-
-        # Calculating average income per month
-        df_1["monthly_average"] = (df_1["ing_1"] + df_1["ing_2"] + df_1["ing_3"] + df_1["ing_4"] + df_1["ing_5"] + df_1["ing_6"])/6
-
-        # Droping used columns
-        df_1.drop(["ing_1", "ing_2", "ing_3", "ing_4", "ing_5", "ing_6"], axis=1, inplace=True)
-
-        # Groupby step
-        df_1 = df_1.groupby(["folioviv", "foliohog"]).sum().reset_index()
-
-        # Loading enigh household dataframe in order to get mun_id and factor columns
-        df_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", usecols = household_cols)
+        # read file
+        household_cols = ['folioviv', 'ubica_geo', 'factor', 'tot_integ', 'trabajo']
+        df = pd.read_csv('concentradohogar_2016.csv', index_col=None, header=0, encoding='latin-1', usecols = household_cols)
 
         # Turning Factor to int value
-        df_2["factor"] = df_2["factor"].astype(int)
+        df['factor'] = df['factor'].astype(int)
 
-        # Creating unique code column for the merge method
-        df_1["code"] = df_1["folioviv"].astype("str") + df_1["foliohog"].astype("str").str.zfill(3)
-        df_2["code"] = df_2["folioviv"].astype("str") + df_2["foliohog"].astype("str").str.zfill(3)
+        # set year
+        df['year'] = params.get('year')
 
-        # Merge step
-        df = pd.merge(df_2, df_1[["code", "monthly_average"]], on="code", how="left")
+        # to monthly
+        df['trabajo_viv_mes'] = (df['trabajo']/3).astype('int')
+        df.drop(columns=['trabajo', 'folioviv'], inplace=True)
 
-        # Droping already used columns
-        df.drop(["folioviv", "foliohog", "code"], axis=1, inplace=True)
+        # municipality id
+        df['ubica_geo'] = df['ubica_geo'].astype('str').str.zfill(9).str[:5].astype('int')
 
-        # Renaming columns to the used standard
-        df.rename(index=str, columns={"ubica_geo": "mun_id", "factor": "population"}, inplace=True)
+        # rename columns
+        df.columns = ['mun_id', 'households', 'n_people_home', 'year', 'monthly_wage']
 
-        # Adding respective year to the Dataframes, given Inegis update (2016-2018)
-        df["year"] = params["year"]
+        # income interval v2
+        def to_interval(df, target, intervals):
+            for k, v in intervals.items():
+                # asuming 'v' is an array
+                df.loc[(df[target] >= v['interval_lower']) & (df[target] < v['interval_upper']), target] = k
+            return df
 
-        # Getting actual mun_id deleting last 4 digits from the values (2016 issue)
-        if (df["year"][0] == 2016):
-            df["mun_id"] = df["mun_id"].astype(str).str.zfill(9)
-            df["mun_id"] = df["mun_id"].str.slice(0,5)
+        # income values format
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
+        income = pd.read_excel(url, sheet_name='income', encoding='latin-1')
+        income = income.set_index('id')[['interval_lower', 'interval_upper']].to_dict('index')
 
-        # Groupby method
-        group_list = ["mun_id", "monthly_average", "year"]
-        df = df.groupby(group_list).sum().reset_index(col_fill="ffill")
+        df = to_interval(df, 'monthly_wage', income)
 
-        # Setting all columns to int 
-        for item in ["mun_id", "population", "monthly_average", "year"]:
-            df[item] = df[item].astype(float)
+        for col in df.columns:
+            df[col] = df[col].astype('float')
+
         return df
 
 class EnighIncomeHousePipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Year", name="year", dtype=str)
+            Parameter(label='Year', name='year', dtype=str)
         ]
 
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
+        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            "mun_id":                   "UInt16",
-            "monthly_average":          "Float64",
-            "population":               "UInt16",
-            "year":                     "UInt16"
+            'mun_id':                   'UInt16',
+            'households':               'UInt16',
+            'n_people_home':            'UInt8',
+            'monthly_wage':             'UInt8',
+            'year':                     'UInt16'
         }
 
         download_step = DownloadStep(
-            connector=["enigh-income", "enigh-household"],
-            connector_path="conns.yaml"
+            connector='enigh-household',
+            connector_path='conns.yaml'
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enigh_household_income", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype
+            'inegi_enigh_household_income', db_connector, if_exists='append', pk=['mun_id'], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
