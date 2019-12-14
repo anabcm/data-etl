@@ -24,3 +24,56 @@ def hs6_converter(hs6):
     if leading2 <= 97: return "{}{}".format("21", hs6)
     if leading2 <= 99: return "{}{}".format("22", hs6)
     return "{}{}".format("xx", hs6)
+
+def get_time(url):
+    # month
+    import re
+    try:
+        regex = re.findall('[0-9]{4}(?![0-9])', url)[0]
+        month_id = int('20' + regex[2:] + regex[:2])
+        data = {
+            'month_id': month_id,
+            'year': 0
+        }
+        return data
+    # annual
+    except:    
+        regex = re.findall('[0-9]{2}(?![0-9])', url)[0]
+        year = int('20' + regex)
+        data = {
+            'month_id': 0,
+            'year': year
+        }
+        return data
+
+def get_level(url, levels):
+    for k, v in levels.items():
+        if k in url:
+            return v[0], v[1]
+        else:
+            continue
+    return None
+
+def get_depth(url, depths):
+    for k, v in depths.items():
+        if k in url:
+            return v
+        else:
+            continue
+    return None
+
+def get_params(url, levels, depths):
+    time = []
+    level = get_level(url, levels)
+    depth = get_depth(url, depths)
+    time = get_time(url)
+    data = {
+        'level': level,
+        'depth': depth,
+        'datetime': time,
+    }
+    return data
+
+def get_number(val):
+    import re
+    return int(re.findall('[0-9]{1}(?![0-9])', val)[0])
