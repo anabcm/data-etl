@@ -40,13 +40,13 @@ class TransformStep(PipelineStep):
         def to_interval(df, target, intervals):
             for k, v in intervals.items():
                 # asuming 'v' is an array
-                df.loc[(df[target] >= v['interval_lower']) & (df[target] < v['interval_upper']), target] = v['enoe_group_id']
+                df.loc[(df[target] >= v['interval_lower']) & (df[target] < v['interval_upper']), target] = k
             return df
 
         # income values format
         url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTieVnRovfP7AOMtqxIJcrFl8Tayz6Irz-Bc1en1NSIKtjjPtGaBRaCaSeePRrpQMmHMzSt2VO93Wav/pub?output=xlsx"
         income = pd.read_excel(url, encoding='latin-1')
-        income = income.set_index('id')[['enoe_group_id', 'interval_lower', 'interval_upper']].to_dict('index')
+        income = income.set_index('id')[['interval_lower', 'interval_upper']].to_dict('index')
 
         df = to_interval(df, 'monthly_wage', income)
 
