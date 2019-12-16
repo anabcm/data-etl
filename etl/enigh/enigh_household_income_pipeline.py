@@ -6,6 +6,12 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
+def fix_geo_level(df, target, lenght):
+    max_ = df[target].max()
+    len_ = len(str(max_))
+    df[target] = df[target].astype('str').str.zfill(len_)
+    df[target] = df[target].str[:lenght].astype('int')
+    return df
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -25,7 +31,7 @@ class TransformStep(PipelineStep):
         df.drop(columns=['trabajo', 'folioviv'], inplace=True)
 
         # municipality id
-        df['ubica_geo'] = df['ubica_geo'].astype('str').str.zfill(9).str[:5].astype('int')
+        df = fix_geo_level(df, 'ubica_geo', 5)
 
         # rename columns
         df.columns = ['mun_id', 'households', 'n_people_home', 'year', 'monthly_wage']
