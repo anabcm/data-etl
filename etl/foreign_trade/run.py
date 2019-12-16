@@ -1,42 +1,41 @@
 import os
+from google.cloud import storage
+from util import get_level
 
-params = {
-    'level': {'National':  ['nat', 'ent', 'UInt8'],
-              'State':     ['state', 'ent', 'UInt8'], 
-              'Municipal': ['mun', 'mun', 'UInt16']},
-    'period': ['Annual', 'Monthly'],
-    'depth': {'2D': 2,
-              '4D': 4,
-              '6D': 6},
-    'years': range(6, 20),
-    'months': range(1, 13),
-}
+storage_client = storage.Client.from_service_account_json('datamexico.json')
+bucket = storage_client.get_bucket('datamexico-data')
+blobs = bucket.list_blobs(prefix='foreign_trade')
 
-# months
-period = params['period'][1]
-for level, values in params['level'].items():
-  for k,v in params['depth'].items():
-    for year in params['years']:
-      for month in params['months']:
-        if level == 'National' and k == '2D':
-          continue
-        else:
-          command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --prefix={} --depth_name={} --depth_value={} --period={} --year={} --month={} --column_name={} --type={}').format(level, values[0], k, v, period, str(year).zfill(2), str(month).zfill(2), values[1], values[2])
-          os.system(command)
+mun = []
+ent = []
+nat = []
+for blob in blobs:
+  val = 'https://storage.googleapis.com/datamexico-data/' + str(blob.name)
+  if 'Municipal' in val and '.csv' in val:
+      mun.append(val)
+  elif 'State' in val and '.csv' in val:
+      ent.append(val)
+  elif 'National' in val and '.csv' in val:
+      nat.append(val)
 
-# annual
-period = params['period'][0]
-for level, values in params['level'].items():
-  for k,v in params['depth'].items():
-    for year in params['years']:
-      if k != '2D':
-        command = ('bamboo-cli --folder . --entry foreign_trade_pipeline --level={} --prefix={} --depth_name={} --depth_value={} --period={} --year={} --column_name={} --type={}').format(level, values[0], k, v, period, str(year).zfill(2), values[1], values[2])
-        os.system(command)
+levels = {'National':  ['UInt8',  'ent'], 
+          'State':     ['UInt8',  'ent'], 
+          'Municipal': ['UInt16', 'mun']}
 
+"""for url in nat:
+  type_, name_ = get_level(url, levels)
+  os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))"""
+for url in ent:
+  type_, name_ = get_level(url, levels)
+  os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
+for url in mun:
+  type_, name_ = get_level(url, levels)
+  os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
+"""
 # countries
-#os.system('bamboo-cli --folder . --entry countries_ingest')
+os.system('bamboo-cli --folder . --entry countries_ingest')
 
 # hs6 codes
 os.system('bamboo-cli --folder . --entry hs12_2digit')
 os.system('bamboo-cli --folder . --entry hs12_4digit')
-os.system('bamboo-cli --folder . --entry hs12_6digit')
+os.system('bamboo-cli --folder . --entry hs12_6digit')"""
