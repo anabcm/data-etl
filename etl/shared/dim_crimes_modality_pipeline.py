@@ -1,3 +1,4 @@
+import nltk
 import pandas as pd
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
@@ -15,12 +16,12 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        # Setting column names to set in format
-        stopwords_es = ["a", "ante", "con", "contra", "de", "desde", "la", "lo", "las", "los", "y"]
+        # stopwords es
+        nltk.download('stopwords')
 
         # Step for spanish words
         df["crime_modality_es"] = df["crime_modality_es"].str.title()
-        for ene in stopwords_es:
+        for ene in nltk.corpus.stopwords.words('spanish'):
             df["crime_modality_es"] = df["crime_modality_es"].str.replace(" " + ene.title() + " ", " " + ene + " ")
 
         # Step for english words
