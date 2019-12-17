@@ -33,7 +33,6 @@ class SocialSecurityPipeline(EasyPipeline):
 
         # Definition of each step
         read_step = ReadStep()
-        clean_step = CleanStep()
         load_step = LoadStep("dim_shared_social_security", db_connector, if_exists="drop", pk=["id"], dtype=dtype)
 
         return [read_step, load_step]
