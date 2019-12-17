@@ -19,7 +19,7 @@ class CleanStep(PipelineStep):
         # Setting column names to set in format
         cols_es = ['category_es', 'cie10_3digit_es', 'cie10_4digit_es']
         cols_en = ['category_en', 'cie10_3digit_en', 'cie10_4digit_en']
-        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'que', 'por'
+        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'que', 'por',
                         'o', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y', 'el', 'al']
 
         # Step for spanish words
