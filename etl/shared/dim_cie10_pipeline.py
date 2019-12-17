@@ -8,8 +8,8 @@ from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBBIm3kROrey05M9VoRDvGM7uWIQis-Xx1Zy4x1zVvuGPv39JFAcW6Vi7kRW2PgInjRgNecEnxXi5T/pub?output=xlsx'
-        df = pd.read_excel(url, dtype='str')
+        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTwozEBjzQqAw1bE5t0jHVGN2EbbhUtPtnLZV-MTJE_uisENb74g5GlFCbNEJrmf-UEm4BZx9A8KbiK/pub?output=csv'
+        df = pd.read_csv(url, dtype='str')
         return df
 
 class CleanStep(PipelineStep):
