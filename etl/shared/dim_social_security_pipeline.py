@@ -12,31 +12,7 @@ class ReadStep(PipelineStep):
         df = pd.read_excel(url, sheet_name="social_security", encoding="latin-1")
         return df
 
-class CleanStep(PipelineStep):
-    def run_step(self, prev, params):
-        df = prev
-
-        # Setting column names to set in format
-        stopwords_es = ["a", "ante", "con", "contra", "de", "desde", "la", "lo", "las", "los", "y"]
-
-        # Step for spanish words
-        df["social_security_es"] = df["social_security_es"].str.title()
-        for ene in stopwords_es:
-            df["social_security_es"] = df["social_security_es"].str.replace(" " + ene.title() + " ", " " + ene + " ")
-
-        # Step for english words
-        df["social_security_en"] = df["social_security_en"].str.title()
-        for ene in list(stop_words.ENGLISH_STOP_WORDS):
-            df["social_security_en"] = df["social_security_en"].str.replace(" " + ene.title() + " ", " " + ene + " ")
-
-        # Groupby step
-        grouped = ["id", "social_security_es", "social_security_en"]
-
-        df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
-
-        return df
-
-class CoveragePipeline(EasyPipeline):
+class SocialSecurityPipeline(EasyPipeline):
     @staticmethod
     def description():
         return "Processes social security options from Mexico"
@@ -60,4 +36,4 @@ class CoveragePipeline(EasyPipeline):
         clean_step = CleanStep()
         load_step = LoadStep("dim_shared_social_security", db_connector, if_exists="drop", pk=["id"], dtype=dtype)
 
-        return [read_step, clean_step, load_step]
+        return [read_step, load_step]
