@@ -27,7 +27,7 @@ class CleanStep(PipelineStep):
         # Step for spanish words
         for ele in cols_es:
             df[ele] = df[ele].str.title()
-            for ene in nltk.stopwords.words('spanish'):
+            for ene in nltk.corpus.stopwords.words('spanish'):
                 df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
 
         # Step for english words
