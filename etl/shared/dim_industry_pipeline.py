@@ -20,10 +20,10 @@ class CleanStep(PipelineStep):
         df = prev
         cols_es = ['sector_es', 'subsector_es', 'industry_group_es']
         cols_en = ['sector_en', 'subsector_en', 'industry_group_en']
-        stopwords_es = nltk.corpus.stopwords.words('spanish')
         
         #spanish
         nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
         for ele in cols_es:
             df[ele] = df[ele].str.title()
             for ene in stopwords_es:

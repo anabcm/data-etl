@@ -13,6 +13,7 @@ def fill_values(df, target, base):
     df.loc[mask, target] = df.loc[mask, base]
     return df
 
+import nltk
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -68,7 +69,8 @@ class TransformStep(PipelineStep):
         cols_en = ['chapter_en', 'chapter_en_short', 'hs2_en', 'hs2_en_short', 'hs4_en', 'hs4_en_short', 'hs6_en', 'hs6_en_short']
 
         # codes ids
-        stopwords_es = ['a', 'e', 'o', 'en', 'para', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
         hs6 = format_text(hs6, cols_es, stopwords=stopwords_es)
         hs6 = format_text(hs6, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
