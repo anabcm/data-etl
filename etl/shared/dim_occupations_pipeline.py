@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# ### Dim Industry Dimensions Data
-
+import nltk
 import pandas as pd
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
@@ -22,9 +19,10 @@ class CleanStep(PipelineStep):
         df = prev
         cols_es = ['occupation_es', 'subgroup_es', 'group_es', 'category_es']
         cols_en = ['occupation_en', 'subgroup_en', 'group_en', 'category_en']
-        stopwords_es = ['a', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
         
         #spanish
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
         for ele in cols_es:
             df[ele] = df[ele].str.title()
             for ene in stopwords_es:
