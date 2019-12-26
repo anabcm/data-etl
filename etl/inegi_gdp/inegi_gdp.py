@@ -51,7 +51,7 @@ class CleanStep(PipelineStep):
 
         df.dropna(inplace=True)
 
-        df.quarter_id = df.quarter_id.str.replace('/p1', '').str.replace('/r1', '').str.replace('/', '').str.strip()
+        df.quarter_id = df.quarter_id.str.replace('/p1', '').str.replace('/r1', '').str.replace('/0', '').str.strip()
 
         for col in df.columns:
             df[col] = df[col].astype('float')
