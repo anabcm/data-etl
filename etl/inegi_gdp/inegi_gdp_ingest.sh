@@ -1,0 +1,1 @@
+bamboo-cli --folder . --entry inegi_gdp
