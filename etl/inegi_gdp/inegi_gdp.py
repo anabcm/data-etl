@@ -72,7 +72,7 @@ class GDPPipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
-            'quarter_id':                        'UInt32',
+            'quarter_id':                        'UInt16',
             'farming':                           'UInt32',
             'mining':                            'UInt32',
             'energy_transmission':               'UInt32',
