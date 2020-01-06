@@ -19,7 +19,6 @@ class CleanStep(PipelineStep):
         df = prev
         cols_es = ['sector_es', 'subsector_es', 'industry_group_es', 'naics_industry_es', 'national_industry_es']
         cols_en = ['sector_en', 'subsector_en', 'industry_group_en', 'naics_industry_en', 'national_industry_en']
-        stopwords_es = ['a', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
         
         #spanish
         nltk.download('stopwords')
