@@ -1,10 +1,10 @@
 
 import nltk
 import pandas as pd
-from bamboo_lib.models import PipelineStep, EasyPipeline
+from bamboo_lib.models import PipelineStep
+from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
-from bamboo_lib.helpers import grab_connector
 
 from sklearn.feature_extraction import stop_words
 
@@ -36,9 +36,9 @@ class CleanStep(PipelineStep):
 
         return df
 
-class NAICSSCIANePipeline(EasyPipeline):
+class IndustryPipeline(EasyPipeline):
     @staticmethod
-    def run(params, **kwargs):
+    def steps(params, **kwargs):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
             'sector_id':            'String',
