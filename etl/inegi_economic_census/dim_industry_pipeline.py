@@ -1,14 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# ### Dim Industry Dimensions Data
-
-# In[ ]:
-
-
+import nltk
 import pandas as pd
-from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
-from bamboo_lib.models import Parameter, BasePipeline
+from bamboo_lib.models import PipelineStep, EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.helpers import grab_connector
@@ -29,6 +22,8 @@ class CleanStep(PipelineStep):
         stopwords_es = ['a', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
         
         #spanish
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
         for ele in cols_es:
             df[ele] = df[ele].str.title()
             for ene in stopwords_es:
@@ -42,32 +37,9 @@ class CleanStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(BasePipeline):
-    @staticmethod
-    def pipeline_id():
-        return 'program-coverage-pipeline-temp'
-
-    @staticmethod
-    def name():
-        return 'Program Coverage Pipeline temp'
-
-    @staticmethod
-    def description():
-        return 'Processes information from Mexico'
-
-    @staticmethod
-    def website():
-        return 'http://datawheel.us'
-
-    @staticmethod
-    def parameter_list():
-        return [
-            Parameter(label='Source connector', name='source-connector', dtype=str, source=Connector)
-        ]
-
+class NAICSSCIANePipeline(EasyPipeline):
     @staticmethod
     def run(params, **kwargs):
-        # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
             'sector_id':            'String',
@@ -87,25 +59,8 @@ class CoveragePipeline(BasePipeline):
             'national_industry_en': 'String'
         }
 
-        # Definition of each step
-        step0 = ReadStep()
-        step1 = CleanStep()
-        step2 = LoadStep('dim_shared_industry', db_connector, if_exists='drop', pk=['national_industry_id'], dtype=dtype)
-
-        # Definition of the pipeline and its steps
-        pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(step0).next(step1).next(step2)
+        read_step = ReadStep()
+        clean_step = CleanStep()
+        load_step = LoadStep('dim_shared_industry', db_connector, if_exists='drop', pk=['industry_group_id', 'subsector_id', 'sector_id'], dtype=dtype)
         
-        return pipeline.run_pipeline()
-
-
-def run_coverage(params, **kwargs):
-    pipeline = CoveragePipeline()
-    pipeline.run(params)
-
-
-if __name__ == '__main__':
-    run_coverage({
-        'database-connector': 'clickhouse'
-    })
-
+        return [read_step, clean_step, load_step]
