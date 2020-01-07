@@ -99,7 +99,15 @@ class TransformStep(PipelineStep):
             25: "SI", 26: "SO", 27: "TB", 28: "TM", 29: "TL", 30: "VE", 31: "YU", 32: "ZA"
         }
 
+        ent_iso3 = {
+            1: "agu", 2: "bcn", 3: "bcs", 4: "cam", 5: "chp", 6: "chh", 7: "cmx", 8: "coa",
+            9: "col", 10: "dur", 11: "gua", 12: "gro", 13: "hid", 14: "jal", 15: "mex", 16: "mic",
+            17: "mor", 18: "nay", 19: "nle", 20: "oax", 21: "pue", 22: "que", 23: "roo", 24: "slp",
+            25: "sin", 26: "son", 27: "tab", 28: "tam", 29: "tla", 30: "ver", 31: "yuc", 32: "zac"
+        }
+
         df["ent_iso2"] = df["ent_id"].replace(ent_iso2)
+        df["ent_iso3"] = df["ent_id"].replace(ent_iso3)
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
         df["mun_slug"] = (df["mun_name"] + " mun " + df["ent_iso2"]).apply(slug_parser)
