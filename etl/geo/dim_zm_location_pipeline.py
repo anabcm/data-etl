@@ -97,7 +97,7 @@ class DimZMLocationGeographyPipeline(EasyPipeline):
         dtype = {
             "ent_id":       "UInt8",
             "ent_name":     "String",
-            "zm_id":        "UInt16",
+            "zm_id":        "UInt32",
             "zm_name":      "String",
             "mun_id":       "UInt16",
             "mun_name":     "String",
