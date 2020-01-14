@@ -31,7 +31,7 @@ class TransformStep(PipelineStep):
             "CVE_MUN": "mun_id", 
             "NOM_MUN": "mun_name"
         })
-        df["zm_id"] = df["zm_id"].astype(str).str.replace(".", "").astype(int)
+        df["zm_id"] = ('99' + df["zm_id"].astype(str).str.replace(".", "")).astype(int)
         df["mun_id"] = df["mun_id"].astype(int)
 
         df["nation_id"] = "mex"
