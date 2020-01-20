@@ -107,6 +107,9 @@ class CleanStep(PipelineStep):
             'subsector_id', 'subsector_es', 'subsector_es_short', 'subsector_en', 'subsector_en_short', 
             'industry_group_id', 'industry_group_es', 'industry_group_es_short', 'industry_group_en',  'industry_group_en_short']).sum().reset_index(col_fill='ffill')
 
+        for col in ['subsector_id', 'industry_group_id']:
+            national_industry[col] = national_industry[col].astype('int')
+
         return national_industry
 
 class IndustryPipeline(EasyPipeline):
@@ -114,8 +117,13 @@ class IndustryPipeline(EasyPipeline):
     def steps(params, **kwargs):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
+        dtype = {
+            'subsector_id':         'UInt16',
+            'industry_group_id':    'UInt16',
+        }
+
         read_step = ReadStep()
         clean_step = CleanStep()
-        load_step = LoadStep('dim_shared_industry_enoe', db_connector, if_exists='drop', pk=['industry_group_id', 'subsector_id', 'sector_id'])
+        load_step = LoadStep('dim_shared_industry_enoe', db_connector, if_exists='drop', pk=['industry_group_id', 'subsector_id', 'sector_id'], dtype=dtype)
         
         return [read_step, clean_step, load_step]
