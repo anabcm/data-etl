@@ -1,3 +1,4 @@
+import nltk
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -41,7 +42,8 @@ class TransformStep(PipelineStep):
             if '-' in ele:
                 df.loc[df['institution_name'] == ele, 'institution_name'] = ele.split(' - ')[0]
 
-        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
 
         df = format_text(df, ['institution_name', 'campus_name'], stopwords=stopwords_es)
 

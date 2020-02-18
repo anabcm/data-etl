@@ -1,3 +1,4 @@
+import nltk
 import pandas as pd
 from helpers import format_text
 from bamboo_lib.connectors.models import Connector
@@ -20,7 +21,8 @@ class TransformStep(PipelineStep):
         df, df_program = prev[0], prev[1]
 
         # stopwords
-        stopwords_es = ['a', 'e', 'ante', 'con', 'contra', 'de', 'desde', 'la', 'lo', 'las', 'los', 'y']
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
         stopwords_en = list(stop_words.ENGLISH_STOP_WORDS)
 
         for col in ['code', 'area']:

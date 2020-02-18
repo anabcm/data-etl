@@ -1,3 +1,4 @@
+import nltk
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -42,8 +43,8 @@ class TransformStep(PipelineStep):
             df.name_es = df.name_es.str.replace(k, v)
 
         # careers ids
-        stopwords_es = ['a', 'e', 'para', 'en', 'ante', 'con', 'contra', 'de', 'del', 'desde', 'la', 'lo', 'las', 'los', 'y']
-        df = format_text(df, ['name_es'], stopwords=stopwords_es)
+        nltk.download('stopwords')
+        df = format_text(df, ['name_es'], stopwords=nltk.corpus.stopwords.words('spanish'))
 
         df.drop_duplicates(subset=['name_es'], inplace=True)
 
