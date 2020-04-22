@@ -44,8 +44,7 @@ class CovidPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='folder_path', name='year', dtype=str),
-            Parameter(label='Quarter', name='quarter', dtype=str)
+            Parameter(label='folder_path', name='year', dtype=str)
         ]
 
     @staticmethod

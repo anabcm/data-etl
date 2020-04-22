@@ -58,6 +58,17 @@ class TransformStep(PipelineStep):
         df['country_name_es'] = df['continent_id'] + df['iso3']
         df['country_name_es'].replace(dict(zip(translations['origin_id'], translations['name'])), inplace=True)
 
+        df = df.append({
+            "iso3": "xxa",
+            "iso2": "xx",
+            "oecd": 0,
+            "continent_id": "x",
+            "continent": "Unknown", # reed to rename _name
+            "continent_es": "S/N",
+            "country_name": "Unknown",
+            "country_name_es": "S/N",
+        }, ignore_index=True)
+
         return df
 
 class CountryPipeline(EasyPipeline):
