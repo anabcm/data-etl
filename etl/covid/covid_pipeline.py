@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
 
         data = glob.glob('*.csv')
 
-        df = pd.read_csv(data[0])
+        df = pd.read_csv(data[-1])
 
         df.columns = [x.strip().lower().replace(' ', '_') for x in df.columns]
 
