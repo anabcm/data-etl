@@ -8,6 +8,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, rename_countries
+from helpers import norm
 
 
 class TransformStep(PipelineStep):
@@ -30,6 +31,12 @@ class TransformStep(PipelineStep):
 
         df.rename(columns=rename_columns, inplace=True)
         df['death_date'].replace(99999999, np.nan, inplace=True)
+
+        for col in ['country_origin', 'country_nationality']:
+            df[col] = df[col].fillna('xxa')
+            df[col] = df[col].str.strip().str.lower()
+            df[col] = df[col].apply(lambda x: norm(x))
+
         df['country_nationality'].replace(rename_countries, inplace=True)
         df['country_origin'].replace(rename_countries, inplace=True)
 
