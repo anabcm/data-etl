@@ -38,6 +38,8 @@ class TransformStep(PipelineStep):
         for col in [x for x in df.columns if x not in ['country_nationality', 'country_origin', 'death_date']]:
             df[col] = df[col].astype(int)
 
+        df['id'] = range(1, df.shape[0]+1)
+
         return df
 
 class CovidPipeline(EasyPipeline):
@@ -96,7 +98,7 @@ class CovidPipeline(EasyPipeline):
         unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
         xform_step = TransformStep()
         load_step = LoadStep(
-            'gobmx_covid', db_connector, if_exists='drop', pk=['updated_date', 'symptoms_date', 'ingress_date', 
+            'gobmx_covid', db_connector, if_exists='drop', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
                             'patient_residence_mun_id', 'patient_origin_ent_id', 
                             'country_nationality', 'country_origin'], nullable_list=['death_date'], dtype=dtypes
         )
