@@ -40,6 +40,10 @@ class TransformStep(PipelineStep):
 
         df['id'] = range(1, df.shape[0]+1)
 
+        df['sex'] = df['sex'].astype(str)
+        df['sex'].replace({'1': 2,
+                           '2': 1}, inplace=True)
+
         return df
 
 class CovidPipeline(EasyPipeline):
