@@ -13,9 +13,9 @@ from shared import rename_columns, rename_countries
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        data = glob.glob('*.csv')
+        data = sorted(glob.glob('*.csv'))
 
-        df = pd.read_csv(data[-1])
+        df = pd.read_csv(data[-1], encoding='latin-1')
 
         df.columns = [x.strip().lower().replace(' ', '_') for x in df.columns]
 
