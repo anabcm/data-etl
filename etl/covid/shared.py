@@ -63,6 +63,7 @@ rename_countries = {
     'camerun': 'cmr',
     'japon': 'jpn',
     'japa3n': 'jpn',
+    'labano': 'lbn',
     'archipielago de svalbard': 'sjm',
     'archipialago de svalbard': 'sjm',
     'república dominicana': 'dom',
