@@ -73,6 +73,7 @@ rename_countries = {
     'canada': 'can',
     'gran bretaña (reino unido)': 'gbr',
     'gran bretaaa (reino unido)': 'gbr',
+    'costa de marfil': 'civ',
     'italia': 'ita',
     'suiza': 'che',
     'alemania': 'deu',
