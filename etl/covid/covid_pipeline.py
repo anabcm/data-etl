@@ -116,3 +116,7 @@ class CovidPipeline(EasyPipeline):
         )
 
         return [download_step, unzip_step, xform_step, load_step]
+
+if '__name__' == '__main__':
+    pp = CovidPipeline()
+    pp.run({})

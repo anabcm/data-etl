@@ -70,3 +70,7 @@ class DimTimeDatePipeline(EasyPipeline):
           pk=["year", "quarter_id", "month_id", "date_id"], dtype=dtype)
         
         return [create_step, load_step]
+
+if '__name__' == '__main__':
+    pp = DimTimeDatePipeline()
+    pp.run({})
