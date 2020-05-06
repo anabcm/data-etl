@@ -78,7 +78,7 @@ class TransformStep(PipelineStep):
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
         df["mun_slug"] = (df["mun_name"] + " mun " + df["ent_iso2"]).apply(slug_parser)
 
-        _df = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vRXaWw6h_qObl4bm8J2enmgCLSHPzaMq_ADb0xwfPlWBUYMGPKX2mYi22yUjEadGu1iIxKeaF-OyhE1/pub?output=xlsx")
+        _df = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/geo/selfrepresented_cities.xlsx")
 
         df_fact = pd.read_excel(_df, sheet_name="Match")
         df_labels = pd.read_excel(_df, sheet_name="Labels")
@@ -90,6 +90,7 @@ class TransformStep(PipelineStep):
         df1 = df1.rename(columns={"name": "self_city_name"})
         df1 = df1.drop_duplicates()
 
+        df1.dropna(subset=['self_city_id'], inplace=True)
         df1["self_city_id"] = df1["self_city_id"].astype(int)
         df1["self_city_name"] = df1["self_city_name"].fillna("N/A")
 
