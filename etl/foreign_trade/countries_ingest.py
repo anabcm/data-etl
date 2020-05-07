@@ -91,6 +91,6 @@ class CountryPipeline(EasyPipeline):
         
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], 
-                            dtype=dtype, engine='ReplacingMergeTree', nullable_list=['iso2'])
+                            dtype=dtype, engine='ReplacingMergeTree', nullable_list=['iso2', 'id_num'])
 
         return [transform_step, load_step]
