@@ -14,7 +14,6 @@ class TransformStep(PipelineStep):
         translations = df.copy()
 
         # countries
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
         df = pd.read_excel(url, sheet_name='Country Groupings')
         countries = pd.read_excel(url, sheet_name='countries')
 
@@ -29,6 +28,7 @@ class TransformStep(PipelineStep):
         df['continent'] = df['continent_id']
         df['continent_es'] = df['continent_id']
         df['iso2'] = df['iso3']
+        df['id_num'] = df['iso3']
 
         continents = {
             'af': 'Africa',
@@ -53,6 +53,7 @@ class TransformStep(PipelineStep):
         df['continent'].replace(continents, inplace=True)
         df['continent_es'].replace(continents_es, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
+        df['id_num'].replace(dict(zip(countries['id_3char'], countries['id_num'])), inplace=True)
 
         # name es
         df['country_name_es'] = df['continent_id'] + df['iso3']
@@ -63,7 +64,7 @@ class TransformStep(PipelineStep):
             "iso2": "xx",
             "oecd": 0,
             "continent_id": "x",
-            "continent": "Unknown", # reed to rename _name
+            "continent": "Unknown",
             "continent_es": "S/N",
             "country_name": "Unknown",
             "country_name_es": "S/N",

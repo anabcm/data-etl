@@ -45,12 +45,12 @@ class TransformStep(PipelineStep):
         df['hs_master_id'] = df['hs_original_id'].apply(lambda x: int(hs6_converter(x)))
 
         # Converting exporter and importer IDs to ISO3 codes
-        shared_countries_df = query_to_df(self.connector, 'select id_num, oec_id from dim_shared_countries where id_num is not null', ['id_num', 'oec_id'])
-        id_num_oec_id_map = dict(zip(shared_countries_df['id_num'], shared_countries_df['oec_id']))
+        shared_countries_df = query_to_df(self.connector, 'select id_num, iso3 from dim_shared_country where id_num is not null', ['id_num', 'iso3'])
+        id_num_iso3_map = dict(zip(shared_countries_df['id_num'], shared_countries_df['iso3']))
 
         clean_id_map = dict()
 
-        for k, v in id_num_oec_id_map.items():
+        for k, v in id_num_iso3_map.items():
             for _id in k.split('|'):
                 try:
                     clean_id_map[int(_id)] = v
@@ -63,18 +63,12 @@ class TransformStep(PipelineStep):
 
         revision_name = 'hs{}'.format(params['hs_code'])
 
-        # Get a the original HS6 name based on the revision_name
-        shared_hs_df = query_to_df(self.connector, 'select hs6_id, hs6_name from dim_shared_{}'.format(revision_name), ['hs6_id', 'hs6_name'])
-        hs_id_name_map = dict(zip(shared_hs_df['hs6_id'], shared_hs_df['hs6_name']))
-
-        df['hs_original_name'] = df['hs_master_id'].replace(hs_id_name_map).astype(str)
-
         df['hs_revision'] = REVISION_MAP[revision_name]
         df['hs_revision'] = df['hs_revision'].astype(int)
 
         df = df[[
             'year', 'exporter', 'importer', 'hs_master_id', 'hs_revision',
-            'hs_original_id', 'hs_original_name', 'value', 'quantity'
+            'hs_original_id', 'value', 'quantity'
         ]]
 
         df['version'] = datetime.now()
