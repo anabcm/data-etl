@@ -54,6 +54,7 @@ class TransformStep(PipelineStep):
         df['continent_es'].replace(continents_es, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
         df['id_num'].replace(dict(zip(countries['id_3char'], countries['id_num'])), inplace=True)
+        df['id_num'] = df['id_num'].astype(str)
 
         # name es
         df['country_name_es'] = df['continent_id'] + df['iso3']
