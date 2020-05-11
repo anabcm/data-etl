@@ -9,7 +9,7 @@ from bamboo_lib.steps import LoadStep
 
 class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
-        df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vQUxKRAWCVSxUhl2S0fbP46C9JFnKYp6HjXAUX2-jup_iYKjnLnylWbxrf8NVKmL_raC4Vk_BgQT48G/pub?output=xlsx")
+        df_labels = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/shared/age_range.xlsx")
         df = pd.read_excel(df_labels, "age_range")
         return df
 
