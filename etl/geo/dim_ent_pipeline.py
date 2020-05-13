@@ -90,6 +90,9 @@ class TransformStep(PipelineStep):
         df["ent_iso3"] = df["ent_id"].replace(ent_iso3)
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
+        # schema locale required
+        df["ent_slug_en"] = df["ent_slug"]
+        df["ent_name_en"] = df["ent_name"]
 
         return df
 
