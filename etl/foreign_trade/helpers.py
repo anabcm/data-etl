@@ -148,15 +148,5 @@ COUNTRIES = [
     "continent": None,
     "continent_es": None,
     "id_num": None,
-    "oecd": 0},
-
-    """{"iso2": None,
-    "iso3": None,
-    "country_name": "Other Asia",
-    "country_name_es": "Otros países de Asia",
-    "continent_id": "as",
-    "continent": "Asia",
-    "continent_es": "Otros países de Asia",
-    "id_num": "490",
-    "oecd": 0}"""
+    "oecd": 0}
 ]
