@@ -3,6 +3,8 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 
+from helpers import COUNTRIES
+
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
@@ -60,16 +62,7 @@ class TransformStep(PipelineStep):
         df['country_name_es'] = df['continent_id'] + df['iso3']
         df['country_name_es'].replace(dict(zip(translations['origin_id'], translations['name'])), inplace=True)
 
-        df = df.append({
-            "iso3": "xxa",
-            "iso2": "xx",
-            "oecd": 0,
-            "continent_id": "x",
-            "continent": "Unknown",
-            "continent_es": "S/N",
-            "country_name": "Unknown",
-            "country_name_es": "S/N",
-        }, ignore_index=True)
+        df = df.append(COUNTRIES, ignore_index=True)
 
         return df
 
@@ -92,6 +85,11 @@ class CountryPipeline(EasyPipeline):
         
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], 
-                            dtype=dtype, engine='ReplacingMergeTree', nullable_list=['iso2', 'id_num'])
+                            dtype=dtype, engine='ReplacingMergeTree', 
+                            nullable_list=['iso2', 'id_num', 'continent', 'continent_es'])
 
         return [transform_step, load_step]
+
+if __name__ == '__main__':
+    pp = CountryPipeline()
+    pp.run({})
