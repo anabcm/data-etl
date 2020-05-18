@@ -1,7 +1,5 @@
 import json
-
 import pandas as pd
-import requests
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
@@ -20,6 +18,9 @@ class TransformStep(PipelineStep):
             "Trade Value ECI": "eci",
             "Trade Value ECI Ranking": "eci_rank"
         })
+
+        # TODO change source in "conns"
+        df["country_id"] = df["country_id"].str[2:]
 
         df["year"] = params.get("year")
 
@@ -103,3 +104,7 @@ if __name__ == "__main__":
                     "year":year,
                     "level":level
                 })
+
+                break
+            break
+        break
