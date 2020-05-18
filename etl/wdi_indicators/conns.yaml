@@ -1,0 +1,7 @@
+wdi-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/oec-raw-data/wdi/WDIData.csv
+
+wdi-series:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/oec-raw-data/wdi/WDISeries.csv
