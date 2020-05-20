@@ -16,7 +16,10 @@ class TransformStep(PipelineStep):
 
         data = sorted(glob.glob('*.csv'))
 
-        df = pd.read_csv(data[-1], encoding='latin-1')
+        if params.get('file_path'):
+            df = pd.read_csv(params.get('file_path'), encoding='latin-1')
+        else:
+            df = pd.read_csv(data[-1], encoding='latin-1')
 
         df.columns = [x.strip().lower().replace(' ', '_') for x in df.columns]
 
@@ -57,7 +60,7 @@ class CovidPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='folder_path', name='year', dtype=str)
+            Parameter(label='file_path', name='file_path', dtype=str)
         ]
 
     @staticmethod
