@@ -80,6 +80,11 @@ class TransformStep(PipelineStep):
                         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
         housing.columns = housing.columns.str.lower()
 
+        # 2020 data format change
+        housing["mun"] = housing["mun"].str.zfill(3)
+        housing["ent"] = housing["ent"].str.zfill(2)
+        housing["v_sel"] = housing["v_sel"].str.zfill(2)
+
         # Filling with 0s "ent_id" and "v_sel" given 2019 second quarter issue
         df["ent_id"] = df["ent_id"].str.zfill(2)
         df["v_sel"] = df["v_sel"].str.zfill(2)
@@ -158,8 +163,6 @@ class TransformStep(PipelineStep):
                     "classification_formal_informal_jobs_first_activity"]:
             df[col] = df[col].astype(float)
 
-        # 2020 has null mun_id
-        df.dropna(subset=["mun_id"], inplace=True)
         for item in ["age", "mun_id"]:
             df.dropna(subset=[item], inplace=True)
             df[item] = df[item].astype(int)
