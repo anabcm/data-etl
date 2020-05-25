@@ -158,7 +158,10 @@ class TransformStep(PipelineStep):
                     "classification_formal_informal_jobs_first_activity"]:
             df[col] = df[col].astype(float)
 
+        # 2020 has null mun_id
+        df.dropna(subset=["mun_id"], inplace=True)
         for item in ["age", "mun_id"]:
+            df.dropna(subset=[item], inplace=True)
             df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
