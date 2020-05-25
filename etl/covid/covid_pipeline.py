@@ -118,8 +118,11 @@ class CovidPipeline(EasyPipeline):
                             'country_nationality', 'country_origin'], nullable_list=['death_date'], dtype=dtypes
         )
 
-        return [download_step, unzip_step, xform_step, load_step]
+        if params.get('file_path'):
+            return [xform_step, load_step]
+        else:
+            return [download_step, unzip_step, xform_step, load_step]
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     pp = CovidPipeline()
     pp.run({})
