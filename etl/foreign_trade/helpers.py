@@ -1,4 +1,19 @@
 
+def format_text(df, cols_names=None, stopwords=None):
+    # format
+    for ele in cols_names:
+        df[ele] = df[ele].str.title().str.strip()
+        for ene in stopwords:
+            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
+
+    return df
+
+def fill_values(df, target, base):
+    """fill nan values with another column where there are values"""
+    mask = df[target].isnull()
+    df.loc[mask, target] = df.loc[mask, base]
+    return df
+
 COUNTRIES = [
     {"iso2": "xx",
     "iso3": "xxa",

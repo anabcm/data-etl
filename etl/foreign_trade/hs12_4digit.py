@@ -1,17 +1,3 @@
-def format_text(df, cols_names=None, stopwords=None):
-    # format
-    for ele in cols_names:
-        df[ele] = df[ele].str.title().str.strip()
-        for ene in stopwords:
-            df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
-
-    return df
-
-def fill_values(df, target, base):
-    """fill nan values with another column where there are values"""
-    mask = df[target].isnull()
-    df.loc[mask, target] = df.loc[mask, base]
-    return df
 
 import nltk
 import pandas as pd
@@ -19,6 +5,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 from sklearn.feature_extraction import stop_words
+from helpers import format_text, fill_values
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
