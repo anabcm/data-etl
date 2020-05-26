@@ -13,7 +13,7 @@ def format_text(df, cols_names=None, stopwords=None):
 
         # remove punctuation
         df[ele] = df[ele].apply(lambda x: match_last_char(x))
-        for ene in stopwords:
+        for ene in list(stopwords) + ['u']:
             df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
 
     return df
