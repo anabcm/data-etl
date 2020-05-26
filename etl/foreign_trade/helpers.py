@@ -1,8 +1,18 @@
 
+def match_last_char(string):
+    if string[-1] == '.':
+        temp = string[:-1]
+        return temp
+    else:
+        return string
+
 def format_text(df, cols_names=None, stopwords=None):
     # format
     for ele in cols_names:
         df[ele] = df[ele].str.title().str.strip()
+
+        # remove punctuation
+        df[ele] = df[ele].apply(lambda x: match_last_char(x))
         for ene in stopwords:
             df[ele] = df[ele].str.replace(' ' + ene.title() + ' ', ' ' + ene + ' ')
 
