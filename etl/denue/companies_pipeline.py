@@ -38,6 +38,7 @@ class TransformStep(PipelineStep):
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
         df.per_ocu = df.per_ocu.str.replace(' y más', ' +')
+        df.per_ocu = df.per_ocu.str.replace(' y m�s', ' +')
         df.fecha_alta = df.fecha_alta.str.replace('-', '')
 
         # date processing
