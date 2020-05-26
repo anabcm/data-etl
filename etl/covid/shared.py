@@ -113,6 +113,7 @@ rename_countries = {
     'republica de corea': 'kor',
     'repaoblica de corea': 'kor',
     'micronesia': 'fsm',
+    'taiwan': 'twn',
     'eritrea': 'eri',
     'haiti': 'hti',
     'haita': 'hti',
