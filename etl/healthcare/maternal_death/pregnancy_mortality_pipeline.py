@@ -22,7 +22,7 @@ class TransformStep(PipelineStep):
         # Reading the csv file
         df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, chunksize=10**4, usecols=list(df_cols.values()))
         df = pd.concat(df)
-        df.columns = list(df_cols.keys())
+        df.rename(columns=dict(zip(list(df_cols.values()), list(df_cols.keys()))), inplace=True)
 
         # Creating the municipality ID, one for residence/housing and one for the place of death
         df["mun_residence_id"] = df["Entidad de residencia"] + df["Municipio de residencia"]
