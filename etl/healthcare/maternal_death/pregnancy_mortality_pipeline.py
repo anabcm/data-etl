@@ -14,13 +14,15 @@ class TransformStep(PipelineStep):
         df_cols = ["Edad cumplida", "Estado conyugal", "Entidad de residencia", "Municipio de residencia",
                   "Ocupación habitual", "Escolaridad", "Derechohabiencia", "Sitio donde ocurrio la defunción", "Año de la defunción",
                   "Entidad de ocurrencia", "Municipio de ocurrencia", "Causa CIE a cuatro dígitos", "Año de registro"]
+        df_cols = {x: x.upper() for x in df_cols}
 
         excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSLookaSnn_N-gKf-WgVIGIeQn54iWTGJq4F5NtddlNrDeb8-Z7kRadjVbVVmyoerX5miH19UvdzlM/pub?output=xlsx"
         df_labels = pd.ExcelFile(excel_url)
 
         # Reading the csv file
-        df = pd.read_csv(prev, index_col=None, header=0, encoding="utf-8", dtype=str, chunksize=10**4, usecols=df_cols)
+        df = pd.read_csv(prev, index_col=None, header=0, encoding="latin-1", dtype=str, chunksize=10**4, usecols=list(df_cols.values()))
         df = pd.concat(df)
+        df.columns = list(df_cols.keys())
 
         # Creating the municipality ID, one for residence/housing and one for the place of death
         df["mun_residence_id"] = df["Entidad de residencia"] + df["Municipio de residencia"]
@@ -82,7 +84,8 @@ class PregnancyMortalityPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="pregnancy-mortality-data",
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
         transform_step = TransformStep()
         load_step = LoadStep(
