@@ -139,8 +139,9 @@ class TransformStep(PipelineStep):
         df.loc[(df["age"] < 0), "age"] = 999
 
         # Droping overextended stay in emergencies
+        # Need to update when new release
         df.drop(df.loc[(df["date_id"] < 20120101)].index, inplace=True)
-        df.drop(df.loc[(df["date_id"] > 20171230)].index, inplace=True)
+        df.drop(df.loc[(df["date_id"] > 20181231)].index, inplace=True)
 
         # Reseting Index
         df = df.reset_index(drop=True)
