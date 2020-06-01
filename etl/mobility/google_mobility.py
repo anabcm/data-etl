@@ -56,7 +56,10 @@ class GoogleMobility(EasyPipeline):
 
         transform_step = TransformStep()
         load_step = LoadStep(
-            "google_mobility", db_connector, if_exists="drop", pk=["iso3", "date_id"], dtype=dtype
+            "google_mobility", db_connector, if_exists="drop", pk=["iso3", "date_id"], dtype=dtype,
+            nullable_list=['retail_and_recreation_percent_change_from_baseline', 'grocery_and_pharmacy_percent_change_from_baseline',
+            'parks_percent_change_from_baseline', 'transit_stations_percent_change_from_baseline',
+            'workplaces_percent_change_from_baseline', 'residential_percent_change_from_baseline']
         )
 
         return [transform_step, load_step]
