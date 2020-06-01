@@ -135,6 +135,16 @@ COUNTRIES = [
     "id_num": "426",
     "oecd": 0},
 
+    {"iso2": "re",
+    "iso3": "reu",
+    "country_name": "Reunion",
+    "country_name_es": "Réunion",
+    "continent_id": "af",
+    "continent": "Africa",
+    "continent_es": "África",
+    "id_num": "638",
+    "oecd": 0},
+
     {"iso2": "ks",
     "iso3": "ksv",
     "country_name": "Kosovo",
