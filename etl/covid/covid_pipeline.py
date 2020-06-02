@@ -31,6 +31,7 @@ class TransformStep(PipelineStep):
 
         for col in ['fecha_actualizacion', 'fecha_ingreso', 'fecha_sintomas', 'fecha_def']:
             df[col] = df[col].str.replace('-', '').astype(int)
+            df = df.loc[df[col] > 20190101]
 
         df.rename(columns=rename_columns, inplace=True)
         df['death_date'].replace(99999999, np.nan, inplace=True)
