@@ -35,6 +35,8 @@ class TransformStep(PipelineStep):
 
         df.rename(columns=rename_columns, inplace=True)
         df['death_date'].replace(99999999, np.nan, inplace=True)
+        df['is_dead'] = 1
+        df.loc[df['death_date'].isna(), 'is_dead'] = 0
 
         for col in ['country_origin', 'country_nationality']:
             df[col] = df[col].fillna('xxa')
@@ -101,6 +103,7 @@ class CovidPipeline(EasyPipeline):
             'country_nationality':              'String',
             'country_origin':                   'String',
             'required_ICU':                     'UInt8',
+            'is_dead':                          'UInt8',
             'patient_residence_mun_id':         'UInt16'
         }
 
