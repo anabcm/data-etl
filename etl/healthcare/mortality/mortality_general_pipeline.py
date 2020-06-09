@@ -80,9 +80,9 @@ class MortalityGeneralPipeline(EasyPipeline):
             "mun_id":                   "UInt16",
             "sex":                      "UInt8",
             "year":                     "UInt16",
-            "general_deaths":           "UInt16",
-            "one_year_deaths":          "UInt16",
-            "general_deaths_over_one":  "UInt16"
+            "general_deaths":           "UInt32",
+            "one_year_deaths":          "UInt32",
+            "general_deaths_over_one":  "UInt32"
         }
 
         download_step = DownloadStep(
