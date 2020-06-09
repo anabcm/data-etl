@@ -79,6 +79,7 @@ class MortalityGeneralPipeline(EasyPipeline):
         dtype = {
             "mun_id":                   "UInt16",
             "sex":                      "UInt8",
+            "age":                      "UInt8",
             "year":                     "UInt16",
             "general_deaths":           "UInt32",
             "one_year_deaths":          "UInt32",
