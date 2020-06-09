@@ -91,7 +91,7 @@ class MortalityGeneralPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_general_mortality", db_connector, if_exists="drop", pk=["mun_id", "sex", "year"], dtype=dtype
+            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex", "year"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
