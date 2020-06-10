@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 from simpledbf import Dbf5
 from bamboo_lib.connectors.models import Connector
@@ -48,6 +49,8 @@ class TransformStep(PipelineStep):
 
         df["age"] = df["age"].apply(lambda x: age_conversion(x))
 
+        df["age"].replace(999, np.nan, inplace=True)
+
         df["ent_id"] = df["ent_id"].astype(str).str.zfill(2)
         df["mun_id"] = df["mun_id"].astype(str).str.zfill(3)
         df["mun_id"] = df["ent_id"] + df["mun_id"]
@@ -81,6 +84,8 @@ class MortalityGeneralPipeline(EasyPipeline):
             "sex":                      "UInt8",
             "age":                      "UInt8",
             "year":                     "UInt16",
+            "occupation":               "UInt8",
+            "scholarly":                "UInt8",
             "general_deaths":           "UInt32",
             "one_year_deaths":          "UInt32",
             "general_deaths_over_one":  "UInt32"
@@ -92,7 +97,8 @@ class MortalityGeneralPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex", "year"], dtype=dtype
+            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex", "year"], dtype=dtype,
+            nullable_list=['age']
         )
 
         return [download_step, transform_step, load_step]
