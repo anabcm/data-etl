@@ -18,10 +18,7 @@ class TransformStep(PipelineStep):
 
         data = sorted(glob.glob("*.csv"))
 
-        if params.get("file_path"):
-            df = pd.read_csv(params.get("file_path"), encoding="latin-1")
-        else:
-            df = pd.read_csv(data[-1], encoding="latin-1")
+        df = pd.read_csv(data[-1], encoding="latin-1")
         
         r = requests.get("https://api.datamexico.org/tesseract/data?Year=2015&cube=inegi_population&drilldowns=State&measures=Population")
         data_json = r.json()
@@ -32,9 +29,11 @@ class TransformStep(PipelineStep):
 
         df1 = df[["entidad_res", "fecha_ingreso", "resultado"]]
         df1 = df1[df1["resultado"] == 1]
-        df1 = df1.rename(columns={"entidad_res":"ent_id", "fecha_ingreso":"date", "resultado":"daily_cases"})
+        df1 = df1.rename(columns={"entidad_res": "ent_id", 
+                                  "fecha_ingreso": "date", 
+                                  "resultado": "daily_cases"})
 
-        df1 = df1.groupby(["ent_id","date"]).sum().reset_index()
+        df1 = df1.groupby(["ent_id", "date"]).sum().reset_index()
         df1["date"] = pd.to_datetime(df1["date"])
 
         ##Add missing dates daily cases
@@ -46,7 +45,7 @@ class TransformStep(PipelineStep):
             idx = pd.date_range(first_day, last_day)
             df_b = df_a.reindex(idx)
             df_b = pd.DataFrame(df_b.index)
-            df_b = df_b.rename(columns={0:"date"})
+            df_b = df_b.rename(columns={0: "date"})
             
             result = pd.merge(df_b, df_a, how="outer", on="date")
             
@@ -56,9 +55,12 @@ class TransformStep(PipelineStep):
         df1_["ent_id"] = df1_["ent_id"].fillna(method="ffill")
 
         #Deaths
-        df2 = df[["entidad_res","fecha_ingreso", "fecha_def", "resultado"]]
+        df2 = df[["entidad_res", "fecha_ingreso", "fecha_def", "resultado"]]
 
-        df2 = df2.rename(columns={"entidad_res":"ent_id", "fecha_ingreso":"ingress_date", "fecha_def":"death_date", "resultado":"daily_deaths"})
+        df2 = df2.rename(columns={"entidad_res": "ent_id", 
+                                  "fecha_ingreso": "ingress_date", 
+                                  "fecha_def": "death_date", 
+                                  "resultado": "daily_deaths"})
 
         df2 = df2[df2["daily_deaths"] == 1]
         df2 = df2[df2["death_date"]!= "9999-99-99"]
@@ -72,7 +74,7 @@ class TransformStep(PipelineStep):
         df2 = df2.drop(columns="ingress_date")
         df2 = df2.rename(columns={"death_date":"date"})
 
-        df2 = df2.groupby(["ent_id","date"]).agg({"daily_deaths":"sum", "days_between_ingress_and_death": "mean"}).reset_index()
+        df2 = df2.groupby(["ent_id","date"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
 
         #Merge daily cases and deaths
         data = pd.merge(df1_, df2, how="outer", on=["date", "ent_id"])
@@ -83,9 +85,11 @@ class TransformStep(PipelineStep):
         #Add column of accumulated cases
         df_final = []
         for a, df_a in data.groupby("ent_id"):
-            df_a["accum_cases"] = df_a.daily_cases.cumsum()
-            df_a["accum_deaths"] = df_a.daily_deaths.cumsum()
-            df_final.append(df_a)
+            # create temporal df to silence "SettingWithCopyWarning"
+            _df = df_a.copy()
+            _df["accum_cases"] = _df["daily_cases"].cumsum()
+            _df["accum_deaths"] = _df["daily_deaths"].cumsum()
+            df_final.append(_df)
         df_final = pd.concat(df_final, sort=False)
 
         #Rate per 100.000 inhabitans
@@ -129,56 +133,48 @@ class TransformStep(PipelineStep):
 
 class CovidStatsPipeline(EasyPipeline):
     @staticmethod
-    def parameter_list():
-        return [
-            Parameter(label='file_path', name='file_path', dtype=str)
-        ]
-
-    @staticmethod
     def steps(params):
-        db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtypes = {
-            'date':                             'UInt32',
-            'ent_id':                           'UInt8',
-            'daily_cases':                      'UInt32',
-            'daily_deaths':                     'UInt32',
-            'days_between_ingress_and_death':   'Float32',
-            'accum_cases':                      'UInt32',
-            'accum_deaths':                     'UInt32',
-            'rate_daily_cases':                 'Float32',
-            'rate_accum_cases':                 'Float32',
-            'rate_daily_deaths':                'Float32',
-            'rate_accum_deaths':                'Float32',
-            'avg_7_days_daily_cases':           'Float32',
-            'avg_7_days_accum_cases':           'Float32',
-            'avg_7_days_daily_deaths':          'Float32',
-            'avg_7_days_accum_deaths':          'Float32',
-            'cases_day':                        'UInt16',
-            'deaths_day':                       'UInt16',
+            "date":                             "UInt32",
+            "ent_id":                           "UInt8",
+            "daily_cases":                      "UInt32",
+            "daily_deaths":                     "UInt32",
+            "days_between_ingress_and_death":   "Float32",
+            "accum_cases":                      "UInt32",
+            "accum_deaths":                     "UInt32",
+            "rate_daily_cases":                 "Float32",
+            "rate_accum_cases":                 "Float32",
+            "rate_daily_deaths":                "Float32",
+            "rate_accum_deaths":                "Float32",
+            "avg_7_days_daily_cases":           "Float32",
+            "avg_7_days_accum_cases":           "Float32",
+            "avg_7_days_daily_deaths":          "Float32",
+            "avg_7_days_accum_deaths":          "Float32",
+            "cases_day":                        "UInt16",
+            "deaths_day":                       "UInt16",
         }
 
         download_step = DownloadStep(
-            connector='covid-data-mx',
-            connector_path='conns.yaml',
+            connector="covid-data-mx",
+            connector_path="conns.yaml",
             force=True
         )
 
-        path = grab_parent_dir('.') + '/covid/'
-        unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
+        path = grab_parent_dir(".") + "/covid/"
+        unzip_step = UnzipToFolderStep(compression="zip", target_folder_path=path)
         xform_step = TransformStep()
         load_step = LoadStep(
-            'gobmx_covid_stats', db_connector, if_exists='drop', 
-            pk=['date', 'ent_id'], 
-            nullable_list=['days_between_ingress_and_death', 'avg_7_days_daily_cases', 'avg_7_days_accum_cases', 'avg_7_days_daily_deaths', 'avg_7_days_accum_deaths'], 
+            "gobmx_covid_stats", db_connector, if_exists="drop", 
+            pk=["date", "ent_id"], 
+            nullable_list=["days_between_ingress_and_death", "avg_7_days_daily_cases", "avg_7_days_accum_cases", 
+                           "avg_7_days_daily_deaths", "avg_7_days_accum_deaths"], 
             dtype=dtypes
         )
 
-        if params.get('file_path'):
-            return [xform_step, load_step]
-        else:
-            return [download_step, unzip_step, xform_step, load_step]
+        return [download_step, unzip_step, xform_step, load_step]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pp = CovidStatsPipeline()
     pp.run({})
