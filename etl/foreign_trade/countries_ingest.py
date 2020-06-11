@@ -3,6 +3,8 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 
+from helpers import COUNTRIES
+
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
@@ -14,7 +16,6 @@ class TransformStep(PipelineStep):
         translations = df.copy()
 
         # countries
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
         df = pd.read_excel(url, sheet_name='Country Groupings')
         countries = pd.read_excel(url, sheet_name='countries')
 
@@ -29,6 +30,7 @@ class TransformStep(PipelineStep):
         df['continent'] = df['continent_id']
         df['continent_es'] = df['continent_id']
         df['iso2'] = df['iso3']
+        df['id_num'] = df['iso3']
 
         continents = {
             'af': 'Africa',
@@ -53,21 +55,14 @@ class TransformStep(PipelineStep):
         df['continent'].replace(continents, inplace=True)
         df['continent_es'].replace(continents_es, inplace=True)
         df['iso2'].replace(dict(zip(countries['id_3char'], countries['id_2char'])), inplace=True)
+        df['id_num'].replace(dict(zip(countries['id_3char'], countries['id_num'])), inplace=True)
+        df['id_num'] = df['id_num'].astype(str)
 
         # name es
         df['country_name_es'] = df['continent_id'] + df['iso3']
         df['country_name_es'].replace(dict(zip(translations['origin_id'], translations['name'])), inplace=True)
 
-        df = df.append({
-            "iso3": "xxa",
-            "iso2": "xx",
-            "oecd": 0,
-            "continent_id": "x",
-            "continent": "Unknown", # reed to rename _name
-            "continent_es": "S/N",
-            "country_name": "Unknown",
-            "country_name_es": "S/N",
-        }, ignore_index=True)
+        df = df.append(COUNTRIES, ignore_index=True)
 
         return df
 
@@ -90,6 +85,11 @@ class CountryPipeline(EasyPipeline):
         
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], 
-                            dtype=dtype, engine='ReplacingMergeTree', nullable_list=['iso2'])
+                            dtype=dtype, engine='ReplacingMergeTree', 
+                            nullable_list=['iso2', 'id_num', 'continent', 'continent_es'])
 
         return [transform_step, load_step]
+
+if __name__ == '__main__':
+    pp = CountryPipeline()
+    pp.run({})

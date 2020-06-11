@@ -1,0 +1,4 @@
+eci_ranking:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://dev.oec.world/api/stats/eci?cube=trade_i_baci_a_12&rca=Exporter+Country,HS<level>,Trade+Value&alias=Country,HS<level>&Year=<years>&ranking=true&threshold_Country=<threshold_country>&threshold_HS<level>=<threshold_HS>&YearPopulation=<year>&threshold_Population=1000000
+

@@ -73,15 +73,15 @@ class TransformStep(PipelineStep):
         df["nation_slug"] = "mexico"
 
         ent_iso2 = {
-            1: "AG", 2: "BC", 3: "BS", 4: "CM", 5: "CS", 6: "CH", 7: "CX", 8: "CO",
-            9: "CL", 10: "DG", 11: "GT", 12: "GR", 13: "HG", 14: "JC", 15: "EM", 16: "MI",
-            17: "MO", 18: "NA", 19: "NL", 20: "OA", 21: "PU", 22: "QT", 23: "QR", 24: "SL",
-            25: "SI", 26: "SO", 27: "TB", 28: "TM", 29: "TL", 30: "VE", 31: "YU", 32: "ZA"
+            1: "ag", 2: "bc", 3: "bs", 4: "cm", 5: "co", 6: "cl", 7: "cs", 8: "ch",
+            9: "cx", 10: "dg", 11: "gt", 12: "gr", 13: "hg", 14: "jc", 15: "em", 16: "mi",
+            17: "mo", 18: "na", 19: "nl", 20: "oa", 21: "pu", 22: "qt", 23: "qr", 24: "sl",
+            25: "si", 26: "so", 27: "tb", 28: "tm", 29: "tl", 30: "ve", 31: "yu", 32: "za"
         }
 
         ent_iso3 = {
-            1: "agu", 2: "bcn", 3: "bcs", 4: "cam", 5: "chp", 6: "chh", 7: "cmx", 8: "coa",
-            9: "col", 10: "dur", 11: "gua", 12: "gro", 13: "hid", 14: "jal", 15: "mex", 16: "mic",
+            1: "agu", 2: "bcn", 3: "bcs", 4: "cam", 5: "coa", 6: "col", 7: "chp", 8: "chh",
+            9: "cmx", 10: "dur", 11: "gua", 12: "gro", 13: "hid", 14: "jal", 15: "mex", 16: "mic",
             17: "mor", 18: "nay", 19: "nle", 20: "oax", 21: "pue", 22: "que", 23: "roo", 24: "slp",
             25: "sin", 26: "son", 27: "tab", 28: "tam", 29: "tla", 30: "ver", 31: "yuc", 32: "zac"
         }
@@ -90,6 +90,9 @@ class TransformStep(PipelineStep):
         df["ent_iso3"] = df["ent_id"].replace(ent_iso3)
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
+        # schema locale required
+        df["ent_slug_en"] = df["ent_slug"]
+        df["ent_name_en"] = df["ent_name"]
 
         return df
 

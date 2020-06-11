@@ -9,7 +9,7 @@ from bamboo_lib.helpers import grab_connector
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_excel('https://storage.googleapis.com/datamexico-data/gdp/Indicadores20191226081031.xls', header=4)
+        df = pd.read_excel('https://storage.googleapis.com/datamexico-data/gdp/Indicadores20200527082932.xls', header=4)
         return df
 
 class CleanStep(PipelineStep):

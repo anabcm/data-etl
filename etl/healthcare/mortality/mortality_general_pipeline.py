@@ -1,4 +1,7 @@
+
+import numpy as np
 import pandas as pd
+from simpledbf import Dbf5
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.models import Parameter
@@ -6,77 +9,71 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
+COLS = {"ent_ocurr": "ent_id", 
+        "mun_ocurr": "mun_id", 
+        "sexo": "sex", 
+        "edad": "age", 
+        "ocupacion": "occupation", 
+        "escolarida": "scholarly"}
+
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        # Renaming columns from first quarter to match the rest of the year
-        df = pd.read_excel(prev, index_col=None, header=0)
+        dbf = Dbf5(prev, codec="latin-1")
+        df = dbf.to_dataframe()
+        df.columns = df.columns.str.lower()
+        df = df[list(COLS.keys())].copy()
+        df.rename(columns=COLS, inplace=True)
+        df["age"] = df["age"].astype(int)
 
-        # Columns with columns besides annual totals
-        _years = [str(i) for i in range(1994, 2017)]
+        pre_age_conversion = {
+            1097: 0, # minutos
+            1098: 999, # horas no especificadas
+            2098: 999, # dias no especificados
+            3098: 999, # meses no especificados
+            4998: 999 # añios no especificados
+        }
 
-        # Droping rows related to "Estados Unidos Mexicanos" or national/entity/municipality totals
-        df.drop(df.loc[(df["entidad"] == 0) | (df["municipio"] == 0) ].index, inplace=True)
-        df["municipio"].replace({996: 999}, inplace=True)
+        def age_conversion(code):
+            if code >= 4001:
+                # 1+ años de vida
+                return int(str(code)[1:])
+            elif (code <= 3011) & (code > 999):
+                # entre 0 horas y 11 meses de vida
+                return 0
+            else:
+                return code
 
-        # Creating news geo ids
-        df["mun_id"] = df["entidad"].astype("str").str.zfill(2) + df["municipio"].astype("str").str.zfill(3)
+        df["age"] = df["age"].replace(pre_age_conversion)
 
-        # Droping used columns, as well years that only had national totals
-        df.drop(["entidad", "municipio", "desc_entidad", "desc_municipio", "indicador", "unidad_medida",
-                "1990", "1991", "1992", "1993"], axis=1, inplace=True)
+        df["age"] = df["age"].apply(lambda x: age_conversion(x))
 
-        # Keeping columns related to general deaths by gender
-        df_1 = df[(df["id_indicador"] == 1002000031) | (df["id_indicador"] == 1002000032) | (df["id_indicador"] == 1002000033)]
+        df["age"].replace(999, np.nan, inplace=True)
 
-        # Division per gender (totals) [1: male, 2: female, 0: unknown]
-        df_1["id_indicador"].replace({1002000031: 1, 1002000032: 2, 1002000033: 0}, inplace=True)
+        df["ent_id"] = df["ent_id"].astype(str).str.zfill(2)
+        df["mun_id"] = df["mun_id"].astype(str).str.zfill(3)
+        df["mun_id"] = df["ent_id"] + df["mun_id"]
+        df["mun_id"] = df["mun_id"].astype(int)
+        df.drop(columns=["ent_id"], inplace=True)
 
-        # Melt step in order to get file in tidy data format
-        df_1 = pd.melt(df_1, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
+        df["general_deaths"] = 1
+        df["general_deaths_over_one"] = 1
+        df["one_year_deaths"] = 0
+        df.loc[df["age"] == 0, "one_year_deaths"] = 1
+        df.loc[df["one_year_deaths"] == 1, "general_deaths_over_one"] = 0
 
-        # Renaming columns from spanish to english
-        df_1.rename(columns = {"id_indicador": "sex", "variable": "year", "value": "general_deaths"}, inplace=True)
-
-        # Groupby step
-        df_1 = df_1.groupby(["mun_id", "sex", "year"]).sum().reset_index(col_fill="ffill")
-
-        # Division per gender (1 year olds)
-        df_2 = df[(df["id_indicador"] == 1002000035) | (df["id_indicador"] == 1002000036)| (df["id_indicador"] == 1002000037)]
-
-        # Division per gender (totals) [1: male, 2: female, 0: unknown]
-        df_2["id_indicador"].replace({1002000035: 1, 1002000036: 2, 1002000037: 0}, inplace=True)
-
-        # Melt step in order to get file in tidy data format
-        df_2 = pd.melt(df_2, id_vars = ["mun_id", "id_indicador"], value_vars = _years)
-
-        # Renaming columns from spanish to english
-        df_2.rename(columns = {"id_indicador": "sex", "variable": "year", "value": "one_year_deaths"}, inplace=True)
-
-        # Groupby step
-        df_2 = df_2.groupby(["mun_id", "year", "sex"]).sum().reset_index(col_fill="ffill")
-
-        # Create code to merge step
-        df_1["code"] = df_1["mun_id"].astype("str").str.zfill(5) + df_1["year"].astype("str") + df_1["sex"].astype("str")
-        df_2["code"] = df_2["mun_id"].astype("str").str.zfill(5) + df_2["year"].astype("str") + df_2["sex"].astype("str")
-
-        # Merge step
-        df = pd.merge(df_1, df_2[["code", "one_year_deaths"]], on="code", how="left")
-
-        # Droping code column
-        df.drop(["code"], axis=1, inplace=True)
-
-        # Turning to int values
-        for item in ["mun_id", "sex", "year", "general_deaths", "one_year_deaths"]:
-            df[item] = df[item].astype(int)
+        df["year"] = params.get("year")
 
         return df
 
 class MortalityGeneralPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
-        return []
+        return [
+          Parameter(label="year", name="year", dtype=str),
+          Parameter(label="partial-year", name="partial_year", dtype=str),
+        ]
 
     @staticmethod
     def steps(params):
@@ -84,10 +81,14 @@ class MortalityGeneralPipeline(EasyPipeline):
 
         dtype = {
             "mun_id":                   "UInt16",
-            "sex":                   "UInt8",
+            "sex":                      "UInt8",
+            "age":                      "UInt8",
             "year":                     "UInt16",
-            "general_deaths":           "UInt16",
-            "one_year_deaths":          "UInt16"
+            "occupation":               "UInt8",
+            "scholarly":                "UInt8",
+            "general_deaths":           "UInt32",
+            "one_year_deaths":          "UInt32",
+            "general_deaths_over_one":  "UInt32"
         }
 
         download_step = DownloadStep(
@@ -96,7 +97,14 @@ class MortalityGeneralPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_general_mortality", db_connector, if_exists="drop", pk=["mun_id", "sex", "year"], dtype=dtype
+            "inegi_general_mortality", db_connector, if_exists="append", pk=["mun_id", "sex", "year"], dtype=dtype,
+            nullable_list=['age']
         )
 
         return [download_step, transform_step, load_step]
+
+if __name__ == "__main__":
+    pp = MortalityGeneralPipeline()
+    for year in range(1990, 2018 + 1):
+        pp.run({"year": year,
+                "partial_year": str(year)[2:]})

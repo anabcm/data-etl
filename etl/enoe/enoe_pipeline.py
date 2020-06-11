@@ -22,6 +22,7 @@ class TransformStep(PipelineStep):
         def lower_(array):
             return [x.lower() for x in array]
 
+        # ENOE COE1T
         for col in cols:
             for op in [upper_, lower_]:
                 try:
@@ -31,7 +32,7 @@ class TransformStep(PipelineStep):
                 except:
                     continue
 
-        print(prev[1])
+        # ENOE COE2T
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
 
@@ -49,16 +50,21 @@ class TransformStep(PipelineStep):
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
         # Loading social-demographic table, adding gender and active/inactive economic population
+        # ENOE SDEMT
         social_ = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str,
-                          usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c"])
+                        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", 
+                                "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c", "anios_esc", 
+                                "cs_p13_1", "cs_p13_2", "ingocup", "d_ant_lab", "d_cexp_est", "dur_des", 
+                                "sub_o", "s_clasifi", "cp_anoc", "emp_ppal"])
         social_.columns = social_.columns.str.lower()
 
         # Creating same code value to identified individual values
         social_["code"] = social_["ent"] + social_["con"] + social_["v_sel"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
 
         # Merging just the needed column from social-demographic
-        df = pd.merge(df, social_[["code", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c"]],
-                              on="code", how="left")
+        df = pd.merge(df, social_[["code", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c", "anios_esc", 
+                                "cs_p13_1", "cs_p13_2", "ingocup", "d_ant_lab", "d_cexp_est", "dur_des", 
+                                "sub_o", "s_clasifi", "cp_anoc", "emp_ppal"]], on="code", how="left")
 
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
@@ -69,9 +75,15 @@ class TransformStep(PipelineStep):
         df.rename(columns = dict(zip(part2.column, part2.new_column)), inplace=True)
 
         # Loading table with mun and loc values
+        # ENOE VIVT
         housing = pd.read_csv(prev[3], index_col=None, header=0, encoding="latin-1", dtype=str, 
                         usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
         housing.columns = housing.columns.str.lower()
+
+        # 2020 data format change
+        housing["mun"] = housing["mun"].str.zfill(3)
+        housing["ent"] = housing["ent"].str.zfill(2)
+        housing["v_sel"] = housing["v_sel"].str.zfill(2)
 
         # Filling with 0s "ent_id" and "v_sel" given 2019 second quarter issue
         df["ent_id"] = df["ent_id"].str.zfill(2)
@@ -114,7 +126,9 @@ class TransformStep(PipelineStep):
                 "actual_job_days_worked_lastweek", "actual_frecuency_payments",
                 "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention", "second_activity",
                 "second_activity_group_id", "second_activity_task", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
-                "female_15yrs_children"]
+                "female_15yrs_children", "schooling_years" , "approved_years", "instruction_level", "mensual_wage", "work_history",
+                "unoccupied_condition", "classification_duration_unemployment", "underemployed_population", "underemployed_classification",
+                "classification_self_employed_unqualified_activities", "classification_formal_informal_jobs_first_activity"]
 
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
@@ -143,10 +157,14 @@ class TransformStep(PipelineStep):
                     "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "represented_city",
                     "actual_frecuency_payments", "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention",
                     "second_activity", "second_activity_task", "second_activity_group_id", "income_id", "sex", "eap",
-                    "occ_unocc_pop", "eap_comp", "_48hrs_less_1", "female_15yrs_children"]:
+                    "occ_unocc_pop", "eap_comp", "_48hrs_less_1", "female_15yrs_children", "schooling_years", "approved_years", 
+                    "instruction_level", "mensual_wage", "work_history", "unoccupied_condition", "classification_duration_unemployment",
+                    "underemployed_population", "underemployed_classification", "classification_self_employed_unqualified_activities",
+                    "classification_formal_informal_jobs_first_activity"]:
             df[col] = df[col].astype(float)
 
         for item in ["age", "mun_id"]:
+            df.dropna(subset=[item], inplace=True)
             df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
@@ -174,37 +192,48 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "mun_id":                               "UInt16",
-            "quarter_id":                           "UInt16",
-            "represented_city":                     "UInt8",
-            "age":                                  "UInt8",
-            "has_job_or_business":                  "UInt8",
-            "search_job_overseas":                  "UInt8",
-            "search_job_mexico":                    "UInt8",
-            "search_start_business":                "UInt8",
-            "search_no_search":                     "UInt8",
-            "search_no_knowledge":                  "UInt8",
-            "search_job_year":                      "UInt8",
-            "time_looking_job":                     "UInt8",
-            "actual_job_position":                  "UInt16",
-            "actual_job_industry_group_id":         "UInt16",
-            "actual_job_hrs_worked_lastweek":       "UInt8",
-            "actual_job_days_worked_lastweek":      "UInt8",
-            "population":                           "UInt64", 
-            "actual_frecuency_payments":            "UInt8",
-            "actual_amount_pesos":                  "UInt32",
-            "actual_minimal_wages_proportion":      "UInt8",
-            "actual_healthcare_attention":          "UInt8",
-            "second_activity":                      "UInt8",
-            "second_activity_task":                 "UInt16",
-            "second_activity_group_id":             "UInt16",
-            "income_id":                            "UInt8",
-            "sex":                                  "UInt8",
-            "eap":                                  "UInt8",
-            "occ_unocc_pop":                        "UInt8",
-            "eap_comp":                             "UInt8",
-            "_48hrs_less_1":                        "UInt8",
-            "female_15yrs_children":                "UInt8"
+            "mun_id":                                               "UInt16",
+            "quarter_id":                                           "UInt16",
+            "represented_city":                                     "UInt8",
+            "age":                                                  "UInt8",
+            "has_job_or_business":                                  "UInt8",
+            "search_job_overseas":                                  "UInt8",
+            "search_job_mexico":                                    "UInt8",
+            "search_start_business":                                "UInt8",
+            "search_no_search":                                     "UInt8",
+            "search_no_knowledge":                                  "UInt8",
+            "search_job_year":                                      "UInt8",
+            "time_looking_job":                                     "UInt8",
+            "actual_job_position":                                  "UInt16",
+            "actual_job_industry_group_id":                         "UInt16",
+            "actual_job_hrs_worked_lastweek":                       "UInt8",
+            "actual_job_days_worked_lastweek":                      "UInt8",
+            "population":                                           "UInt64", 
+            "actual_frecuency_payments":                            "UInt8",
+            "actual_amount_pesos":                                  "UInt32",
+            "actual_minimal_wages_proportion":                      "UInt8",
+            "actual_healthcare_attention":                          "UInt8",
+            "second_activity":                                      "UInt8",
+            "second_activity_task":                                 "UInt16",
+            "second_activity_group_id":                             "UInt16",
+            "income_id":                                            "UInt8",
+            "sex":                                                  "UInt8",
+            "eap":                                                  "UInt8",
+            "occ_unocc_pop":                                        "UInt8",
+            "eap_comp":                                             "UInt8",
+            "_48hrs_less_1":                                        "UInt8",
+            "female_15yrs_children":                                "UInt8",
+            "schooling_years":                                      "UInt8",
+            "approved_years":                                       "UInt8",
+            "instruction_level":                                    "UInt8",
+            "mensual_wage":                                         "UInt32",
+            "work_history":                                         "UInt8",
+            "unoccupied_condition":                                 "UInt8",
+            "classification_duration_unemployment":                 "UInt8",
+            "underemployed_population":                             "UInt8",
+            "underemployed_classification":                         "UInt8",
+            "classification_self_employed_unqualified_activities":  "UInt8",
+            "classification_formal_informal_jobs_first_activity":   "UInt8",
         }
 
         download_step = DownloadStep(

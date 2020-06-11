@@ -16,7 +16,8 @@ DELIMITERS = {
     "2014": ";",
     "2015": ",",
     "2016": ",",
-    "2017": "|"
+    "2017": "|",
+    "2018": ","
 }
 
 HEADERS = {
@@ -25,7 +26,8 @@ HEADERS = {
     "2014": None,
     "2015": 0,
     "2016": 0,
-    "2017": 0
+    "2017": 0,
+    "2018": 0
 }
 
 class TransformStep(PipelineStep):
@@ -51,6 +53,7 @@ class TransformStep(PipelineStep):
         else:
             df = pd.read_csv(prev, index_col=None, header=HEADERS[params["year"]], sep=DELIMITERS[params["year"]], encoding="latin-1", dtype=str, chunksize=10**4)
             df = pd.concat(df)
+            df.rename(columns={"MINTAREATE": "MINTERATE"}, inplace=True)
             df = df[df_columns]
 
         # Deleting empty odds spaces in the time and geography columns
@@ -136,8 +139,9 @@ class TransformStep(PipelineStep):
         df.loc[(df["age"] < 0), "age"] = 999
 
         # Droping overextended stay in emergencies
+        # Need to update when new release
         df.drop(df.loc[(df["date_id"] < 20120101)].index, inplace=True)
-        df.drop(df.loc[(df["date_id"] > 20171230)].index, inplace=True)
+        df.drop(df.loc[(df["date_id"] > 20181231)].index, inplace=True)
 
         # Reseting Index
         df = df.reset_index(drop=True)

@@ -16,7 +16,10 @@ class TransformStep(PipelineStep):
 
         data = sorted(glob.glob('*.csv'))
 
-        df = pd.read_csv(data[-1], encoding='latin-1')
+        if params.get('file_path'):
+            df = pd.read_csv(params.get('file_path'), encoding='latin-1')
+        else:
+            df = pd.read_csv(data[-1], encoding='latin-1')
 
         df.columns = [x.strip().lower().replace(' ', '_') for x in df.columns]
 
@@ -28,9 +31,12 @@ class TransformStep(PipelineStep):
 
         for col in ['fecha_actualizacion', 'fecha_ingreso', 'fecha_sintomas', 'fecha_def']:
             df[col] = df[col].str.replace('-', '').astype(int)
+            df = df.loc[df[col] > 20190101]
 
         df.rename(columns=rename_columns, inplace=True)
         df['death_date'].replace(99999999, np.nan, inplace=True)
+        df['is_dead'] = 1
+        df.loc[df['death_date'].isna(), 'is_dead'] = 0
 
         for col in ['country_origin', 'country_nationality']:
             df[col] = df[col].fillna('xxa')
@@ -57,7 +63,7 @@ class CovidPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label='folder_path', name='year', dtype=str)
+            Parameter(label='file_path', name='file_path', dtype=str)
         ]
 
     @staticmethod
@@ -97,6 +103,7 @@ class CovidPipeline(EasyPipeline):
             'country_nationality':              'String',
             'country_origin':                   'String',
             'required_ICU':                     'UInt8',
+            'is_dead':                          'UInt8',
             'patient_residence_mun_id':         'UInt16'
         }
 
@@ -110,13 +117,16 @@ class CovidPipeline(EasyPipeline):
         unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
         xform_step = TransformStep()
         load_step = LoadStep(
-            'gobmx_covid', db_connector, if_exists='drop', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
+            'gobmx_covid', db_connector, if_exists='append', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
                             'patient_residence_mun_id', 'patient_origin_ent_id', 
                             'country_nationality', 'country_origin'], nullable_list=['death_date'], dtype=dtypes
         )
 
-        return [download_step, unzip_step, xform_step, load_step]
+        if params.get('file_path'):
+            return [xform_step, load_step]
+        else:
+            return [download_step, unzip_step, xform_step, load_step]
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     pp = CovidPipeline()
     pp.run({})
