@@ -38,10 +38,10 @@ class TransformStep(PipelineStep):
 
         ##Add missing dates daily cases
         df1_ = []
+        last_day = df1.date.max()
         for a, df_a in df1.groupby("ent_id"):
             
             first_day = df_a.date.min()
-            last_day = df_a.date.max()
             idx = pd.date_range(first_day, last_day)
             df_b = df_a.reindex(idx)
             df_b = pd.DataFrame(df_b.index)
@@ -78,10 +78,10 @@ class TransformStep(PipelineStep):
 
         ##Add missing dates deaths 
         df2_ = []
+        last_day = df2.date.max()
         for a, df_a in df2.groupby("ent_id"):
             
             first_day = df_a.date.min()
-            last_day = df_a.date.max()
             idx = pd.date_range(first_day, last_day)
             df_b = df_a.reindex(idx)
             df_b = pd.DataFrame(df_b.index)
@@ -109,8 +109,21 @@ class TransformStep(PipelineStep):
             _df = df_a.copy()
             _df["accum_cases"] = _df["daily_cases"].cumsum()
             _df["accum_deaths"] = _df["daily_deaths"].cumsum()
+
+            for i in ["daily_cases", "accum_cases", "daily_deaths", "accum_deaths"]:
+                measure = "avg_7_days_{}".format(i)
+                _df[measure] = _df[i].rolling(7).mean()
+                
+            for j in ["daily_cases", "daily_deaths"]:
+                measure = "total_last_7_days_{}".format(j)
+                _df[measure] = _df[j].rolling(7).sum()
+
             df_final.append(_df)
         df_final = pd.concat(df_final, sort=False)
+
+        df_final = df_final.rename(columns={"total_last_7_days_daily_cases":"cases_last_7_days", "total_last_7_days_daily_deaths":"deaths_last_7_days"})
+        for i in ["cases_last_7_days", "deaths_last_7_days"]:
+            df_final[i] = df_final[i].fillna(0).astype(int)
 
         #Rate per 100.000 inhabitans
         df_final["population"] = df_final["ent_id"].replace(dicto_states_population)
@@ -122,14 +135,6 @@ class TransformStep(PipelineStep):
         df_final["rate_accum_deaths"] = (df_final["accum_deaths"] / df_final["population"]) * 100000
 
         df_final = df_final.drop(columns="population")
-
-        #Add moving average every 7 days
-        days = 7
-        for i in ["daily_cases", "accum_cases", "daily_deaths", "accum_deaths"]:
-            measure = "avg_7_days_{}".format(i)
-            df = df_final.groupby("ent_id").apply(lambda x: x.set_index("date").resample("1D").first())
-            df_temp = df.groupby(level=0)[i].apply(lambda x: x.shift().rolling(window=days).mean()).reset_index(name=measure)
-            df_final = pd.merge(df_final, df_temp, on=["ent_id", "date"], how="left")
             
         #Add column with day from first case and death
         for col in ["accum_cases", "accum_deaths"]:
@@ -197,8 +202,9 @@ class CovidStatsPipeline(EasyPipeline):
             "cases_day":                        "UInt16",
             "deaths_day":                       "UInt16",
             "day_from_50_cases":                "UInt16",
-            "day_from_10_deaths":               "UInt16"
-
+            "day_from_10_deaths":               "UInt16",
+            "cases_last_7_days":                "UInt16",
+            "deaths_last_7_days":               "UInt16",
         }
 
         download_step = DownloadStep(
