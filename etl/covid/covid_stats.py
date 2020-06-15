@@ -76,8 +76,28 @@ class TransformStep(PipelineStep):
 
         df2 = df2.groupby(["ent_id","date"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
 
+        ##Add missing dates deaths 
+        df2_ = []
+        for a, df_a in df2.groupby("ent_id"):
+            
+            first_day = df_a.date.min()
+            last_day = df_a.date.max()
+            idx = pd.date_range(first_day, last_day)
+            df_b = df_a.reindex(idx)
+            df_b = pd.DataFrame(df_b.index)
+            df_b = df_b.rename(columns={0:"date"})
+            
+            result = pd.merge(df_b, df_a, how="outer", on="date")
+            
+            df2_.append(result)
+        df2_ = pd.concat(df2_, sort=False)
+
+        df2_["ent_id"] = df2_["ent_id"].fillna(method="ffill")
+
         #Merge daily cases and deaths
         data = pd.merge(df1_, df2, how="outer", on=["date", "ent_id"])
+
+        data = data.sort_values(by=["ent_id", "date"])
 
         for col in ["ent_id", "daily_cases", "daily_deaths"]:
             data[col] = data[col].fillna(0).astype(int)
@@ -127,7 +147,29 @@ class TransformStep(PipelineStep):
         df_final = df_final.rename(columns={"accum_cases_day": "cases_day", "accum_deaths_day": "deaths_day"})
 
         df_final["date"] = df_final["date"].astype(str).str.replace("-", "").astype(int)
-      
+
+        #Add a column with days, being day one when at least 50 cases accumulate
+        day = []
+        for a, df_a in df_final.groupby("ent_id"):
+            default = 0
+            for row in df_a.iterrows():
+                if row[1]["accum_cases"] >= 50:
+                    default = default + 1
+
+                day.append(default)
+        df_final["day_from_50_cases"] = day
+
+        #Add a column with days, being day one when at least 10 deaths accumulate
+        day = []
+        for a, df_a in df_final.groupby("ent_id"):
+            default = 0
+            for row in df_a.iterrows():
+                if row[1]["accum_deaths"] >= 10:
+                    default = default + 1
+
+                day.append(default)
+        df_final["day_from_10_deaths"] = day
+    
         return df_final
 
 
@@ -154,6 +196,9 @@ class CovidStatsPipeline(EasyPipeline):
             "avg_7_days_accum_deaths":          "Float32",
             "cases_day":                        "UInt16",
             "deaths_day":                       "UInt16",
+            "day_from_50_cases":                "UInt16",
+            "day_from_10_deaths":               "UInt16"
+
         }
 
         download_step = DownloadStep(
