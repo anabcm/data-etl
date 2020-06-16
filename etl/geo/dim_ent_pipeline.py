@@ -90,9 +90,14 @@ class TransformStep(PipelineStep):
         df["ent_iso3"] = df["ent_id"].replace(ent_iso3)
 
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
-        # schema locale required
-        df["ent_slug_en"] = df["ent_slug"]
-        df["ent_name_en"] = df["ent_name"]
+
+        df = df.append({
+            "cve_ent": "33",
+            "ent_name": "No Informado",
+            "ent_id": 33,
+            "nation_name": "México",
+            "nation_id": "mex",
+        }, ignore_index=True)
 
         return df
 
@@ -117,7 +122,7 @@ class DimEntityGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_ent", db_connector, if_exists="drop", dtype=dtype,
-            pk=['ent_id']
+            pk=['ent_id'], nullable_list=["ent_iso2", "ent_iso3", "ent_slug", "nation_slug"]
         )
 
         return [download_step, transform_step, load_step]

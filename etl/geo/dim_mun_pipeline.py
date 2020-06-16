@@ -92,11 +92,17 @@ class TransformStep(PipelineStep):
         df["ent_slug"] = (df["ent_name"] + " " + df["ent_iso2"]).apply(slug_parser)
         df["mun_slug"] = (df["mun_name"] + " mun " + df["ent_iso2"]).apply(slug_parser)
 
-        # schema locale required
-        df["ent_slug_en"] = df["ent_slug"]
-        df["ent_name_en"] = df["ent_name"]
-        df["mun_slug_en"] = df["mun_slug"]
-        df["mun_name_en"] = df["mun_name"]
+        df = df.append({
+            "cve_ent": "33",
+            "cve_mun": "000",
+            "cve_mun_full": "33000",
+            "ent_name": "No Informado",
+            "mun_name": "No Informado",
+            "ent_id": 33,
+            "mun_id": 33000,
+            "nation_name": "México",
+            "nation_id": "mex",
+        }, ignore_index=True)
 
         return df
 
@@ -125,7 +131,7 @@ class DimMunicipalityGeographyPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "dim_shared_geography_mun", db_connector, if_exists="drop", dtype=dtype,
-            pk=["ent_id", "mun_id"]
+            pk=["ent_id", "mun_id"], nullable_list=["ent_iso2", "ent_iso3", "ent_slug", "mun_slug", "nation_slug"]
         )
 
         return [download_step, transform_step, load_step]
