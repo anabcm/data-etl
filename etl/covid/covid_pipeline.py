@@ -3,7 +3,7 @@ import os
 import glob
 import numpy as np
 import pandas as pd
-from bamboo_lib.helpers import grab_parent_dir
+from bamboo_lib.helpers import grab_parent_dir,query_to_df
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
@@ -31,7 +31,6 @@ class TransformStep(PipelineStep):
 
         for col in ['fecha_actualizacion', 'fecha_ingreso', 'fecha_sintomas', 'fecha_def']:
             df[col] = df[col].str.replace('-', '').astype(int)
-            df = df.loc[df[col] > 20190101]
 
         df.rename(columns=rename_columns, inplace=True)
         df['death_date'].replace(99999999, np.nan, inplace=True)
@@ -56,6 +55,10 @@ class TransformStep(PipelineStep):
         df['sex'] = df['sex'].astype(str)
         df['sex'].replace({'1': 2,
                            '2': 1}, inplace=True)
+
+        # replace unknown municipalities
+        mun = query_to_df(self.connector, 'select mun_id from dim_shared_geography_mun')
+        df.loc[~df['patient_residence_mun_id'].isin(mun['mun_id']), 'patient_residence_mun_id'] = 33000
 
         return df
 
@@ -115,7 +118,7 @@ class CovidPipeline(EasyPipeline):
 
         path = grab_parent_dir('.') + '/covid/'
         unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
-        xform_step = TransformStep()
+        xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
             'gobmx_covid', db_connector, if_exists='append', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
                             'patient_residence_mun_id', 'patient_origin_ent_id', 
