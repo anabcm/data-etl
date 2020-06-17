@@ -93,9 +93,9 @@ class TransformStep(PipelineStep):
 
         df = df.append({
             "cve_ent": "33",
-            "ent_name": "México",
+            "ent_name": "Estados Unidos Mexicanos",
             "ent_id": 33,
-            "nation_name": "México",
+            "nation_name": "Estados Unidos Mexicanos",
             "nation_id": "mex",
         }, ignore_index=True)
 
