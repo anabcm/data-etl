@@ -27,6 +27,8 @@ class ExtractStep(PipelineStep):
 
         df['value'] = df['value'].astype(int)
 
+        df['year'] = params.get('year')
+
         return df
 
 class WagePipeline(EasyPipeline):
@@ -42,7 +44,8 @@ class WagePipeline(EasyPipeline):
         dtype = {
             'ent_id':   'UInt8',
             'decile':   'String',
-            'value':    'Float32'
+            'value':    'Float32',
+            'year':     'UInt16'
         }
 
         download_step = DownloadStep(
@@ -51,7 +54,7 @@ class WagePipeline(EasyPipeline):
         )
         extract_step = ExtractStep()
         load_step = LoadStep(
-            'dim_enigh_income', db_connector, if_exists='append', dtype=dtype,
+            'inegi_enigh_income', db_connector, if_exists='append', dtype=dtype,
             pk=['ent_id']
         )
 
