@@ -1,3 +1,7 @@
+geo-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/geo/AGEEML_20206161311509.csv
+
 enigh-population:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/enigh/poblacion_<year>.csv
@@ -17,3 +21,7 @@ enigh-income:
 enigh-household:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/enigh/concentradohogar_<year>.csv
+
+enigh-household-income:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/enigh/household_income/income_<year>.xlsx
