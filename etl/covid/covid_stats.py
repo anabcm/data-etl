@@ -30,24 +30,24 @@ class TransformStep(PipelineStep):
         df1 = df[["entidad_res", "fecha_ingreso", "resultado"]]
         df1 = df1[df1["resultado"] == 1]
         df1 = df1.rename(columns={"entidad_res": "ent_id", 
-                                  "fecha_ingreso": "date_id", 
+                                  "fecha_ingreso": "time_id", 
                                   "resultado": "daily_cases"})
 
-        df1 = df1.groupby(["ent_id", "date_id"]).sum().reset_index()
-        df1["date_id"] = pd.to_datetime(df1["date_id"])
+        df1 = df1.groupby(["ent_id", "time_id"]).sum().reset_index()
+        df1["time_id"] = pd.to_datetime(df1["time_id"])
 
         ##Add missing dates daily cases
         df1_ = []
-        last_day = df1["date_id"].max()
+        last_day = df1["time_id"].max()
         for a, df_a in df1.groupby("ent_id"):
             
-            first_day = df_a["date_id"].min()
+            first_day = df_a["time_id"].min()
             idx = pd.date_range(first_day, last_day)
             df_b = df_a.reindex(idx)
             df_b = pd.DataFrame(df_b.index)
-            df_b = df_b.rename(columns={0: "date_id"})
+            df_b = df_b.rename(columns={0: "time_id"})
             
-            result = pd.merge(df_b, df_a, how="outer", on="date_id")
+            result = pd.merge(df_b, df_a, how="outer", on="time_id")
             
             df1_.append(result)
         df1_ = pd.concat(df1_, sort=False)
@@ -72,22 +72,22 @@ class TransformStep(PipelineStep):
         df2["days_between_ingress_and_death"] = df2["days_between_ingress_and_death"].dt.days
 
         df2 = df2.drop(columns="ingress_date")
-        df2 = df2.rename(columns={"death_date":"date_id"})
+        df2 = df2.rename(columns={"death_date":"time_id"})
 
-        df2 = df2.groupby(["ent_id", "date_id"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
+        df2 = df2.groupby(["ent_id", "time_id"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
 
         ##Add missing dates deaths 
         df2_ = []
-        last_day = df2["date_id"].max()
+        last_day = df2["time_id"].max()
         for a, df_a in df2.groupby("ent_id"):
             
-            first_day = df_a["date_id"].min()
+            first_day = df_a["time_id"].min()
             idx = pd.date_range(first_day, last_day)
             df_b = df_a.reindex(idx)
             df_b = pd.DataFrame(df_b.index)
-            df_b = df_b.rename(columns={0:"date_id"})
+            df_b = df_b.rename(columns={0:"time_id"})
             
-            result = pd.merge(df_b, df_a, how="outer", on="date_id")
+            result = pd.merge(df_b, df_a, how="outer", on="time_id")
             
             df2_.append(result)
         df2_ = pd.concat(df2_, sort=False)
@@ -95,9 +95,9 @@ class TransformStep(PipelineStep):
         df2_["ent_id"] = df2_["ent_id"].fillna(method="ffill")
 
         #Merge daily cases and deaths
-        data = pd.merge(df1_, df2, how="outer", on=["date_id", "ent_id"])
+        data = pd.merge(df1_, df2, how="outer", on=["time_id", "ent_id"])
 
-        data = data.sort_values(by=["ent_id", "date_id"])
+        data = data.sort_values(by=["ent_id", "time_id"])
 
         for col in ["ent_id", "daily_cases", "daily_deaths"]:
             data[col] = data[col].fillna(0).astype(int)
@@ -151,7 +151,7 @@ class TransformStep(PipelineStep):
             
         df_final = df_final.rename(columns={"accum_cases_day": "cases_day", "accum_deaths_day": "deaths_day"})
 
-        df_final["date_id"] = df_final["date_id"].astype(str).str.replace("-", "").astype(int)
+        df_final["time_id"] = df_final["time_id"].astype(str).str.replace("-", "").astype(int)
 
         #Add a column with days, being day one when at least 50 cases accumulate
         day = []
@@ -184,7 +184,7 @@ class CovidStatsPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtypes = {
-            "date_id":                          "UInt32",
+            "time_id":                          "UInt32",
             "ent_id":                           "UInt8",
             "daily_cases":                      "UInt32",
             "daily_deaths":                     "UInt32",
@@ -218,7 +218,7 @@ class CovidStatsPipeline(EasyPipeline):
         xform_step = TransformStep()
         load_step = LoadStep(
             "gobmx_covid_stats", db_connector, if_exists="drop", 
-            pk=["date_id", "ent_id"], 
+            pk=["time_id", "ent_id"], 
             nullable_list=["days_between_ingress_and_death", "avg_7_days_daily_cases", "avg_7_days_accum_cases", 
                            "avg_7_days_daily_deaths", "avg_7_days_accum_deaths"], 
             dtype=dtypes
