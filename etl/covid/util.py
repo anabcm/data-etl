@@ -5,6 +5,7 @@ import os
 import glob
 import pandas as pd
 from dim_time_date import DimTimeDatePipeline
+from dim_time_covid_stats import DimTimeDateCovidStatsPipeline
 from bamboo_lib.helpers import query_to_df
 from bamboo_lib.connectors.models import Connector
 
@@ -22,5 +23,9 @@ min_time = '{}-{}-{}'.format(min_value[:4], min_value[4:6], min_value[6:])
 max_time = '{}-{}-{}'.format(max_value[:4], max_value[4:6], max_value[6:])
 
 pp = DimTimeDatePipeline()
+pp.run({'init': min_time,
+        'end': max_time})
+
+pp = DimTimeDateCovidStatsPipeline()
 pp.run({'init': min_time,
         'end': max_time})
