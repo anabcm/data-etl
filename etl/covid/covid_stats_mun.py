@@ -128,7 +128,7 @@ class TransformStep(PipelineStep):
             df_final[i] = df_final[i].fillna(0).astype(int)
 
         #Rate per 100.000 inhabitans
-        df_final["population_temp"] = df_final["mun_id"].replace(dicto_states_population)
+        df_final["population_temp"] = df_final["mun_id"].replace(dicto_mun_population)
         df_final["population"] = np.where(df_final["population_temp"] != df_final["mun_id"], df_final["population_temp"], np.nan)
 
         df_final["rate_daily_cases"] = (df_final["daily_cases"] / df_final["population"]) * 100000
@@ -223,7 +223,7 @@ class CovidStatsMunPipeline(EasyPipeline):
             "gobmx_covid_stats_mun", db_connector, if_exists="drop", 
             pk=["time_id", "mun_id"], 
             nullable_list=["days_between_ingress_and_death", "avg_7_days_daily_cases", "avg_7_days_accum_cases", 
-                           "avg_7_days_daily_deaths", "avg_7_days_accum_deaths", "rate_daily_cases", "rate_accum_cases",                 "Float32",
+                           "avg_7_days_daily_deaths", "avg_7_days_accum_deaths", "rate_daily_cases", "rate_accum_cases", 
                            "rate_daily_deaths", "rate_accum_deaths"], 
             dtype=dtypes
         )
