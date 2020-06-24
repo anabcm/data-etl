@@ -48,11 +48,20 @@ class TransformStep(PipelineStep):
         df.columns = df.columns.str.replace('suma de ', '').str.replace('pni-', '')
 
         # melt step
-        df = df[['mun_id', 'career', 'type', 'period', 'campus_id', 'program',
-               'mat-h-22', 'mat-h-23', 'mat-h-24', 'mat-h-25', 'mat-h-26', 'mat-h-27',
-               'mat-h-28', 'mat-h-29', 'mat-h-30', 'mat-h-31', 'mat-h-32', 'mat-m-22',
-               'mat-m-23', 'mat-m-24', 'mat-m-25', 'mat-m-26', 'mat-m-27', 'mat-m-28',
-               'mat-m-29', 'mat-m-30', 'mat-m-31', 'mat-m-32']].copy()
+        if 'licenciatura' in params.get('url'):
+            age_range = ['mat-h-17', 'mat-h-18', 'mat-h-19', 'mat-h-20', 'mat-h-21',
+                         'mat-h-22', 'mat-h-23', 'mat-h-24', 'mat-h-25', 'mat-h-26', 
+                         'mat-h-27', 'mat-h-28', 'mat-h-29', 'mat-h-30', 'mat-h-31', 'mat-h-32', 
+                         'mat-m-17', 'mat-m-18', 'mat-m-19', 'mat-m-20', 'mat-m-21',
+                         'mat-m-22', 'mat-m-23', 'mat-m-24', 'mat-m-25', 'mat-m-26', 
+                         'mat-m-27', 'mat-m-28', 'mat-m-29', 'mat-m-30', 'mat-m-31', 'mat-m-32']
+        else: 
+            age_range = ['mat-h-22', 'mat-h-23', 'mat-h-24', 'mat-h-25', 'mat-h-26', 
+                         'mat-h-27', 'mat-h-28', 'mat-h-29', 'mat-h-30', 'mat-h-31', 'mat-h-32',
+                         'mat-m-22', 'mat-m-23', 'mat-m-24', 'mat-m-25', 'mat-m-26', 
+                         'mat-m-27', 'mat-m-28', 'mat-m-29', 'mat-m-30', 'mat-m-31', 'mat-m-32']
+
+        df = df[['mun_id', 'career', 'type', 'period', 'campus_id', 'program'] + age_range].copy()
         
         df.columns = df.columns.str.replace('mat-', '')
         
