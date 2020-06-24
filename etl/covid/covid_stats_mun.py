@@ -188,7 +188,7 @@ class CovidStatsMunPipeline(EasyPipeline):
 
         dtypes = {
             "time_id":                          "UInt32",
-            "mun_id":                           "UInt8",
+            "mun_id":                           "UInt16",
             "daily_cases":                      "UInt32",
             "daily_deaths":                     "UInt32",
             "days_between_ingress_and_death":   "Float32",
