@@ -62,21 +62,17 @@ class TransformStep(PipelineStep):
             "Industry Group ID": "industry_group_id",
             "NAICS Industry ID": "naics_industry_id",
             "Time ID": "time_id",
-            "Latest": "latest",
-            "Level": "level"
+            "Latest": "latest"
         })
 
-        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "level"]].copy()
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci"]].copy()
 
         df["latest"] = df["latest"].astype(int)
 
         for col in "national_industry_id", "industry_group_id", "naics_industry_id":
             df[col] = df[col].fillna(0).astype(int)
 
-        df['level'].replace({"State": 1,
-                             "Metro Area": 2,
-                             "Municipality": 3}, 
-                             inplace=True)
+        print(df.head())
 
         return df
 
@@ -92,7 +88,6 @@ class ComplexityPCIPipeline(EasyPipeline):
         dtype = {
             "industry_group_id":     "UInt16",
             "latest":                "UInt8",
-            "level":                 "UInt8",
             "naics_industry_id":     "UInt32",
             "national_industry_id":  "UInt32",
             "pci":                   "Float32",
