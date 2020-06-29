@@ -62,12 +62,19 @@ class TransformStep(PipelineStep):
             "State ID": "ent_id",
             "Metro Area ID": "zm_id",
             "Municipality ID": "mun_id",
-            "Time ID": "time_id"
+            "Time ID": "time_id",
+            "Latest": "latest",
+            "Level": "level"
         })
         df["latest"] = df["latest"].astype(int)
 
-        columns = ["ent_id", "zm_id", "mun_id"]
-        df[columns] = df[columns].astype(object)
+        for col in ["ent_id", "zm_id", "mun_id"]:
+            df[col] = df[col].fillna(0).astype(int)
+
+        df['level'].replace({"State": 1,
+                             "Metro Area": 2,
+                             "Municipality": 3}, 
+                             inplace=True)
         
         return df
 
@@ -84,12 +91,16 @@ class ComplexityECIPipeline(EasyPipeline):
             "eci":      "Float32",
             "ent_id":   "UInt16",
             "latest":   "UInt8",
+            "level":    "UInt8",
             "mun_id":   "UInt16",
             "time_id":  "UInt32",
             "zm_id":    "UInt16"
         }
         load_step = LoadStep(
-            "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "latest", "ent_id", "zm_id", "mun_id"], dtype=dtype, 
-            nullable_list=["mun_id", "ent_id", "zm_id"]
+            "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "latest", "ent_id", "zm_id", "mun_id"], dtype=dtype
         )
         return [xform_step, load_step]
+
+if __name__ == "__main__":
+    pp = ComplexityECIPipeline()
+    pp.run({})
