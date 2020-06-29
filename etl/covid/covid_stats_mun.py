@@ -17,10 +17,10 @@ class TransformStep(PipelineStep):
 
         df = pd.read_csv(data[-1], encoding="latin-1")
         
-        r = requests.get("https://api.datamexico.org/tesseract/data?Year=2015&cube=inegi_population&drilldowns=Municipality&measures=Population")
+        r = requests.get("https://api.datamexico.org/tesseract/data?Year=2020&cube=population_projection&drilldowns=Municipality&measures=Projected+Population&parents=false&sparse=false")
         data_json = r.json()
         states_data = pd.DataFrame(data_json["data"])
-        dicto_mun_population = dict(zip(states_data["Municipality ID"], states_data["Population"]))
+        dicto_mun_population = dict(zip(states_data["Municipality ID"], states_data["Projected Population"]))
 
         df.columns = [x.strip().lower().replace(" ", "_") for x in df.columns]
 
