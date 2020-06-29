@@ -20,7 +20,7 @@ class TransformStep(PipelineStep):
         df_time = df_time.sort_values(by="Month ID", ascending=False)
         df_time.head()
 
-        BASE_URL = "https://dev.datamexico.org/api/stats/eci"
+        BASE_URL = "https://dev.datamexico.org/api/stats/pci"
 
         time = list(df_time["Month ID"])
         agg = 3
@@ -52,7 +52,6 @@ class TransformStep(PipelineStep):
                 df_temp["Level"] = level_geo
                 df_temp["Latest"] = i == 0
 
-                df_temp = df_temp.drop(columns=[level_geo])
                 df.append(df_temp)
 
         df = pd.concat(df)
@@ -62,13 +61,23 @@ class TransformStep(PipelineStep):
             "National Industry ID": "national_industry_id",
             "Industry Group ID": "industry_group_id",
             "NAICS Industry ID": "naics_industry_id",
-            "Time ID": "time_id"
+            "Time ID": "time_id",
+            "Latest": "latest",
+            "Level": "level"
         })
+
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "level"]].copy()
+
         df["latest"] = df["latest"].astype(int)
 
-        columns = ["industry_group_id", "naics_industry_id", "national_industry_id"]
-        df[columns] = df[columns].astype(object)
-        
+        for col in "national_industry_id", "industry_group_id", "naics_industry_id":
+            df[col] = df[col].fillna(0).astype(int)
+
+        df['level'].replace({"State": 1,
+                             "Metro Area": 2,
+                             "Municipality": 3}, 
+                             inplace=True)
+
         return df
 
 class ComplexityPCIPipeline(EasyPipeline):
@@ -83,14 +92,18 @@ class ComplexityPCIPipeline(EasyPipeline):
         dtype = {
             "industry_group_id":     "UInt16",
             "latest":                "UInt8",
-            "naics_industry_id":     "UInt16",
-            "national_industry_id":  "String",
+            "level":                 "UInt8",
+            "naics_industry_id":     "UInt32",
+            "national_industry_id":  "UInt32",
             "pci":                   "Float32",
             "time_id":               "UInt32"
         }
         load_step = LoadStep(
             "complexity_pci", db_connector, if_exists="drop", 
-            pk=["time_id", "latest", "industry_group_id", "naics_industry_id", "national_industry_id"], dtype=dtype, 
-            nullable_list=["industry_group_id", "naics_industry_id", "national_industry_id"]
+            pk=["time_id", "latest", "industry_group_id", "naics_industry_id", "national_industry_id"], dtype=dtype
         )
         return [xform_step, load_step]
+
+if __name__ == "__main__":
+    pp = ComplexityPCIPipeline()
+    pp.run({})
