@@ -17,3 +17,4 @@ economic-census
 *.xlsx
 *.xls
 *.zip
+.vscode/settings.json
