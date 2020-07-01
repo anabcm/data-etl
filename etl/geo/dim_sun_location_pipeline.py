@@ -1,5 +1,4 @@
 import pandas as pd
-import unidecode
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.models import Parameter
@@ -7,14 +6,8 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
-def slug_parser(txt):
-    slug = txt.lower().replace(" ", "-")
-    slug = unidecode.unidecode(slug)
-
-    for char in ["]", "[", "(", ")"]:
-        slug = slug.replace(char, "")
-
-    return slug
+from shared import STATE_REPLACE
+from shared import slug_parser
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -92,6 +85,9 @@ class TransformStep(PipelineStep):
 
         df_output = df_output[["ent_id", "ent_name", "sun_id", "sun_name", "sun_slug", "mun_id", "mun_name", "loc_name", "loc_id"]]
         df_output = df_output.drop_duplicates()
+
+        df_output["ent_name"].replace(STATE_REPLACE, inplace=True)
+
         return df_output
 
 class DimSUNLocationGeographyPipeline(EasyPipeline):
@@ -119,3 +115,7 @@ class DimSUNLocationGeographyPipeline(EasyPipeline):
         )
 
         return [transform_step, load_step]
+
+if __name__ == "__main__":
+    pp = DimSUNLocationGeographyPipeline()
+    pp.run({})
