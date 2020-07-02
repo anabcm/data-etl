@@ -41,6 +41,7 @@ class TransformStep(PipelineStep):
                 params = {
                     "cube": cube,
                     "Month": time_param,
+                    "ranking": "true",
                     "rca": f"{level_geo},{level_industry},{measure}",
                     "threshold": f"{level_industry}:{threshold_industry * n},{level_geo}:{threshold_geo * n}"
                 }
@@ -58,6 +59,7 @@ class TransformStep(PipelineStep):
 
         df = df.rename(columns={
             f"{measure} PCI": "pci",
+            f"{measure} PCI Ranking": "pci_ranking",
             "National Industry ID": "national_industry_id",
             "Industry Group ID": "industry_group_id",
             "NAICS Industry ID": "naics_industry_id",
@@ -65,7 +67,7 @@ class TransformStep(PipelineStep):
             "Latest": "latest"
         })
 
-        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci"]].copy()
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking"]].copy()
 
         df["latest"] = df["latest"].astype(int)
 
@@ -89,6 +91,7 @@ class ComplexityPCIPipeline(EasyPipeline):
             "naics_industry_id":     "UInt32",
             "national_industry_id":  "UInt32",
             "pci":                   "Float32",
+            "pci_ranking":           "UInt16",
             "time_id":               "UInt32"
         }
         load_step = LoadStep(
