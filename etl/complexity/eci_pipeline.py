@@ -41,6 +41,7 @@ class TransformStep(PipelineStep):
                 params = {
                     "cube": cube,
                     "Month": time_param,
+                    "ranking": "true",
                     "rca": f"{level_geo},{level_industry},{measure}",
                     "threshold": f"{level_industry}:{threshold_industry * n},{level_geo}:{threshold_geo * n}"
                 }
@@ -59,6 +60,7 @@ class TransformStep(PipelineStep):
 
         df = df.rename(columns={
             f"{measure} ECI": "eci",
+            f"{measure} ECI Ranking": "eci_ranking",
             "State ID": "ent_id",
             "Metro Area ID": "zm_id",
             "Municipality ID": "mun_id",
@@ -71,10 +73,10 @@ class TransformStep(PipelineStep):
         for col in ["ent_id", "zm_id", "mun_id"]:
             df[col] = df[col].fillna(0).astype(int)
 
-        df['level'].replace({"State": 1,
+        """df['level'].replace({"State": 1,
                              "Metro Area": 2,
                              "Municipality": 3}, 
-                             inplace=True)
+                             inplace=True)"""
         
         return df
 
@@ -88,13 +90,14 @@ class ComplexityECIPipeline(EasyPipeline):
         xform_step = TransformStep()
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
-            "eci":      "Float32",
-            "ent_id":   "UInt8",
-            "latest":   "UInt8",
-            "level":    "UInt8",
-            "mun_id":   "UInt16",
-            "time_id":  "UInt32",
-            "zm_id":    "UInt32"
+            "eci":          "Float32",
+            "eci_ranking":  "UInt16",
+            "ent_id":       "UInt8",
+            "latest":       "UInt8",
+            "level":        "UInt8",
+            "mun_id":       "UInt16",
+            "time_id":      "UInt32",
+            "zm_id":        "UInt32"
         }
         load_step = LoadStep(
             "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "latest", "ent_id", "zm_id", "mun_id"], dtype=dtype
