@@ -67,7 +67,7 @@ class TransformStep(PipelineStep):
             "Latest": "latest"
         })
 
-        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci"]].copy()
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking"]].copy()
 
         df["latest"] = df["latest"].astype(int)
 
