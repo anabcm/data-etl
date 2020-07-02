@@ -73,11 +73,6 @@ class TransformStep(PipelineStep):
         for col in ["ent_id", "zm_id", "mun_id"]:
             df[col] = df[col].fillna(0).astype(int)
 
-        """df['level'].replace({"State": 1,
-                             "Metro Area": 2,
-                             "Municipality": 3}, 
-                             inplace=True)"""
-        
         return df
 
 class ComplexityECIPipeline(EasyPipeline):
@@ -94,7 +89,7 @@ class ComplexityECIPipeline(EasyPipeline):
             "eci_ranking":  "UInt16",
             "ent_id":       "UInt8",
             "latest":       "UInt8",
-            "level":        "UInt8",
+            "level":        "String",
             "mun_id":       "UInt16",
             "time_id":      "UInt32",
             "zm_id":        "UInt32"
