@@ -30,7 +30,6 @@ for url in nat:
 for url in ent:
   type_, name_, level_name_ = get_level(url, levels)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
-  break
 for url in mun:
   type_, name_, level_name_ = get_level(url, levels)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
