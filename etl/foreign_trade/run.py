@@ -22,20 +22,23 @@ levels = {'National':  ['UInt8',  'ent'],
           'State':     ['UInt8',  'ent'], 
           'Municipal': ['UInt16', 'mun']}
 
-"""for url in nat:
-  type_, name_ = get_level(url, levels)
-  os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))"""
+print('nat files: {}, mun files: {}, ent files: {}'.format(len(nat), len(mun), len(ent)))
+
+for url in nat:
+  type_, name_, level_name_ = get_level(url, levels)
+  os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 for url in ent:
-  type_, name_ = get_level(url, levels)
+  type_, name_, level_name_ = get_level(url, levels)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
+  break
 for url in mun:
-  type_, name_ = get_level(url, levels)
+  type_, name_, level_name_ = get_level(url, levels)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
-"""
+
 # countries
-os.system('bamboo-cli --folder . --entry countries_ingest')
+#os.system('bamboo-cli --folder . --entry countries_ingest')
 
 # hs6 codes
 os.system('bamboo-cli --folder . --entry hs12_2digit')
 os.system('bamboo-cli --folder . --entry hs12_4digit')
-os.system('bamboo-cli --folder . --entry hs12_6digit')"""
+os.system('bamboo-cli --folder . --entry hs12_6digit')

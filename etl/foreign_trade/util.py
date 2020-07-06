@@ -1,3 +1,12 @@
+
+LEVELS = {'National':  ['UInt8',  'ent'], 
+          'State':     ['UInt8',  'ent'], 
+          'Municipal': ['UInt16', 'mun']}
+
+DEPTHS = {'HS_2D': 'hs2_id', 
+          'HS_4D': 'hs4_id',
+          'HS_6D': 'hs6_id'}
+
 def hs6_converter(hs6):
     """Adds chaper information to HS6 code"""
     leading2 = int(hs6[:2])
@@ -49,7 +58,7 @@ def get_time(url):
 def get_level(url, levels):
     for k, v in levels.items():
         if k in url:
-            return v[0], v[1]
+            return v[0], v[1], k
         else:
             continue
     return None
