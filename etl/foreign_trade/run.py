@@ -1,6 +1,6 @@
 import os
 from google.cloud import storage
-from util import get_level
+from util import get_level, LEVELS
 
 storage_client = storage.Client.from_service_account_json('datamexico.json')
 bucket = storage_client.get_bucket('datamexico-data')
@@ -18,20 +18,16 @@ for blob in blobs:
   elif 'National' in val and '.csv' in val:
       nat.append(val)
 
-levels = {'National':  ['UInt8',  'ent'], 
-          'State':     ['UInt8',  'ent'], 
-          'Municipal': ['UInt16', 'mun']}
-
 print('nat files: {}, mun files: {}, ent files: {}'.format(len(nat), len(mun), len(ent)))
 
 for url in nat:
-  type_, name_, level_name_ = get_level(url, levels)
+  type_, name_, level_name_ = get_level(url, LEVELS)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 for url in ent:
-  type_, name_, level_name_ = get_level(url, levels)
+  type_, name_, level_name_ = get_level(url, LEVELS)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 for url in mun:
-  type_, name_, level_name_ = get_level(url, levels)
+  type_, name_, level_name_ = get_level(url, LEVELS)
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 
 # countries

@@ -1,7 +1,7 @@
 
-LEVELS = {'National':  ['UInt8',  'ent'], 
-          'State':     ['UInt8',  'ent'], 
-          'Municipal': ['UInt16', 'mun']}
+LEVELS = {'National':  ['UInt8',  'ent', 0], 
+          'State':     ['UInt8',  'ent', 1], 
+          'Municipal': ['UInt16', 'mun', 2]}
 
 DEPTHS = {'HS_2D': 'hs2_id', 
           'HS_4D': 'hs4_id',
@@ -58,7 +58,7 @@ def get_time(url):
 def get_level(url, levels):
     for k, v in levels.items():
         if k in url:
-            return v[0], v[1], k
+            return v[0], v[1], v[2]
         else:
             continue
     return None
@@ -71,7 +71,7 @@ def get_depth(url, depths):
             continue
     return None
 
-def get_params(url, levels, depths):
+def get_params(url, levels=LEVELS, depths=DEPTHS):
     time = []
     level = get_level(url, levels)
     depth = get_depth(url, depths)

@@ -1,9 +1,9 @@
+import re
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import LoadStep
 from util import hs6_converter, get_time, get_number, get_params
-from util import LEVELS, DEPTHS
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
@@ -16,7 +16,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
 
-        params, url = get_params(params.get('url'), LEVELS, DEPTHS), params.get('url')
+        params, url = get_params(params.get('url')), params.get('url')
 
         names = {
             'municipality_code': 'mun_id',
@@ -64,8 +64,9 @@ class TransformStep(PipelineStep):
             df['ent_id'] = 0
 
         # explicit level name
-        df['level'] = params['level'][2]
-        
+        df['level'] = int(params['level'][2])
+        df['product_level'] = int(re.findall(r"(\d){1}", params['depth'])[0])
+
         return df
 
 class ForeignTradePipeline(EasyPipeline):
@@ -82,7 +83,8 @@ class ForeignTradePipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         
         dtype = {
-            'level':                         'String',
+            'level':                         'UInt8',
+            'product_level':                 'UInt8',
             params.get('name')+'_id': params.get('type'),
             'hs2_id':                        'UInt16',
             'hs4_id':                        'UInt32',
@@ -98,7 +100,8 @@ class ForeignTradePipeline(EasyPipeline):
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('economy_foreign_trade_' + params.get('name'), db_connector, if_exists='append', 
-                            pk=[params.get('name')+'_id', 'partner_country', 'month_id', 'year', 'hs2_id', 'hs4_id', 'hs6_id'], 
-                             dtype=dtype, nullable_list=['value'])
+                            pk=[params.get('name')+'_id', 'partner_country', 'month_id', 'year', 
+                                'hs2_id', 'hs4_id', 'hs6_id', 'level', 'product_level'], 
+                             dtype=dtype)
 
         return [read_step, transform_step, load_step]
