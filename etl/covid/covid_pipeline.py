@@ -57,7 +57,7 @@ class TransformStep(PipelineStep):
                            '2': 1}, inplace=True)
 
         # replace unknown municipalities
-        df.loc[~df['patient_residence_mun_id'].isin([997, 998, 999]), 'patient_residence_mun_id'] = 33000
+        df.loc[df['patient_residence_mun_id'].isin([97997, 98998, 99999]), 'patient_residence_mun_id'] = 33000
 
         return df
 
