@@ -221,7 +221,7 @@ class TransformStep(PipelineStep):
         df_final["day_from_10_deaths"] = day
 
         df_final["ent_id"] = df_final["ent_id"].astype(int)
-       
+
         return df_final
 
 
@@ -242,10 +242,10 @@ class CovidStatsStatePipeline(EasyPipeline):
             'accum_hospitalized':               "UInt32",
             'accum_suspect':                    "UInt32",
             'days_between_ingress_and_death':   "Float32",
-            'new_cases_report':                 "UInt32",
-            'new_deaths_report':                "UInt32",
-            'new_hospitalized_report':          "UInt32",
-            'new_suspect_report':               "UInt32",   
+            'new_cases_report':                 "Int32",
+            'new_deaths_report':                "Int32",
+            'new_hospitalized_report':          "Int32",
+            'new_suspect_report':               "Int32",   
             'accum_cases_report':               "UInt32",
             'accum_deaths_report':              "UInt32",
             'accum_hospitalized_report':        "UInt32",
@@ -258,14 +258,14 @@ class CovidStatsStatePipeline(EasyPipeline):
             'avg7_accum_cases_report':          "Float32",
             'avg7_new_deaths_report':           "Float32",
             'avg7_accum_deaths_report':         "Float32",
-            'sum_last7_daily_cases':            "UInt16",
-            'sum_last7_daily_deaths':           "UInt16",
-            'sum_last7_accum_cases':            "UInt16",
-            'sum_last7_accum_deaths':           "UInt16",
-            'sum_last7_new_cases_report':       "UInt16",
-            'sum_last7_accum_cases_report':     "UInt16",
-            'sum_last7_new_deaths_report':      "UInt16",
-            'sum_last7_accum_deaths_report':    "UInt16",
+            'sum_last7_daily_cases':            "Int32",
+            'sum_last7_daily_deaths':           "Int32",
+            'sum_last7_accum_cases':            "Int32",
+            'sum_last7_accum_deaths':           "Int32",
+            'sum_last7_new_cases_report':       "Int32",
+            'sum_last7_accum_cases_report':     "Int32",
+            'sum_last7_new_deaths_report':      "Int32",
+            'sum_last7_accum_deaths_report':    "Int32",
             'rate_daily_cases':                 "Float32",
             'rate_accum_cases':                 "Float32",
             'rate_daily_deaths':                "Float32",

@@ -176,7 +176,7 @@ class TransformStep(PipelineStep):
         data["day_from_10_deaths"] = day_
 
         data["nation_id"] = "mex"
-       
+
         return data
 
 
@@ -197,10 +197,10 @@ class CovidStatsNationPipeline(EasyPipeline):
             'accum_hospitalized':               "UInt32",
             'accum_suspect':                    "UInt32",
             'days_between_ingress_and_death':   "Float32",
-            'new_cases_report':                 "UInt32",
-            'new_deaths_report':                "UInt32",
-            'new_hospitalized_report':          "UInt32",
-            'new_suspect_report':               "UInt32",   	
+            'new_cases_report':                 "Int32",
+            'new_deaths_report':                "Int32",
+            'new_hospitalized_report':          "Int32",
+            'new_suspect_report':               "Int32",   	
             'accum_cases_report':               "UInt32",
             'accum_deaths_report':              "UInt32",
             'accum_hospitalized_report':        "UInt32",
