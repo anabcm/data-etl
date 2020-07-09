@@ -176,10 +176,12 @@ class TransformStep(PipelineStep):
             for j in ["daily_cases", "accum_cases", "daily_deaths", "accum_deaths", "accum_cases_report", "new_cases_report", "accum_deaths_report", "new_deaths_report"]:
                 measure = "sum_last7_{}".format(j)
                 _df[measure] = _df[j].rolling(7).sum()
-                _df[measure] = _df[j].fillna(0).astype(int)
 
             df_final.append(_df)
         df_final = pd.concat(df_final, sort=False)
+
+        for k in ["sum_last7_daily_cases", "sum_last7_accum_cases", "sum_last7_daily_deaths", "sum_last7_accum_deaths", "sum_last7_accum_cases_report", "sum_last7_new_cases_report", "sum_last7_accum_deaths_report", "sum_last7_new_deaths_report"]:
+            df_final[k] = df_final[k].fillna(0).astype(int)
 
         #Rate per 100.000 inhabitans
         df_final["population"] = df_final["ent_id"].replace(dicto_states_population)

@@ -135,7 +135,9 @@ class TransformStep(PipelineStep):
         for j in ["daily_cases", "accum_cases", "daily_deaths", "accum_deaths", "accum_cases_report", "new_cases_report", "accum_deaths_report", "new_deaths_report"]:
             measure = "sum_last7_{}".format(j)
             data[measure] = data[j].rolling(7).sum()
-            data[measure] = data[j].fillna(0).astype(int)
+        
+        for k in ["sum_last7_daily_cases", "sum_last7_accum_cases", "sum_last7_daily_deaths", "sum_last7_accum_deaths", "sum_last7_accum_cases_report", "sum_last7_new_cases_report", "sum_last7_accum_deaths_report", "sum_last7_new_deaths_report"]:
+            data[k] = data[k].fillna(0).astype(int)
 
         # Rate per 100.000 inhabitans
         data["population"] = 127792286
