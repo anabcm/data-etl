@@ -227,14 +227,14 @@ class TransformStep(PipelineStep):
         df_final["day_from_10_deaths"] = day
         
         df_final["mun_id"] = df_final["mun_id"].astype(int)
-        print(df_final.head())
+        
         return df_final
 
 
 class CovidStatsMunPipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("/Users/Annie/Documents/Datawheel/DataMX/data-etl/etl/conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtypes = {
             "time_id":                          "UInt32",
@@ -286,7 +286,7 @@ class CovidStatsMunPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="covid-data-mx",
-            connector_path="/Users/Annie/Documents/Datawheel/DataMX/data-etl/etl/covid/conns.yaml",
+            connector_path="conns.yaml",
             force=True
         )
 
