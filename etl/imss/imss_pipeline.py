@@ -46,7 +46,7 @@ class TransformStep(PipelineStep):
         df["salary"] = df["masa_sal_ta"] / df["count"]
 
         # Data dictonary from IMSS
-        df1 = pd.read_excel(open("https://storage.googleapis.com/datamexico-data/imss/diccionario_de_datos_1.xlsx", "rb"),
+        df1 = pd.read_excel("https://storage.googleapis.com/datamexico-data/imss/diccionario_de_datos_1.xlsx",
                     sheet_name="entidad-municipio", header=1) 
 
         df1.rename(columns={"cve_municipio": "mun_id_imss",
