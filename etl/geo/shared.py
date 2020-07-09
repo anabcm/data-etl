@@ -306,8 +306,8 @@ MISSING_MUNICIPALITY = [
     {
         "cve_ent": "22",
         "cve_mun": "999",
-        "cve_mun_full": "Querétaro",
-        "ent_name": "No Informado",
+        "cve_mun_full": "22999",
+        "ent_name": "Querétaro",
         "mun_name": "No Informado",
         "ent_id": 22,
         "mun_id": 22999,
