@@ -1,13 +1,16 @@
+
 import glob
 import numpy as np
 import os
 import pandas as pd
 import requests
 
-from bamboo_lib.helpers import grab_parent_dir, query_to_df
+from bamboo_lib.helpers import grab_parent_dir
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
+from shared import rename_columns, rename_countries
+from helpers import norm
 
 
 class TransformStep(PipelineStep):
@@ -19,13 +22,13 @@ class TransformStep(PipelineStep):
             data_json = r.json()
 
             report = pd.DataFrame(data_json["data"])
-            report = report[report["Municipality"] != "No Informado"]
-            
-            report = report.drop(columns={"Updated Date", "Municipality"})
-            report = report.rename(columns={"Updated Date ID": "time_id", "Municipality ID":"mun_id"})
-            
+
+            report = report.drop(columns={"Updated Date", "State"})
+            report = report.rename(columns={"Updated Date ID": "time_id", "State ID":"ent_id"})
+            report = report[report["ent_id"] != 33]
+
             df_temp = []
-            for a, df_a in report.groupby("mun_id"):
+            for a, df_a in report.groupby("ent_id"):
                 _df = df_a.copy()
                 _df = _df.sort_values("time_id")
                 _df["reported_cases"] = _df["Cases"].diff().fillna(0).astype(int)
@@ -35,72 +38,61 @@ class TransformStep(PipelineStep):
             
             return df_temp
 
-        report_cases = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&cube=gobmx_covid&drilldowns=Updated+Date%2CMunicipality&measures=Cases")
+        report_cases = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_cases = report_cases.rename(columns={"reported_cases":"new_cases_report", "Cases":"accum_cases_report"})
 
-        report_deaths = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Updated+Date%2CMunicipality&measures=Cases")
+        report_deaths = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_deaths = report_deaths.rename(columns={"reported_cases":"new_deaths_report", "Cases":"accum_deaths_report"})
 
-        report_hospitalized = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Updated+Date%2CMunicipality&measures=Cases")
+        report_hospitalized = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_hospitalized = report_hospitalized.rename(columns={"reported_cases":"new_hospitalized_report", "Cases":"accum_hospitalized_report"})
 
-        report_suspect = _report("https://api.datamexico.org/tesseract/data?Covid+Result=3&cube=gobmx_covid&drilldowns=Updated+Date%2CMunicipality&measures=Cases")
+        report_suspect = _report("https://api.datamexico.org/tesseract/data?Covid+Result=3&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_suspect = report_suspect.rename(columns={"reported_cases":"new_suspect_report", "Cases":"accum_suspect_report"})
 
-        report = pd.merge(report_cases, report_deaths, how="outer", on=["time_id", "mun_id"])
-        report = pd.merge(report, report_hospitalized, how="outer", on=["time_id", "mun_id"])
-        report = pd.merge(report, report_suspect, how="outer", on=["time_id", "mun_id"])
+        report = pd.merge(report_cases, report_deaths, how="outer", on=["time_id", "ent_id"])
+        report = pd.merge(report, report_hospitalized, how="outer", on=["time_id", "ent_id"])
+        report = pd.merge(report, report_suspect, how="outer", on=["time_id", "ent_id"])
 
         #Create dictionary for state and population
-        r = requests.get("https://api.datamexico.org/tesseract/data?Year=2020&cube=population_projection&drilldowns=Municipality&measures=Projected+Population&parents=false&sparse=false")
+        r = requests.get("https://api.datamexico.org/tesseract/data?Year=2020&cube=population_projection&drilldowns=State&measures=Projected+Population&parents=false&sparse=false")
         data_json = r.json()
         states_data = pd.DataFrame(data_json["data"])
-        dicto_mun_population = dict(zip(states_data["Municipality ID"], states_data["Projected Population"]))
+        dicto_states_population = dict(zip(states_data["State ID"], states_data["Projected Population"]))
 
         #Data from latest report
         data = sorted(glob.glob("*.csv"))
         df = pd.read_csv(data[-1], encoding="latin-1")
         df.columns = [x.strip().lower().replace(" ", "_") for x in df.columns]
 
-        df["entidad_res"] = df["entidad_res"].astype(str).str.zfill(2)
-        df["municipio_res"] = df["municipio_res"].astype(str).str.zfill(3)
-        df["mun_id"] = (df["entidad_res"] + df["municipio_res"]).astype(int)
-
         #Suspect cases
-        df_suspect = df[["mun_id", "fecha_ingreso", "resultado"]]
+        df_suspect = df[["entidad_res", "fecha_ingreso", "resultado"]]
         df_suspect = df_suspect[df_suspect["resultado"] == 3]
         df_suspect["resultado"] = df_suspect["resultado"].replace(3,1)
-        df_suspect = df_suspect.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_suspect"})
-        df_suspect = df_suspect.groupby(["mun_id","time_id"]).sum().reset_index()
+        df_suspect = df_suspect.rename(columns={"entidad_res":"ent_id", "fecha_ingreso":"time_id", "resultado":"daily_suspect"})
+        df_suspect = df_suspect.groupby(["ent_id","time_id"]).sum().reset_index()
 
         #Hospitalized
-        df_hosp = df[["mun_id", "fecha_ingreso", "resultado", "tipo_paciente"]]
+        df_hosp = df[["entidad_res", "fecha_ingreso", "resultado", "tipo_paciente"]]
         df_hosp = df_hosp[(df_hosp["resultado"] == 1) & (df_hosp["tipo_paciente"] == 2)]
         df_hosp = df_hosp.drop(columns="tipo_paciente")
-        df_hosp = df_hosp.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_hospitalized"})
-        df_hosp = df_hosp.groupby(["mun_id","time_id"]).sum().reset_index()
+        df_hosp = df_hosp.rename(columns={"entidad_res":"ent_id", "fecha_ingreso":"time_id", "resultado":"daily_hospitalized"})
+        df_hosp = df_hosp.groupby(["ent_id","time_id"]).sum().reset_index()
 
         #Cases
-        df1 = df[["mun_id", "fecha_ingreso", "resultado"]]
+        df1 = df[["entidad_res", "fecha_ingreso", "resultado"]]
         df1 = df1[df1["resultado"] == 1]
-        df1 = df1.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_cases"})
-        df1 = df1.groupby(["mun_id","time_id"]).sum().reset_index()
+        df1 = df1.rename(columns={"entidad_res":"ent_id", "fecha_ingreso":"time_id", "resultado":"daily_cases"})
+        df1 = df1.groupby(["ent_id","time_id"]).sum().reset_index()
 
-        df1 = pd.merge(df1, df_hosp, how="outer", on=["mun_id","time_id"])
-        df1 = pd.merge(df1, df_suspect, how="outer", on=["mun_id","time_id"])
+        df1 = pd.merge(df1, df_hosp, how="outer", on=["ent_id","time_id"])
+        df1 = pd.merge(df1, df_suspect, how="outer", on=["ent_id","time_id"])
         df1["time_id"] = pd.to_datetime(df1["time_id"])
 
-        # Replace unknown municipalities
-        mun = query_to_df(self.connector, "select mun_id from dim_shared_geography_mun")
-        df1.loc[~df1["mun_id"].isin(mun['mun_id']), "mun_id"] = 33000
-
-        df1 = df1.groupby(["mun_id", "time_id"]).sum().reset_index()
-        df1["time_id"] = pd.to_datetime(df1["time_id"])
-
-        # Add missing dates daily cases
+        ##Add missing dates daily cases
         df1_ = []
         last_day = df1["time_id"].max()
-        for a, df_a in df1.groupby("mun_id"):
+        for a, df_a in df1.groupby("ent_id"):
             
             first_day = df_a["time_id"].min()
             idx = pd.date_range(first_day, last_day)
@@ -113,12 +105,13 @@ class TransformStep(PipelineStep):
             df1_.append(result)
         df1_ = pd.concat(df1_, sort=False)
 
-        df1_["mun_id"] = df1_["mun_id"].fillna(method="ffill")
+        df1_["ent_id"] = df1_["ent_id"].fillna(method="ffill")
 
         #Deaths
-        df2 = df[["mun_id", "fecha_ingreso", "fecha_def", "resultado"]]
+        df2 = df[["entidad_res", "fecha_ingreso", "fecha_def", "resultado"]]
 
-        df2 = df2.rename(columns={"fecha_ingreso": "ingress_date", 
+        df2 = df2.rename(columns={"entidad_res": "ent_id", 
+                                  "fecha_ingreso": "ingress_date", 
                                   "fecha_def": "death_date", 
                                   "resultado": "daily_deaths"})
 
@@ -134,12 +127,12 @@ class TransformStep(PipelineStep):
         df2 = df2.drop(columns="ingress_date")
         df2 = df2.rename(columns={"death_date":"time_id"})
 
-        df2 = df2.groupby(["mun_id", "time_id"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
+        df2 = df2.groupby(["ent_id", "time_id"]).agg({"daily_deaths": "sum", "days_between_ingress_and_death": "mean"}).reset_index()
 
         ##Add missing dates deaths 
         df2_ = []
         last_day = df2["time_id"].max()
-        for a, df_a in df2.groupby("mun_id"):
+        for a, df_a in df2.groupby("ent_id"):
             
             first_day = df_a["time_id"].min()
             idx = pd.date_range(first_day, last_day)
@@ -152,23 +145,23 @@ class TransformStep(PipelineStep):
             df2_.append(result)
         df2_ = pd.concat(df2_, sort=False)
 
-        df2_["mun_id"] = df2_["mun_id"].fillna(method="ffill")
+        df2_["ent_id"] = df2_["ent_id"].fillna(method="ffill")
 
         #Merge daily cases and deaths
-        data = pd.merge(df1_, df2_, how="outer", on=["time_id", "mun_id"])
-        data = data.sort_values(by=["time_id", "mun_id"])
+        data = pd.merge(df1_, df2_, how="outer", on=["time_id", "ent_id"])
+        data = data.sort_values(by=["time_id", "ent_id"])
 
         data["time_id"] = data["time_id"].astype(str).str.replace("-", "").astype(int)
 
         #Merge data latest report with data from each report
-        data = pd.merge(data, report, how="outer", on=["time_id", "mun_id"])
+        data = pd.merge(data, report, how="outer", on=["time_id", "ent_id"])
 
         for col in ["daily_cases", "daily_hospitalized", "daily_suspect", "daily_deaths", "accum_cases_report", "new_cases_report", "accum_deaths_report", "new_deaths_report", "accum_hospitalized_report", "new_hospitalized_report", "accum_suspect_report", "new_suspect_report"]:
             data[col] = data[col].fillna(0).astype(int)
 
         #Add column of accumulated cases
         df_final = []
-        for a, df_a in data.groupby("mun_id"):
+        for a, df_a in data.groupby("ent_id"):
             # create temporal df to silence "SettingWithCopyWarning"
             _df = df_a.copy()
             _df["accum_cases"] = _df["daily_cases"].cumsum()
@@ -189,8 +182,7 @@ class TransformStep(PipelineStep):
         df_final = pd.concat(df_final, sort=False)
 
         #Rate per 100.000 inhabitans
-        df_final["population_temp"] = df_final["mun_id"].replace(dicto_mun_population)
-        df_final["population"] = np.where(df_final["population_temp"] != df_final["mun_id"], df_final["population_temp"], np.nan)
+        df_final["population"] = df_final["ent_id"].replace(dicto_states_population)
 
         df_final["rate_daily_cases"] = (df_final["daily_cases"] / df_final["population"]) * 100000
         df_final["rate_accum_cases"] = (df_final["accum_cases"] / df_final["population"]) * 100000
@@ -202,11 +194,11 @@ class TransformStep(PipelineStep):
         df_final["rate_new_deaths_report"] = (df_final["new_cases_report"] / df_final["population"]) * 100000
         df_final["rate_accum_deaths_report"] = (df_final["accum_deaths_report"] / df_final["population"]) * 100000
 
-        df_final = df_final.drop(columns={"population", "population_temp"})
+        df_final = df_final.drop(columns="population")
             
         #Add a column with days, being day one when at least 50 cases accumulate
         day = []
-        for a, df_a in df_final.groupby("mun_id"):
+        for a, df_a in df_final.groupby("ent_id"):
             default = 0
             for row in df_a.iterrows():
                 if row[1]["accum_cases"] >= 50:
@@ -217,7 +209,7 @@ class TransformStep(PipelineStep):
 
         #Add a column with days, being day one when at least 10 deaths accumulate
         day = []
-        for a, df_a in df_final.groupby("mun_id"):
+        for a, df_a in df_final.groupby("ent_id"):
             default = 0
             for row in df_a.iterrows():
                 if row[1]["accum_deaths"] >= 10:
@@ -225,20 +217,20 @@ class TransformStep(PipelineStep):
 
                 day.append(default)
         df_final["day_from_10_deaths"] = day
-        
-        df_final["mun_id"] = df_final["mun_id"].astype(int)
-        print(df_final.head())
+
+        df_final["ent_id"] = df_final["ent_id"].astype(int)
+       
         return df_final
 
 
-class CovidStatsMunPipeline(EasyPipeline):
+class CovidStatsStatePipeline(EasyPipeline):
     @staticmethod
     def steps(params):
-        db_connector = Connector.fetch("clickhouse-database", open("/Users/Annie/Documents/Datawheel/DataMX/data-etl/etl/conns.yaml"))
+        db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtypes = {
-            "time_id":                          "UInt32",
-            "mun_id":                           "UInt16",
+            'time_id':                          "UInt32",
+            'ent_id':                           "UInt8",
             'daily_cases':                      "UInt32",
             'daily_deaths':                     "UInt32",
             'daily_hospitalized':               "UInt32",
@@ -251,7 +243,7 @@ class CovidStatsMunPipeline(EasyPipeline):
             'new_cases_report':                 "UInt32",
             'new_deaths_report':                "UInt32",
             'new_hospitalized_report':          "UInt32",
-            'new_suspect_report':               "UInt32", 
+            'new_suspect_report':               "UInt32",   
             'accum_cases_report':               "UInt32",
             'accum_deaths_report':              "UInt32",
             'accum_hospitalized_report':        "UInt32",
@@ -286,16 +278,16 @@ class CovidStatsMunPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="covid-data-mx",
-            connector_path="/Users/Annie/Documents/Datawheel/DataMX/data-etl/etl/covid/conns.yaml",
+            connector_path="conns.yaml",
             force=True
         )
 
         path = grab_parent_dir(".") + "/covid/"
         unzip_step = UnzipToFolderStep(compression="zip", target_folder_path=path)
-        xform_step = TransformStep(connector=db_connector)
+        xform_step = TransformStep()
         load_step = LoadStep(
-            "gobmx_covid_stats_mun", db_connector, if_exists="drop", 
-            pk=["time_id", "mun_id"], 
+            "gobmx_covid_stats_state", db_connector, if_exists="drop", 
+            pk=["time_id", "ent_id"], 
             nullable_list=['days_between_ingress_and_death', 
                             'avg7_daily_cases',
                             'avg7_accum_cases',
@@ -327,5 +319,5 @@ class CovidStatsMunPipeline(EasyPipeline):
         return [download_step, unzip_step, xform_step, load_step]
 
 if __name__ == "__main__":
-    pp = CovidStatsMunPipeline()
+    pp = CovidStatsStatePipeline()
     pp.run({})
