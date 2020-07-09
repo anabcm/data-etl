@@ -77,14 +77,15 @@ class TransformStep(PipelineStep):
 
         df["mun_id_imss"] = df["mun_id_imss"].map(dict(zip(df1["mun_id_imss"], df1["mun_id"])))
         df.loc[df["mun_id_imss"].isna(), "mun_id_imss"] = df.loc[df["mun_id_imss"].isna(), "ent_id"].astype(int).astype(str) + "000"
-        df['mun_id_imss'] = df['mun_id_imss'].astype(int)
+        df["mun_id_imss"] = df["mun_id_imss"].astype(int)
 
         df.drop(columns=["ent_id"],inplace=True)
 
         df["month_id"] = params.get("year") + params.get("month")
         df["month_id"] = df["month_id"].astype(int)
 
-        df.rename(columns={'mun_id_imss': 'mun_id'}, inplace=True)
+        df.rename(columns={"mun_id_imss": "mun_id",
+                           "sector_economico_4": "level_4_id"}, inplace=True)
 
         return df
 
@@ -105,7 +106,7 @@ class IMSSPipeline(EasyPipeline):
             "mun_id":                 "UInt16",
             "age_range":              "UInt8",
             "salary_range":           "UInt8",
-            "sector_economico_4":     "UInt16",
+            "level_4_id":             "UInt16",
             "sex":                    "UInt8",
             "pattern_size":           "UInt8",
             "uma_range":              "UInt8",
