@@ -233,14 +233,6 @@ class CovidStatsNationPipeline(EasyPipeline):
             'day_from_10_deaths':               "UInt16"
         }
 
-        download_step = DownloadStep(
-            connector="covid-data-mx",
-            connector_path="conns.yaml",
-            force=True
-        )
-
-        path = grab_parent_dir(".") + "/covid/"
-        unzip_step = UnzipToFolderStep(compression="zip", target_folder_path=path)
         xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
             "gobmx_covid_stats_nation", db_connector, if_exists="drop", 
@@ -273,7 +265,7 @@ class CovidStatsNationPipeline(EasyPipeline):
             dtype=dtypes
         )
 
-        return [download_step, unzip_step, xform_step, load_step]
+        return [xform_step, load_step]
 
 if __name__ == "__main__":
     pp = CovidStatsNationPipeline()
