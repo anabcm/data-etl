@@ -112,13 +112,13 @@ class IMSSPipeline(EasyPipeline):
             "uma_range":              "UInt8",
             "asegurados":             "UInt32",
             "non_workers":            "UInt32",
-            "ta":                     "UInt16",
-            "teu":                    "UInt16",
-            "tec":                    "UInt16",
-            "tpu":                    "UInt16",
-            "tpc":                    "UInt16",
+            "ta":                     "UInt32",
+            "teu":                    "UInt32",
+            "tec":                    "UInt32",
+            "tpu":                    "UInt32",
+            "tpc":                    "UInt32",
             "masa_sal_ta":            "UInt32",
-            "count":                  "UInt16",
+            "count":                  "UInt32",
             "salary":                 "UInt32"
         }
 
