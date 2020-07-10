@@ -29,7 +29,7 @@ class TransformStep(PipelineStep):
         for col in ["sector_economico_4", "age_range", "salary_range", "sex", "pattern_size", "salary_range", "uma_range"]:
             df[col] = df[col].fillna(0)
 
-        df.loc[df["mun_id_imss"].isna(), "mun_id_imss"] = df.loc[df["mun_id_imss"].isna(), "ent_id"].astype(int).astype(str) + "000"
+        df.loc[df["mun_id_imss"].isna(), "mun_id_imss"] = df.loc[df["mun_id_imss"].isna(), "ent_id"].astype(int).astype(str) + "999"
 
         df["count"] = 1
         df["age_range"] = df["age_range"].astype(str).str.upper().str.replace("E", "").astype(int)
@@ -73,10 +73,10 @@ class TransformStep(PipelineStep):
 
         df1["ent_id"] = df1["ent_id"].astype(str)
 
-        df1.loc[df1["mun_id"].isna(), "mun_id"] = df1.loc[df1["mun_id"].isna(), "ent_id"] + "000"
+        df1.loc[df1["mun_id"].isna(), "mun_id"] = df1.loc[df1["mun_id"].isna(), "ent_id"] + "999"
 
         df["mun_id_imss"] = df["mun_id_imss"].map(dict(zip(df1["mun_id_imss"], df1["mun_id"])))
-        df.loc[df["mun_id_imss"].isna(), "mun_id_imss"] = df.loc[df["mun_id_imss"].isna(), "ent_id"].astype(int).astype(str) + "000"
+        df.loc[df["mun_id_imss"].isna(), "mun_id_imss"] = df.loc[df["mun_id_imss"].isna(), "ent_id"].astype(int).astype(str) + "999"
         df["mun_id_imss"] = df["mun_id_imss"].astype(int)
 
         df.drop(columns=["ent_id"],inplace=True)
