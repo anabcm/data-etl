@@ -11,8 +11,8 @@ from bamboo_lib.connectors.models import Connector
 
 data = sorted(glob.glob('*.csv'))
 
-for file_path in data:
-    os.system('bamboo-cli --folder . --entry covid_pipeline --file_path="{}"'.format(file_path))
+#for file_path in data:
+#    os.system('bamboo-cli --folder . --entry covid_pipeline --file_path="{}"'.format(file_path))
 
 db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 min_query = 'SELECT min(ingress_date), min(symptoms_date), min(death_date), min(updated_date) FROM gobmx_covid'
