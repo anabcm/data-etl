@@ -7,7 +7,7 @@ from bamboo_lib.helpers import grab_parent_dir,query_to_df
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
-from shared import rename_columns, rename_countries
+from shared import rename_columns, rename_countries, values_check, NoUpdateException
 from helpers import norm
 
 
@@ -59,6 +59,11 @@ class TransformStep(PipelineStep):
         # replace unknown municipalities
         mun = query_to_df(self.connector, 'select mun_id from dim_shared_geography_mun')
         df.loc[~df['patient_residence_mun_id'].isin(mun['mun_id']), 'patient_residence_mun_id'] = 33000
+
+        if values_check(df['updated_date'].max()):
+            pass
+        else:
+            raise NoUpdateException
 
         return df
 

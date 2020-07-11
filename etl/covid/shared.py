@@ -1,3 +1,5 @@
+from bamboo_lib.helpers import query_to_df
+from bamboo_lib.connectors.models import Connector
 
 rename_columns = {
     'fecha_actualizacion': 'updated_date',
@@ -144,3 +146,19 @@ rename_countries = {
     '99': 'xxa',
     '97': 'xxa'
 }
+
+class NoUpdateException(Exception):
+    pass
+
+def values_check(date_id):
+    db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+    try:
+        max_query = 'SELECT max(updated_date) FROM gobmx_covid'
+        max_value = str(max(query_to_df(db_connector, raw_query=max_query).iloc[0].to_list()))
+        if max_value == date_id:
+            return True
+        else:
+            return False
+    # need to catch clickhouse_driver.errors.ServerException
+    except:
+        return True
