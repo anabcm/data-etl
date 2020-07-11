@@ -156,9 +156,9 @@ def values_check(date_id):
         max_query = 'SELECT max(updated_date) FROM gobmx_covid'
         max_value = str(max(query_to_df(db_connector, raw_query=max_query).iloc[0].to_list()))
         if max_value == date_id:
-            return True
-        else:
             return False
+        else:
+            return True
     # need to catch clickhouse_driver.errors.ServerException
     except:
         return True
