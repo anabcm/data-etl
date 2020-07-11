@@ -3,7 +3,7 @@ import os
 import glob
 import numpy as np
 import pandas as pd
-from bamboo_lib.helpers import grab_parent_dir,query_to_df
+from bamboo_lib.helpers import grab_parent_dir
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
@@ -57,8 +57,7 @@ class TransformStep(PipelineStep):
                            '2': 1}, inplace=True)
 
         # replace unknown municipalities
-        mun = query_to_df(self.connector, 'select mun_id from dim_shared_geography_mun')
-        df.loc[~df['patient_residence_mun_id'].isin(mun['mun_id']), 'patient_residence_mun_id'] = 33000
+        df.loc[df['patient_residence_mun_id'].isin([97997, 98998, 99999]), 'patient_residence_mun_id'] = 33000
 
         if values_check(df['updated_date'].max()):
             pass
