@@ -154,8 +154,8 @@ def values_check(date_id):
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
     try:
         max_query = 'SELECT max(updated_date) FROM gobmx_covid'
-        max_value = str(max(query_to_df(db_connector, raw_query=max_query).iloc[0].to_list()))
-        if max_value == date_id:
+        max_value = max(query_to_df(db_connector, raw_query=max_query).iloc[0].to_list())
+        if max_value >= date_id:
             return False
         else:
             return True
