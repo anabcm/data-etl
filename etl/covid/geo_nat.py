@@ -11,7 +11,6 @@ class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
         data = {
             "nation_id": ["mex"],
-            "name_en": ["Mexico"],
             "name_es": ["México"]
         }
         df = pd.DataFrame.from_dict(data)
@@ -24,7 +23,6 @@ class NatGeoCovidPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
             "nation_id":     "String",
-            "name_en":       "String",
             "name_es":       "String"
         }
 
