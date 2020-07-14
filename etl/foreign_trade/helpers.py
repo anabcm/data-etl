@@ -85,16 +85,6 @@ COUNTRIES = [
     "id_num": "630",
     "oecd": 0},
 
-    {"iso2": "mf",
-    "iso3": "maf",
-    "country_name": "Saint Maarten",
-    "country_name_es": "San Martín",
-    "continent_id": "x",
-    "continent": "North America",
-    "continent_es": "América del Norte",
-    "id_num": "534",
-    "oecd": 0},
-
     {"iso2": "na",
     "iso3": "nam",
     "country_name": "Namibia",
