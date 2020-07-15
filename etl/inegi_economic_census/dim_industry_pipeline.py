@@ -15,6 +15,9 @@ class ReadStep(PipelineStep):
 
         for locale in ['es', 'en']:
             for level in ['sector', 'subsector', 'industry_group', 'naics_industry', 'national_industry']:
+                df.sort_values(by=['{}_id'.format(level)], inplace=True)
+                df['{}_{}_short'.format(level, locale)] = df['{}_{}_short'.format(level, locale)].ffill()
+                df['{}_{}'.format(level, locale)] = df['{}_{}'.format(level, locale)].ffill()
                 df.loc[df['{}_{}_short'.format(level, locale)].isna(), '{}_{}_short'.format(level, locale)] = \
                     df.loc[df['{}_{}_short'.format(level, locale)].isna(), '{}_{}'.format(level, locale)]
 
