@@ -31,7 +31,7 @@ class TransformStep(PipelineStep):
         df.cve_mun = df.cve_ent + df.cve_mun
         df['cve_mun'] = df['cve_mun'].astype('int')
 
-        df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
+        df.drop(columns=['ageb', 'manzana', 'cve_ent'], inplace=True)
 
         df.per_ocu = df.per_ocu.str.replace('personas', '').str.strip()
         df.per_ocu = df.per_ocu.str.replace(' a ', ' - ')
