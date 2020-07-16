@@ -173,15 +173,12 @@ class TransformStep(PipelineStep):
         df = df.loc[df["eap"] != 0].copy()
 
         # cut for non null values
-        df["mensual_wage"].replace(0, np.nan, inplace=True)
-        df["is_wage"] = 1
-        df.loc[df["mensual_wage"].isna(), "is_wage"] = 0
+        df["workforce_is_wage"] = df["population"]
+        df.loc[df["mensual_wage"].isna(), "workforce_is_wage"] = 0
 
         df["code"] = df["code"].astype(int)
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
-
-        print(df.info())
 
         return df
 
@@ -217,7 +214,7 @@ class ENOEPipeline(EasyPipeline):
             "actual_job_position":                                  "UInt16",
             "actual_job_hrs_worked_lastweek":                       "UInt8",
             "actual_job_days_worked_lastweek":                      "UInt8",
-            "is_wage":                                              "UInt8"
+            "workforce_is_wage":                                    "UInt32"
         }
 
         download_step = DownloadStep(
