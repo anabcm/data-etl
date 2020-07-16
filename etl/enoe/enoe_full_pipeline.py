@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -161,12 +162,26 @@ class TransformStep(PipelineStep):
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
 
         # Getting values of year and respective quarter for the survey
-        df = df[["mun_id", "code", "population", "mensual_wage"]].copy()
-        df.to_csv("processed_{}.csv".format("20" + params["year"] + params["quarter"]), index=False)
-        df = df[["code", "population", "mensual_wage"]].copy()
+        df = df[["code", "population", "mensual_wage", "has_job_or_business", 
+                 "second_activity", "eap", "occ_unocc_pop", "eap_comp",
+                 "schooling_years", "instruction_level", "approved_years",
+                 "classification_formal_informal_jobs_first_activity", "age",
+                 "actual_job_industry_group_id", "sex",  "actual_job_position",
+                 "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek"]].copy()
+
+        # filters economic active population, 0 = undefined
+        df = df.loc[df["eap"] != 0].copy()
+
+        # cut for non null values
+        df["mensual_wage"].replace(0, np.nan, inplace=True)
+        df["is_wage"] = 1
+        df.loc[df["mensual_wage"].isna(), "is_wage"] = 0
+
         df["code"] = df["code"].astype(int)
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
+
+        print(df.info())
 
         return df
 
@@ -183,10 +198,26 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "code":            "UInt32",
-            "population":      "UInt32",
-            "mensual_wage":    "UInt32",
-            "quarter_id":      "UInt16"
+            "code":                                                 "UInt32",
+            "population":                                           "UInt32",
+            "mensual_wage":                                         "Float32",
+            "quarter_id":                                           "UInt16",
+            "has_job_or_business":                                  "UInt8",
+            "second_activity":                                      "UInt8",
+            "eap":                                                  "UInt8",
+            "occ_unocc_pop":                                        "UInt8",
+            "eap_comp":                                             "UInt8",
+            "schooling_years":                                      "UInt8",
+            "approved_years":                                       "UInt8",
+            "instruction_level":                                    "UInt8",
+            "classification_formal_informal_jobs_first_activity":   "UInt8",
+            "age":                                                  "UInt8",
+            "actual_job_industry_group_id":                         "UInt16",
+            "sex":                                                  "UInt8",
+            "actual_job_position":                                  "UInt16",
+            "actual_job_hrs_worked_lastweek":                       "UInt8",
+            "actual_job_days_worked_lastweek":                      "UInt8",
+            "is_wage":                                              "UInt8"
         }
 
         download_step = DownloadStep(
@@ -195,7 +226,10 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe_v2", db_connector, if_exists="append", pk=["code"], dtype=dtype
+            "inegi_enoe_v2", db_connector, if_exists="append", pk=["code"], dtype=dtype,
+            nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
+                           "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
+                           "eap_comp", "occ_unocc_pop", "eap", "second_activity"]
         )
 
         return [download_step, transform_step, load_step]
