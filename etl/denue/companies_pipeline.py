@@ -29,9 +29,7 @@ class TransformStep(PipelineStep):
         
         # create columns
         df.cve_mun = df.cve_ent + df.cve_mun
-        df.cve_loc = df.cve_mun + df.cve_loc
-
-        df['cve_loc'] = df['cve_loc'].astype('int')
+        df['cve_mun'] = df['cve_mun'].astype('int')
 
         df.drop(columns=['ageb', 'manzana', 'cve_ent', 'cve_mun'], inplace=True)
 
@@ -109,7 +107,7 @@ class TransformStep(PipelineStep):
             'cod_postal': 'postal_code',
             'tipounieco': 'establishment',
             'fecha_alta': 'directory_added_date',
-            'cve_loc': 'loc_id',
+            'cve_mun': 'mun_id',
             'latitud': 'latitude',
             'longitud': 'longitude'
         }
@@ -128,7 +126,7 @@ class TransformStep(PipelineStep):
             'directory_added_date': 'int',
             'n_workers':            'int',
             'postal_code':          'str',
-            'loc_id':               'int',
+            'mun_id':               'int',
             'establishment':        'int',
             'latitude':             'float',
             'longitude':            'float',
@@ -173,7 +171,7 @@ class DENUEPipeline(EasyPipeline):
             'n_workers':            'UInt8',
             'postal_code':          'String',
             'establishment':        'UInt8',
-            'loc_id':               'UInt32',
+            'mun_id':               'UInt16',
             'latitude':             'Float32',
             'longitude':            'Float32',
             'lower':                'UInt8',
@@ -185,7 +183,7 @@ class DENUEPipeline(EasyPipeline):
 
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'loc_id', 'national_industry_id'], dtype=dtypes, 
+        load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'mun_id', 'national_industry_id'], dtype=dtypes, 
                                 nullable_list=['n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
                                 'lower', 'middle', 'upper'])
         return [read_step, transform_step, load_step]
