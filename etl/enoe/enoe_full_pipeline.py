@@ -223,7 +223,7 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe_v2", db_connector, if_exists="append", pk=["code"], dtype=dtype,
+            "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
             nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
                            "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
                            "eap_comp", "occ_unocc_pop", "eap", "second_activity"]
