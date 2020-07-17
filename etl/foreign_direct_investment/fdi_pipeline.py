@@ -10,15 +10,16 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_excel(prev, sheet_name="Hoja1")
+        df = pd.read_excel(prev, sheet_name="Tabla Data con Rama", header=1)
 
-        df["quarter_id"] = (df["Año de materialización"].astype(str) + df["Trimestre de materialización"].astype(str)).astype(int)
+        df = df.loc[df["Año de materialización"] != "Total general"].copy()
+        df["quarter_id"] = (df["Año de materialización"].astype(int).astype(str) + df["Trimestre de materialización"].astype(int).astype(str)).astype(int)
         columns = {
             "Inversión Genérica": "generic_investment",
-            "País de Origen 2": "origin_id",
+            "País de Origen": "origin_id",
             "Rama": "area_id",
             "Entidad federativa": "ent_id",
-            "Suma de Monto en Millones": "value_million",
+            "Suma de Monto en millones": "value_million",
             "Recuento distinto de Expediente": "count"
         }
         df = df.rename(columns=columns)
