@@ -75,8 +75,6 @@ class TransformStep(PipelineStep):
         for col in "national_industry_id", "industry_group_id", "naics_industry_id":
             df[col] = df[col].fillna(0).astype(int)
 
-        print(df.head())
-
         return df
 
 class ComplexityPCIPipeline(EasyPipeline):
