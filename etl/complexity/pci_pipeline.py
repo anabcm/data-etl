@@ -64,15 +64,18 @@ class TransformStep(PipelineStep):
             "Industry Group ID": "industry_group_id",
             "NAICS Industry ID": "naics_industry_id",
             "Time ID": "time_id",
-            "Latest": "latest"
+            "Latest": "latest",
+            "Level": "level"
         })
 
-        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking"]].copy()
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking", "level"]].copy()
 
         df["latest"] = df["latest"].astype(int)
 
         for col in "national_industry_id", "industry_group_id", "naics_industry_id":
             df[col] = df[col].fillna(0).astype(int)
+
+        print(df.head())
 
         return df
 
@@ -92,7 +95,8 @@ class ComplexityPCIPipeline(EasyPipeline):
             "national_industry_id":  "UInt32",
             "pci":                   "Float32",
             "pci_ranking":           "UInt16",
-            "time_id":               "UInt32"
+            "time_id":               "UInt32",
+            "level":                 "String"
         }
         load_step = LoadStep(
             "complexity_pci", db_connector, if_exists="drop", 
