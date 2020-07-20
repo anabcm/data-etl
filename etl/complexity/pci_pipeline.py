@@ -80,6 +80,8 @@ class TransformStep(PipelineStep):
         for col in "national_industry_id", "industry_group_id", "naics_industry_id":
             df[col] = df[col].fillna(0).astype(int)
 
+        df["national_industry_id"] = df["national_industry_id"].astype(str)
+
         return df
 
 class ComplexityPCIPipeline(EasyPipeline):
@@ -95,7 +97,7 @@ class ComplexityPCIPipeline(EasyPipeline):
             "industry_group_id":     "UInt16",
             "latest":                "UInt8",
             "naics_industry_id":     "UInt32",
-            "national_industry_id":  "UInt32",
+            "national_industry_id":  "String",
             "pci":                   "Float32",
             "pci_ranking":           "UInt16",
             "time_id":               "UInt32",
