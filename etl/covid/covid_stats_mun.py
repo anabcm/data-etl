@@ -15,7 +15,11 @@ class TransformStep(PipelineStep):
 
         #Data from each report
         def _report(url):
-            r = requests.get(url)
+            headers = {
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+            r = requests.get(url, headers=headers)
             data_json = r.json()
 
             report = pd.DataFrame(data_json["data"])
