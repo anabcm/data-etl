@@ -4,6 +4,11 @@ from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.connectors.models import Connector
 
+HEADERS = {
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache"
+}
+
 class TransformStep(PipelineStep):
     def run_step(self, prev_result, params):
         params = {
@@ -14,7 +19,7 @@ class TransformStep(PipelineStep):
         }
 
         BASE_URL = "https://api.datamexico.org/tesseract/data"
-        r = requests.get(BASE_URL, params=params)
+        r = requests.get(BASE_URL, params=params, headers=HEADERS)
         data = r.json()["data"]
         df_time = pd.DataFrame(data)
         df_time = df_time.sort_values(by="Month ID", ascending=False)
@@ -46,7 +51,7 @@ class TransformStep(PipelineStep):
                     "threshold": f"{level_industry}:{threshold_industry * n},{level_geo}:{threshold_geo * n}"
                 }
 
-                r = requests.get(BASE_URL, params=params)
+                r = requests.get(BASE_URL, params=params, headers=HEADERS)
                 data = r.json()["data"]
                 df_temp = pd.DataFrame(data)
                 df_temp["Time ID"] = time_id
