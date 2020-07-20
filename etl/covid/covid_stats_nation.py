@@ -240,7 +240,7 @@ class CovidStatsNationPipeline(EasyPipeline):
         xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
             "gobmx_covid_stats_nation", db_connector, if_exists="drop", 
-            pk=["time_id"], 
+            pk=["time_id", "nation_id"], 
             nullable_list=['days_between_ingress_and_death', 
                             'avg7_daily_cases',
                             'avg7_accum_cases',
