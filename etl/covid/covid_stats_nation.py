@@ -22,22 +22,22 @@ class TransformStep(PipelineStep):
             r = requests.get(url, headers=headers)
             data_json = r.json()
             report = pd.DataFrame(data_json["data"])
-            report = report.drop(columns="Updated Date")
+            report = report.drop(columns=["Updated Date", "Covid Result"])
             report = report.rename(columns={"Updated Date ID": "time_id"})
             report["reported_cases"] = report["Cases"].diff().fillna(0).astype(int)
             
             return report
 
-        report_cases = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&cube=gobmx_covid&drilldowns=Updated+Date&measures=Cases")
+        report_cases = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=3&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
         report_cases = report_cases.rename(columns={"reported_cases":"new_cases_report", "Cases":"accum_cases_report"})
         
-        report_deaths = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Updated+Date&measures=Cases")
+        report_deaths = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
         report_deaths = report_deaths.rename(columns={"reported_cases":"new_deaths_report", "Cases":"accum_deaths_report"})
         
-        report_hospitalized = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Updated+Date&measures=Cases")
+        report_hospitalized = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
         report_hospitalized = report_hospitalized.rename(columns={"reported_cases":"new_hospitalized_report", "Cases":"accum_hospitalized_report"})
 
-        report_suspect = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=3&cube=gobmx_covid&drilldowns=Updated+Date&measures=Cases")
+        report_suspect = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=3&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
         report_suspect = report_suspect.rename(columns={"reported_cases":"new_suspect_report", "Cases":"accum_suspect_report"})
 
         report = pd.merge(report_cases, report_deaths, how="outer", on="time_id")
