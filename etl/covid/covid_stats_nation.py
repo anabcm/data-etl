@@ -22,7 +22,7 @@ class TransformStep(PipelineStep):
             r = requests.get(url, headers=headers)
             data_json = r.json()
             report = pd.DataFrame(data_json["data"])
-            report = report.drop(columns=["Updated Date", "Covid Result"])
+            report = report.drop(columns=["Updated Date", "Covid Result", "Covid Result ID"])
             report = report.rename(columns={"Updated Date ID": "time_id"})
             report["reported_cases"] = report["Cases"].diff().fillna(0).astype(int)
             
