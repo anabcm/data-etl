@@ -11,6 +11,7 @@ from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, rename_countries
 from helpers import norm
+from datetime import datetime
 
 
 class TransformStep(PipelineStep):
@@ -225,6 +226,8 @@ class TransformStep(PipelineStep):
         df_final["day_from_10_deaths"] = day
 
         df_final["ent_id"] = df_final["ent_id"].astype(int)
+
+        print(datetime.now(), df_final["time_id"].max())
 
         return df_final
 

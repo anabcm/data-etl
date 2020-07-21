@@ -8,7 +8,7 @@ from bamboo_lib.helpers import grab_parent_dir, query_to_df
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
-
+from datetime import datetime
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -180,6 +180,8 @@ class TransformStep(PipelineStep):
         data["day_from_10_deaths"] = day_
 
         data["nation_id"] = "mex"
+
+        print(datetime.now(), data["time_id"].max())
 
         return data
 
