@@ -28,7 +28,7 @@ class TransformStep(PipelineStep):
             
             return report
 
-        report_cases = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=3&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
+        report_cases = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
         report_cases = report_cases.rename(columns={"reported_cases":"new_cases_report", "Cases":"accum_cases_report"})
         
         report_deaths = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Covid+Result%2CUpdated+Date&measures=Cases")
