@@ -24,7 +24,7 @@ class TransformStep(PipelineStep):
         }
         df = df.rename(columns=columns)
 
-        df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_cYou4TSCU8zxH3S6Ze0HZM8Dv3bBUSXKYVN5UYMnkinSwjnAuSHr-T-mmLjALMFxyH0JduBECM6F/pub?output=xlsx")
+        df_labels = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/foreign_direct_investment/Countries.xlsx")
         df_labels = pd.read_excel(df_labels, sheet_name="FDI")
 
         df["origin_id"] = df["origin_id"].replace(dict(zip(df_labels.name, df_labels.id)))
