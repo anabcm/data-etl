@@ -1,0 +1,7 @@
+population-data-1:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/population_projection/base_municipios_final_datos_01.csv
+
+population-data-2:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/population_projection/base_municipios_final_datos_02.csv
