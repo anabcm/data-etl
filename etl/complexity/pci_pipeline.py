@@ -4,6 +4,11 @@ from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.connectors.models import Connector
 
+HEADERS = {
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache"
+}
+
 class TransformStep(PipelineStep):
     def run_step(self, prev_result, params):
         params = {
@@ -14,7 +19,7 @@ class TransformStep(PipelineStep):
         }
 
         BASE_URL = "https://api.datamexico.org/tesseract/data"
-        r = requests.get(BASE_URL, params=params)
+        r = requests.get(BASE_URL, params=params, headers=HEADERS)
         data = r.json()["data"]
         df_time = pd.DataFrame(data)
         df_time = df_time.sort_values(by="Month ID", ascending=False)
@@ -46,7 +51,7 @@ class TransformStep(PipelineStep):
                     "threshold": f"{level_industry}:{threshold_industry * n},{level_geo}:{threshold_geo * n}"
                 }
 
-                r = requests.get(BASE_URL, params=params)
+                r = requests.get(BASE_URL, params=params, headers=HEADERS)
                 data = r.json()["data"]
                 df_temp = pd.DataFrame(data)
                 df_temp["Time ID"] = time_id
@@ -64,15 +69,18 @@ class TransformStep(PipelineStep):
             "Industry Group ID": "industry_group_id",
             "NAICS Industry ID": "naics_industry_id",
             "Time ID": "time_id",
-            "Latest": "latest"
+            "Latest": "latest",
+            "Level": "level"
         })
 
-        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking"]].copy()
+        df = df[["national_industry_id", "industry_group_id", "naics_industry_id", "time_id", "latest", "pci", "pci_ranking", "level"]].copy()
 
         df["latest"] = df["latest"].astype(int)
 
         for col in "national_industry_id", "industry_group_id", "naics_industry_id":
             df[col] = df[col].fillna(0).astype(int)
+
+        df["national_industry_id"] = df["national_industry_id"].astype(str)
 
         return df
 
@@ -89,10 +97,11 @@ class ComplexityPCIPipeline(EasyPipeline):
             "industry_group_id":     "UInt16",
             "latest":                "UInt8",
             "naics_industry_id":     "UInt32",
-            "national_industry_id":  "UInt32",
+            "national_industry_id":  "String",
             "pci":                   "Float32",
             "pci_ranking":           "UInt16",
-            "time_id":               "UInt32"
+            "time_id":               "UInt32",
+            "level":                 "String"
         }
         load_step = LoadStep(
             "complexity_pci", db_connector, if_exists="drop", 

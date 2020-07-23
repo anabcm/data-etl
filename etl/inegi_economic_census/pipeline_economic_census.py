@@ -1,8 +1,7 @@
 import pandas as pd
-from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
-from bamboo_lib.models import Parameter, BasePipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep, DownloadStep
+from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
+from bamboo_lib.steps import DownloadStep, LoadStep
 from bamboo_lib.helpers import grab_connector
 
 class MultiStep(PipelineStep):
@@ -59,7 +58,7 @@ class MultiStep(PipelineStep):
 
         return df
 
-class EconomicCensusPipeline(BasePipeline):
+class EconomicCensusPipeline(EasyPipeline):
     @staticmethod
     def pipeline_id():
         return "pipeline_economic_census"
@@ -83,31 +82,33 @@ class EconomicCensusPipeline(BasePipeline):
         ]
 
     @staticmethod
-    def run(params, **kwargs):
+    def steps(params, **kwargs):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
-        dl_step = DownloadStep(connector="dataset", connector_path=__file__)
+
+        dtypes = {
+            "mun_id":                  "UInt16",
+            "national_industry_id":    "String",
+            "year":                    "UInt16"
+        }
+
+        download_step = DownloadStep(
+            connector="dataset",
+            connector_path="conns.yaml"
+        )
 
         # Definition of each step
         transform_step = MultiStep()
         load_step = LoadStep(
-            "inegi_economic_census", 
-            db_connector, 
-            if_exists="drop", 
+            "inegi_economic_census", db_connector, dtype=dtypes, if_exists="drop", 
             pk=["national_industry_id", "mun_id", "year"], 
-            nullable_list=["m000a", "p000c", "a800a", "q000d", "p000a", "p000b", "p030c", "a511a", "m050a", "j203a", "j300a","j400a","j500a","j600a","k010a","k020a","k030a","k311a","k041a","k610a","k620a","k060a","k070a","k810a","k910a","k950a","k096a","k976a","m010a","m030a","m090a","p100a","p100b","p030a","p030b","q010a","q020a","q030a","q400a","q900a"],
-            dtype={"mun_id": "UInt16"}
+            nullable_list=["m000a", "p000c", "a800a", "q000d", "p000a", "p000b", "p030c", "a511a", "m050a", "j203a", 
+                           "j300a", "j400a", "j500a", "j600a", "k010a", "k020a", "k030a", "k311a", "k041a", "k610a", 
+                           "k620a", "k060a", "k070a", "k810a", "k910a", "k950a", "k096a", "k976a", "m010a", "m030a", 
+                           "m090a", "p100a", "p100b", "p030a", "p030b", "q010a", "q020a", "q030a", "q400a", "q900a"]
         )
 
-        # Definition of the pipeline and its steps
-        pipeline = AdvancedPipelineExecutor(params)
-        pipeline = pipeline.next(dl_step).next(transform_step).next(load_step)
-        return pipeline.run_pipeline()
-
-def run_coverage(params, **kwargs):
-    pipeline = EconomicCensusPipeline()
-    pipeline.run(params)
+        return [download_step, transform_step, load_step]
 
 if __name__ == "__main__":
-    run_coverage({
-        "source-connector": "http-local"
-    })
+    pp = EconomicCensusPipeline()
+    pp.run({})

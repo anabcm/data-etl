@@ -11,6 +11,7 @@ from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, rename_countries
 from helpers import norm
+from datetime import datetime
 
 
 class TransformStep(PipelineStep):
@@ -18,7 +19,11 @@ class TransformStep(PipelineStep):
 
         #Data from each report
         def _report(url):
-            r = requests.get(url)
+            headers = {
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+            r = requests.get(url, headers=headers)
             data_json = r.json()
 
             report = pd.DataFrame(data_json["data"])
@@ -38,16 +43,16 @@ class TransformStep(PipelineStep):
             
             return df_temp
 
-        report_cases = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
+        report_cases = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_cases = report_cases.rename(columns={"reported_cases":"new_cases_report", "Cases":"accum_cases_report"})
 
-        report_deaths = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
+        report_deaths = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Is+Dead=1&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_deaths = report_deaths.rename(columns={"reported_cases":"new_deaths_report", "Cases":"accum_deaths_report"})
 
-        report_hospitalized = _report("https://api.datamexico.org/tesseract/data?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
+        report_hospitalized = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=1&Patient+Type=2&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_hospitalized = report_hospitalized.rename(columns={"reported_cases":"new_hospitalized_report", "Cases":"accum_hospitalized_report"})
 
-        report_suspect = _report("https://api.datamexico.org/tesseract/data?Covid+Result=3&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
+        report_suspect = _report("https://api.datamexico.org/tesseract/data.jsonrecords?Covid+Result=3&cube=gobmx_covid&drilldowns=Updated+Date%2CState&measures=Cases")
         report_suspect = report_suspect.rename(columns={"reported_cases":"new_suspect_report", "Cases":"accum_suspect_report"})
 
         report = pd.merge(report_cases, report_deaths, how="outer", on=["time_id", "ent_id"])
@@ -221,6 +226,8 @@ class TransformStep(PipelineStep):
         df_final["day_from_10_deaths"] = day
 
         df_final["ent_id"] = df_final["ent_id"].astype(int)
+
+        print(datetime.now(), df_final["time_id"].max())
 
         return df_final
 
