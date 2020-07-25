@@ -10,7 +10,7 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_excel(prev, sheet_name="Tabla Data con Rama", header=1)
+        df = pd.read_excel(prev[0], sheet_name="Tabla Data con Rama", header=1)
 
         df = df.loc[df["Año de materialización"] != "Total general"].copy()
         df["quarter_id"] = (df["Año de materialización"].astype(int).astype(str) + df["Trimestre de materialización"].astype(int).astype(str)).astype(int)
@@ -24,7 +24,7 @@ class TransformStep(PipelineStep):
         }
         df = df.rename(columns=columns)
 
-        df_labels = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/foreign_direct_investment/Countries.xlsx")
+        df_labels = pd.ExcelFile(prev[1])
         df_labels = pd.read_excel(df_labels, sheet_name="FDI")
 
         df["origin_id"] = df["origin_id"].replace(dict(zip(df_labels.name, df_labels.id)))
@@ -77,7 +77,7 @@ class FDIPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="fdi-data",
+            connector=["fdi-data", "fdi-countries"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

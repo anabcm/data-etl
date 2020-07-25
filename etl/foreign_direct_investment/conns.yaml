@@ -1,3 +1,7 @@
 fdi-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/foreign_direct_investment/Tabla_pública_1T2020.xlsx
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/foreign_direct_investment/Tabla_pública_1T2020.xlsx
+
+fdi-countries:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/foreign_direct_investment/Countries.xlsx
