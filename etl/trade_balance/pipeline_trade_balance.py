@@ -8,7 +8,7 @@ from bamboo_lib.steps import LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv(prev)
+        df = pd.read_csv(prev, compression="bz2")
         df = df[~df["location_code"].isnull()]
 
         for col_name in ["location_code", "product_code", "year", "export_num_plants", "import_num_plants"]:
