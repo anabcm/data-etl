@@ -1,7 +1,15 @@
 imss-ent-total:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/credits/imss_total_estatal.csv
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/imss_total_estatal.csv
 
 imss-mun-total:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/credits/imss_total_municipal.csv
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/imss_total_municipal.csv
+
+households-ent-total:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/hogar_total_estatal.csv
+
+households-mun-total:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/hogar_total_municipal.csv
