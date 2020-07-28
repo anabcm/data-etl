@@ -17,7 +17,7 @@ class TransformStep(PipelineStep):
         df.columns = df.columns.str.lower()
 
         # Adding ID columns, year and age(edad)
-        df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
+        df["mun_id"] = df["ent"].astype(str).str.zfill(2) + df["mun"].astype(str).str.zfill(3)
         df["mun_id_trab"] = df["ltrabpai_c"] + df["ltrabmun_c"]
         df["year"] = 2010
         df["edad"] = df["edad"].astype(int)
@@ -42,13 +42,13 @@ class TransformStep(PipelineStep):
         df["transport_mean_ed_facilities"] = ""
 
         # Transforming certains str columns into int values
-        df["loc_id"] = df["loc_id"].astype(int)
+        df["mun_id"] = df["mun_id"].astype(int)
         df["factor"] = df["factor"].astype(int)
 
         # List of columns for the next df
         params = ["sexo", "parent", "sersalud", "dhsersal1", "nivacad"]
         params_nan = ["laboral_condition", "time_to_work", "transport_mean_work", "time_to_ed_facilities", "transport_mean_ed_facilities"]
-        params_int = ["loc_id", "year", "mun_id_trab"]
+        params_int = ["mun_id", "year", "mun_id_trab"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in params:
@@ -56,7 +56,7 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].astype(int)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
-        # Condense df around params list, mun_id and loc_id, and sum over population (factor)
+        # Condense df around params list, mun_id, and sum over population (factor)
         df = df.groupby(params + params_nan + params_int + ["edad"]).sum().reset_index(col_fill="ffill")
 
         # Filling empty values with NaN, an replacing 0 values in mun_id_trab
@@ -110,7 +110,7 @@ class PopulationPipeline(EasyPipeline):
 
         dtype = {
             "sex":                          "UInt8",
-            "loc_id":                       "UInt32",
+            "mun_id":                       "UInt16",
             "population":                   "UInt64",
             "nationality":                  "UInt8",
             "parent":                       "UInt8",
@@ -133,7 +133,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
+            "inegi_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", "laboral_condition", "mun_id_trab", "academic_degree",
             "time_to_ed_facilities","transport_mean_ed_facilities", "nationality"]
         )
