@@ -2,6 +2,10 @@ population-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/inegi_census_2010/Personas_<index>.dbf
 
+population2-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.googleapis.com/datamexico-data/inegi_census_2010/Poblacion_Total_<index>.csv
+
 housing-data:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/inegi_census_2010/Viviendas_<index>.dbf
