@@ -1,3 +1,3 @@
 covid-data-mx:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: http://187.191.75.115/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip
+  uri: http://epidemiologia.salud.gob.mx/gobmx/salud/datos_abiertos/datos_abiertos_covid19.zip
