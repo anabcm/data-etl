@@ -1,6 +1,6 @@
 population-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_census_2010/Personas_<index>.dbf
+  uri: gs://datamexico-data/inegi_census_2010/Poblacion_Total_<index>.csv
 
 housing-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
