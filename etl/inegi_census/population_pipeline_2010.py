@@ -44,7 +44,7 @@ class Population2010Pipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "loc_id":         "UInt32",
+            "mun_id":         "UInt16",
             "population":     "UInt64",
             "year":           "UInt16"
         }
