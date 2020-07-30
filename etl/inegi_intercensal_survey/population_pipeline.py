@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
         df.columns = df.columns.str.lower()
 
         # Adding IDs columns
-        df["loc_id"] = df["ent"] + df["mun"] + df["loc50k"]
+        df["mun_id"] = df["ent"].astype(str).str.zfill(2) + df["mun"].astype(str).str.zfill(3)
         df["mun_id_trab"] = df["ent_pais_trab"] + df["mun_trab"]
 
         # Replacing NaN values with "X" (Not this df.fillna("0", inplace=True)) 
@@ -32,7 +32,7 @@ class TransformStep(PipelineStep):
         df["nivacad"].fillna("1000", inplace=True)
 
         # Transforming certains str columns into int values
-        df["loc_id"] = df["loc_id"].astype(int)
+        df["mun_id"] = df["mun_id"].astype(int)
         df["mun_id_trab"] = df["mun_id_trab"].astype(int)
         df["factor"] = df["factor"].astype(int)
         df["edad"] = df["edad"].astype(int)
@@ -71,8 +71,8 @@ class TransformStep(PipelineStep):
                             "med_traslado_esc1": "transport_mean_ed_facilities",
                             "nacionalidad": "nationality"}, inplace=True)
 
-        # Condense df around params list, mun_id and loc_id, and sum over population (factor)
-        df = df.groupby(params_translated + ["loc_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
+        # Condense df around params list, mun_id, and sum over population (factor)
+        df = df.groupby(params_translated + ["mun_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
 
         # Turning back NaN values in the respective columns
         for item in li_eng:
@@ -102,7 +102,7 @@ class PopulationPipeline(EasyPipeline):
 
         dtype = {
             "sex":                          "UInt8",
-            "loc_id":                       "UInt32",
+            "mun_id":                       "UInt16",
             "population":                   "UInt64",
             "parent":                       "UInt8",
             "nationality":                  "UInt8",
@@ -125,7 +125,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="append", pk=["loc_id", "sex"], dtype=dtype, 
+            "inegi_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", "time_to_ed_facilities", 
             "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "academic_degree", 
             "nationality"]
