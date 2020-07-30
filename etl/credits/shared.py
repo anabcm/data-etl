@@ -20,13 +20,15 @@ AGE_RANGE = {
     '0-5 años': 1, 
     '5 a 9 años': 2, 
     '10 a 19 años': 3, 
-    '20 a 29 años': 4, 
-    '30 a 39 años': 5, 
-    '40 a 49 años': 6, 
-    '50 a 59 años': 7,
-    '60 y más años': 8, 
+
+    '19 años o menos': 4,
+
+    '20 a 29 años': 5, 
+    '30 a 39 años': 6, 
+    '40 a 49 años': 7, 
+    '50 a 59 años': 8,
+    '60 y más años': 9, 
     
-    '19 años o menos': 11,
     '20 a 49 años': 12,
     '50 a 69 años': 13, 
     '70 y más años': 14
