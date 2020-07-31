@@ -64,7 +64,7 @@ class WellnessWeeklyPipeline(EasyPipeline):
             'person_type':   'UInt8',
             'age_range':     'UInt8',
             'approved_week': 'UInt32',
-            'count':         'UInt32'
+            'count':         'UInt64'
         }
 
         download_step = DownloadStep(
