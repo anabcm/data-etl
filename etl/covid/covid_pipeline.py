@@ -125,8 +125,8 @@ class CovidPipeline(EasyPipeline):
         xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
             'gobmx_covid', db_connector, if_exists='append', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
-                            'patient_residence_mun_id', 'patient_origin_ent_id', 
-                            'country_nationality', 'country_origin'], nullable_list=['death_date'], dtype=dtypes
+                            'patient_residence_mun_id', 'patient_origin_ent_id'], 
+                            nullable_list=['death_date', 'country_nationality', 'country_origin'], dtype=dtypes
         )
 
         if params.get('file_path'):

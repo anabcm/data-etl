@@ -11,7 +11,7 @@ from bamboo_lib.connectors.models import Connector
 
 data = sorted(glob.glob('*.csv'))
 
-#for file_path in data:
+#for file_path in data[-5::]:
 #    os.system('bamboo-cli --folder . --entry covid_pipeline --file_path="{}"'.format(file_path))
 
 db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
