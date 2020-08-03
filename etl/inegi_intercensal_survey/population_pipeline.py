@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -79,6 +80,7 @@ class TransformStep(PipelineStep):
             df[item].replace(0, pd.np.nan, inplace=True)
         df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
         df["age"].replace(999, pd.np.nan, inplace=True)
+        df["filtered_age"] = df['age'].apply(lambda x: x if x >= 12 else np.nan)
 
         # Includes year column
         df["year"] = 2015
@@ -116,6 +118,7 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab":                  "UInt8",
             "academic_degree":              "UInt8",
             "age":                          "UInt8",
+            "filtered_age":                 "UInt8",
             "year":                         "UInt16"
         }
 
@@ -126,9 +129,9 @@ class PopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             "inegi_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
-            nullable_list=["age", "time_to_work", "transport_mean_work", "time_to_ed_facilities", 
-            "transport_mean_ed_facilities", "laboral_condition", "mun_id_trab", "academic_degree", 
-            "nationality"]
+            nullable_list=["age", "filtered_age", "time_to_work", "transport_mean_work", 
+            "time_to_ed_facilities", "transport_mean_ed_facilities", "laboral_condition", 
+            "mun_id_trab", "academic_degree", "nationality"]
         )
 
         return [download_step, transform_step, load_step]
