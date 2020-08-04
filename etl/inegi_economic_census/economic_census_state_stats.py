@@ -39,7 +39,7 @@ class TransformStep(PipelineStep):
         df = temp.copy()
         df.drop(columns=['MUNICIPIO', 'CODIGO', 'ID_ESTRATO'], inplace=True)
 
-        for col in list(df.columns[2::]):
+        for col in list(df.columns[1::]):
             df[col] = df[col].astype(float)
 
         df.rename(columns={
