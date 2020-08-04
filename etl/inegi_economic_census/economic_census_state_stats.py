@@ -13,7 +13,7 @@ class TransformStep(PipelineStep):
         for ele in prev:
             if 'diccionario' in ele[1]['file']:
                 label = ele[0]
-            elif 'ce2019_nac.csv' in ele[1]['file']:
+            elif 'ce2019_nac' in ele[1]['file']:
                 continue
             else:
                 data.append(ele[0])
