@@ -44,6 +44,9 @@ class TransformStep(PipelineStep):
 
         df = t.copy()
 
+        for col in ['mun_id', 'ue', 'estrato_id']:
+            df[col] = df[col].astype(int)
+
         return df
 
 class EconomicCensusPipeline(EasyPipeline):
