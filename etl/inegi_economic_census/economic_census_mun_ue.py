@@ -46,6 +46,8 @@ class TransformStep(PipelineStep):
 
         for col in ['mun_id', 'ue', 'estrato_id']:
             df[col] = df[col].astype(int)
+
+        df['sector_id'] = df['sector_id'].astype(str).str.strip()
         
         df['year'] = 2019
 
