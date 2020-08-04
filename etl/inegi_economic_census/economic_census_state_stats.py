@@ -58,6 +58,7 @@ class EconomicCensusPipeline(EasyPipeline):
 
         dtypes = {
             'ent_id':  'UInt8',
+            'ue':      'Float32',
             'year':    'UInt16'
         }
 
