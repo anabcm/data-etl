@@ -46,6 +46,8 @@ class TransformStep(PipelineStep):
 
         for col in ['mun_id', 'ue', 'estrato_id']:
             df[col] = df[col].astype(int)
+        
+        df['year'] = 2019
 
         return df
 
@@ -58,7 +60,8 @@ class EconomicCensusPipeline(EasyPipeline):
             'mun_id':           'UInt16',
             'sector_id':        'String',
             'estrato_id':       'UInt8',
-            'ue':               'Float32'
+            'ue':               'Float32',
+            'year':             'UInt16'
         }
 
         download_step = WildcardDownloadStep(

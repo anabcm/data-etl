@@ -47,6 +47,8 @@ class TransformStep(PipelineStep):
             'UE': 'ue'
         }, inplace=True)
 
+        df['year'] = 2019
+
         return df
 
 class EconomicCensusPipeline(EasyPipeline):
