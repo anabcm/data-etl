@@ -179,7 +179,7 @@ class TransformStep(PipelineStep):
         df["code"] = df["code"].astype(int)
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
-        df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].astype(str)
+        df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
 
         return df
 
