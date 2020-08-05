@@ -170,6 +170,7 @@ class TransformStep(PipelineStep):
         # Getting values of year and respective quarter for the survey
         df["month_id"] = "20" + params["year"] + params["month"]
         df["month_id"] = df["month_id"].astype(int)
+        df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
 
         return df
 
