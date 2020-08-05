@@ -163,7 +163,8 @@ class TransformStep(PipelineStep):
         df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
 
         # Filter population for 15 and/or older
-        df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
+        df["age"] = df["age"].astype(float)
+        df = df.loc[(df["age"].astype(float) >= 15)].reset_index(col_fill="ffill", drop=True)
 
         # Getting values of year and respective quarter for the survey
         df["month_id"] = "20" + params["year"] + params["month"]
