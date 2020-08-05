@@ -199,7 +199,7 @@ class ETOEPipeline(EasyPipeline):
             "search_job_year":                                      "UInt8",
             "time_looking_job":                                     "UInt8",
             "actual_job_position":                                  "UInt16",
-            "actual_job_industry_group_id":                         "UInt16",
+            "actual_job_industry_group_id":                         "String",
             "actual_job_hrs_worked_lastweek":                       "UInt8",
             "actual_job_days_worked_lastweek":                      "UInt8",
             "population":                                           "UInt64", 

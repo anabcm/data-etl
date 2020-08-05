@@ -131,7 +131,7 @@ class EnighJobsPipeline(EasyPipeline):
             "contract_type":                   "UInt8",
             "worked_hours":                    "Float32",
             "sinco_id":                        "UInt16",
-            "scian_id":                        "UInt16",
+            "scian_id":                        "String",
             "business_type":                   "UInt8",
             "business_size":                   "UInt8",
             "eco_stratum":                     "UInt8",

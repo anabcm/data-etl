@@ -209,7 +209,7 @@ class ENOEPipeline(EasyPipeline):
             "instruction_level":                                    "UInt8",
             "classification_formal_informal_jobs_first_activity":   "UInt8",
             "age":                                                  "UInt8",
-            "actual_job_industry_group_id":                         "UInt16",
+            "actual_job_industry_group_id":                         "String",
             "sex":                                                  "UInt8",
             "actual_job_position":                                  "UInt16",
             "actual_job_hrs_worked_lastweek":                       "UInt8",

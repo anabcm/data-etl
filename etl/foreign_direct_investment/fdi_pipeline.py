@@ -69,7 +69,7 @@ class FDIPipeline(EasyPipeline):
         dtype = {
             "generic_investment":   "UInt8",
             "origin_id":            "String",
-            "area_id":              "UInt16",
+            "area_id":              "String",
             "ent_id":               "UInt8",
             "value_million":        "Float32",
             "count":                "UInt32",
