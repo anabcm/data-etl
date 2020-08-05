@@ -92,6 +92,8 @@ class TransformStep(PipelineStep):
 
         # Creating news geo ids, and deleting another values
         df["mun_id"] = df["ent_id"] + df["mun"]
+        df.loc[df['mun_id'].isna(), 'mun_id'] = \
+                    df.loc[df['mun_id'].isna(), 'ent_id'].astype(str) + '999'
         list_drop = ["ent_id", "con", "v_sel", "n_hog", "h_mud", "numero_renglon", "code" , "mun"]
         df.drop(list_drop, axis=1, inplace=True)
 
@@ -156,10 +158,6 @@ class TransformStep(PipelineStep):
                     "underemployed_population", "underemployed_classification", "classification_self_employed_unqualified_activities",
                     "classification_formal_informal_jobs_first_activity"]:
             df[col] = df[col].astype(float)
-
-        for item in ["age", "mun_id"]:
-            df.dropna(subset=[item], inplace=True)
-            df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
         df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
@@ -244,7 +242,7 @@ class ETOEPipeline(EasyPipeline):
               "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
               "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
               "actual_minimal_wages_proportion", "represented_city", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
-              "female_15yrs_children", "income_id"]
+              "female_15yrs_children", "income_id", "age"]
         )
 
         return [download_step, transform_step, load_step]
