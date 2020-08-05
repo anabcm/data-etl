@@ -56,7 +56,7 @@ class TransformStep(PipelineStep):
 
         df["value_million"] = df["value_million"].astype(float)
 
-        df["area_id"] = df["area_id"].astype(str)
+        df["area_id"] = df["area_id"].astype(int).astype(str)
 
         return df
 
