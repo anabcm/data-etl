@@ -250,5 +250,6 @@ class ETOEPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = ETOEPipeline()
-    pp.run({"year": "2020"[2:],
-            "month": "4".zfill(2)})
+    for month in range(4, 6+1):
+        pp.run({"year": "2020"[2:],
+                "month": "{}".format(str(month).zfill(2))})
