@@ -111,6 +111,8 @@ class TransformStep(PipelineStep):
         for item in not_null_list:
             df[item] = df[item].astype(int)
 
+        df["scian_id"] = df["scian_id"].astype(str)
+
         return df
 
 class EnighJobsPipeline(EasyPipeline):
