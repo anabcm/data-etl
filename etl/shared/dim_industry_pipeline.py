@@ -37,6 +37,13 @@ class TransformStep(PipelineStep):
                  'industry_group_es', 'industry_group_es_short', 'industry_group_en',
                  'industry_group_en_short']].copy()
 
+        MISSING_DIMENSION = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vT2LrUrF7dnohQgzpDqDaRk4DEKRJY1UaNbfogx_6LV_5zjMwI-bTe7xI1zDZ7hjo0f4u-shF5wuy7i/pub?gid=1602219578&single=true&output=csv')
+
+        df = df.append(MISSING_DIMENSION)
+
+        for col in df.columns:
+            df[col] = df[col].astype(str)
+
         return df
 
 class ENOEIndustryPipeline(EasyPipeline):
