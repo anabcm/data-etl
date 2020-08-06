@@ -59,6 +59,9 @@ class TransformStep(PipelineStep):
         # replace unknown municipalities
         df.loc[df['patient_residence_mun_id'].isin([97997, 98998, 99999]), 'patient_residence_mun_id'] = 33000
 
+        # temp fix
+        df['time_id'] = df['updated_date']
+
         if values_check(df['updated_date'].max()):
             pass
         else:
@@ -78,6 +81,7 @@ class CovidPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
+            'time_id':                          'UInt32',
             'updated_date':                     'UInt32',
             'origin':                           'UInt8',
             'type_health_institution_attended': 'UInt8',
@@ -124,7 +128,7 @@ class CovidPipeline(EasyPipeline):
         unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
         xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
-            'gobmx_covid', db_connector, if_exists='append', pk=['id', 'updated_date', 'symptoms_date', 'ingress_date', 
+            'gobmx_covid', db_connector, if_exists='append', pk=['id', 'updated_date', 'time_id', 'symptoms_date', 'ingress_date', 
                             'patient_residence_mun_id', 'patient_origin_ent_id'], 
                             nullable_list=['death_date', 'country_nationality', 'country_origin'], dtype=dtypes
         )
