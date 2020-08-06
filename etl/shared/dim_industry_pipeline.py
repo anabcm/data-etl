@@ -20,14 +20,6 @@ class TransformStep(PipelineStep):
                 df.loc[df['{}_{}_short'.format(level, locale)].isna(), '{}_{}_short'.format(level, locale)] = \
                     df.loc[df['{}_{}_short'.format(level, locale)].isna(), '{}_{}'.format(level, locale)]
 
-        # codes ids
-        cols_es = list(df.columns[df.columns.str.contains('_es')])
-        cols_en = list(df.columns[df.columns.str.contains('_en')])
-        nltk.download('stopwords')
-        stopwords_es = nltk.corpus.stopwords.words('spanish')
-        df = format_text(df, cols_es, stopwords=stopwords_es)
-        df = format_text(df, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
-
         for col in ['sector_id', 'subsector_id', 'industry_group_id']:
             df[col] = df[col].astype(str)
 
@@ -45,6 +37,14 @@ class TransformStep(PipelineStep):
 
         for col in df.columns:
             df[col] = df[col].astype(str)
+
+        # codes ids
+        cols_es = list(df.columns[df.columns.str.contains('_es')])
+        cols_en = list(df.columns[df.columns.str.contains('_en')])
+        nltk.download('stopwords')
+        stopwords_es = nltk.corpus.stopwords.words('spanish')
+        df = format_text(df, cols_es, stopwords=stopwords_es)
+        df = format_text(df, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
         return df
 
