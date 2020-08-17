@@ -8,9 +8,7 @@ def find_missing_values():
 
     base_url = os.environ.get('BASE_URL')
 
-    url = """{}/data.jsonrecords?Country=mex&
-             cube=complexity_eci_a_hs12_hs6&drilldowns=Country%2CYear%2CECI+Rank&
-             measures=ECI&parents=false&sparse=false""".format(base_url)
+    url = '{}/data.jsonrecords?Country=mex&cube=complexity_eci_a_hs12_hs6&drilldowns=Country%2CYear%2CECI+Rank&measures=ECI&parents=false&sparse=false'.format(base_url)
 
     r = requests.get(url)
     data = r.json()["data"]
