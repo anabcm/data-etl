@@ -18,6 +18,7 @@ def find_missing_values():
     df.columns = df.columns.str.replace(' ', '_')
 
     df = df[['eci', 'eci_rank', 'year']].copy()
+    df.columns = ['eci', 'eci_ranking', 'year']
 
     for col in ['ent_id', 'mun_id', 'zm_id', 'time_id', 'latest']:
         df[col] = 0
