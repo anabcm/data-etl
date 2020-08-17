@@ -78,6 +78,7 @@ class TransformStep(PipelineStep):
         df["nation_id"] = 0
 
         df = df.append(find_missing_values())
+        df["nation_id"] = df["nation_id"].astype(str)
 
         return df
 
