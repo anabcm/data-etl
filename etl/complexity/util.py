@@ -26,5 +26,7 @@ def find_missing_values():
     df.loc[df['year'] == df['year'].max(), 'latest'] = 1
 
     df['level'] = 'Nation'
+
+    df['nation_id'] = 'mex'
     
     return df

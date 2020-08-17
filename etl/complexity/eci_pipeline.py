@@ -75,6 +75,7 @@ class TransformStep(PipelineStep):
             df[col] = df[col].fillna(0).astype(int)
         
         df["year"] = 0
+        df["nation_id"] = 0
 
         df = df.append(find_missing_values())
 
@@ -98,7 +99,8 @@ class ComplexityECIPipeline(EasyPipeline):
             "mun_id":       "UInt16",
             "time_id":      "UInt32",
             "zm_id":        "UInt32",
-            "year":         "UInt16"
+            "year":         "UInt16",
+            "nation_id":    "String"
         }
         load_step = LoadStep(
             "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "level", "latest", 
