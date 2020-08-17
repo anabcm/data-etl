@@ -3,6 +3,7 @@ import requests
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.connectors.models import Connector
+from util import find_missing_values
 
 class TransformStep(PipelineStep):
     def run_step(self, prev_result, params):
@@ -72,6 +73,10 @@ class TransformStep(PipelineStep):
 
         for col in ["ent_id", "zm_id", "mun_id"]:
             df[col] = df[col].fillna(0).astype(int)
+        
+        df["year"] = 0
+
+        df = df.append(find_missing_values)
 
         return df
 
@@ -92,10 +97,12 @@ class ComplexityECIPipeline(EasyPipeline):
             "level":        "String",
             "mun_id":       "UInt16",
             "time_id":      "UInt32",
-            "zm_id":        "UInt32"
+            "zm_id":        "UInt32",
+            "year":         "UInt16"
         }
         load_step = LoadStep(
-            "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "latest", "ent_id", "zm_id", "mun_id"], dtype=dtype
+            "complexity_eci", db_connector, if_exists="drop", pk=["time_id", "level", "latest", 
+            "ent_id", "zm_id", "mun_id"], dtype=dtype
         )
         return [xform_step, load_step]
 
