@@ -76,7 +76,7 @@ class TransformStep(PipelineStep):
         
         df["year"] = 0
 
-        df = df.append(find_missing_values)
+        df = df.append(find_missing_values())
 
         return df
 
