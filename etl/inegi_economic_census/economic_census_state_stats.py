@@ -51,6 +51,18 @@ class TransformStep(PipelineStep):
 
         df.columns = df.columns.str.lower()
 
+        df = df[['ent_id', 'ue', 'year'] + ['a111a', 'a121a', 'a131a', 'a211a', 'a221a', 'a511a', 
+                'a700a', 'a800a', 'h000a', 'h000b', 'h000c', 'h000d', 'h001a', 'h001b', 'h001c', 
+                'h001d', 'h010a', 'h010b', 'h010c', 'h010d', 'h020a', 'h020b', 'h020c', 'h020d', 
+                'h101a', 'h101b', 'h101c', 'h101d', 'h203a', 'h203b', 'h203c', 'h203d', 'i000a', 
+                'i000b', 'i000c', 'i000d', 'i100a', 'i100b', 'i100c', 'i100d', 'i200a', 'i200b', 
+                'i200c', 'i200d', 'j000a', 'j010a', 'j203a', 'j300a', 'j400a', 'j500a', 'j600a', 
+                'k000a', 'k010a', 'k020a', 'k030a', 'k040a', 'k050a', 'k060a', 'k070a', 'k090a', 
+                'k096a', 'k311a', 'k610a', 'k620a', 'k810a', 'k820a', 'k910a', 'k950a', 'k976a', 
+                'm000a', 'm010a', 'm020a', 'm030a', 'm050a', 'm090a', 'm091a', 'm700a', 'o010a', 
+                'o020a', 'p000a', 'p000b', 'p000c', 'p030a', 'p030b', 'p030c', 'p100a', 'p100b', 
+                'q000a', 'q000b', 'q000c', 'q000d', 'q010a', 'q020a', 'q030a', 'q400a', 'q900a']].copy()
+
         return df
 
 class EconomicCensusPipeline(EasyPipeline):
