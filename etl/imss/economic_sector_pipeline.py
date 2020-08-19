@@ -10,7 +10,7 @@ class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
 
         # Data Dictonary from IMSS
-        xls = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/imss/diccionario_de_datos_1.xlsx")
+        xls = pd.ExcelFile(prev)
 
         # Economic sector 1 ,2 and 4 Sheets from Data dictonary from IMSS
         df1 = pd.read_excel(xls, "sector 1", header=1)
@@ -39,13 +39,18 @@ class DimEconomicSectorPipeline(EasyPipeline):
             "level_4_name": "String"
         }
 
+        download_step = DownloadStep(
+            connector="imss-dimension",
+            connector_path="conns.yaml"
+        )
+
         extract_step = ExtractStep()
         load_step = LoadStep(
             "imss_economic_sector", db_connector, if_exists="drop", dtype=dtype,
             pk=["level_4_id", "level_2_id", "level_1_id"]
         )
 
-        return [extract_step, load_step]
+        return [download_step, extract_step, load_step]
 
 if __name__ == "__main__":
     pp = DimEconomicSectorPipeline()

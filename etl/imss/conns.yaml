@@ -1,3 +1,11 @@
 imss-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/imss/asg-<year>-<month>.csv
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/imss/asg-<year>-<month>.csv
+
+imss-dimension:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/imss/diccionario_de_datos_1.xlsx
+
+imss-geo-dimension:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/imss/Municipality.csv
