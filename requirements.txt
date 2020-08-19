@@ -91,3 +91,4 @@ simpledbf
 google-cloud-storage
 unidecode
 nltk
+tables
