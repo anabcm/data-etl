@@ -1,0 +1,4 @@
+population-data:
+  driver: bamboo_lib.connectors.drivers.http.HttpDriver
+  uri: https://storage.cloud.google.com/datamexico-data/conapo_zm/zm_population.csv
+
