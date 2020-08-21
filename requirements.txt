@@ -3,11 +3,11 @@ asn1crypto==0.24.0
 atomicwrites==1.3.0
 attrs==19.1.0
 backcall==0.1.0
-bamboo-lib==0.0.16
+bamboo-lib==0.0.35
 bcrypt==3.1.6
 beautifulsoup4==4.7.1
 bleach==3.1.4
-bs4==0.0.1
+bs4==4.5.3
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
@@ -45,7 +45,7 @@ nbformat==4.4.0
 notebook==5.7.8
 numpy==1.16.4
 packaging==19.0
-pandas==0.23.3
+pandas==0.24.2
 pandocfilters==1.4.2
 paramiko==2.4.2
 parso==0.4.0
@@ -90,3 +90,5 @@ sklearn
 simpledbf
 google-cloud-storage
 unidecode
+nltk
+tables

@@ -111,6 +111,8 @@ class TransformStep(PipelineStep):
         for item in not_null_list:
             df[item] = df[item].astype(int)
 
+        df["scian_id"] = df["scian_id"].astype(str)
+
         return df
 
 class EnighJobsPipeline(EasyPipeline):
@@ -131,7 +133,7 @@ class EnighJobsPipeline(EasyPipeline):
             "contract_type":                   "UInt8",
             "worked_hours":                    "Float32",
             "sinco_id":                        "UInt16",
-            "scian_id":                        "UInt16",
+            "scian_id":                        "String",
             "business_type":                   "UInt8",
             "business_size":                   "UInt8",
             "eco_stratum":                     "UInt8",

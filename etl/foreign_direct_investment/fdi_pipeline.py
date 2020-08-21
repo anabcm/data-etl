@@ -51,10 +51,12 @@ class TransformStep(PipelineStep):
 
         df = df[list(columns.values()) + ["quarter_id"]]
 
-        for col in ["generic_investment", "area_id", "ent_id", "count"]:
+        for col in ["generic_investment", "ent_id", "count"]:
             df[col] = df[col].astype(int)
 
         df["value_million"] = df["value_million"].astype(float)
+
+        df["area_id"] = df["area_id"].astype(int).astype(str)
 
         return df
 
@@ -69,7 +71,7 @@ class FDIPipeline(EasyPipeline):
         dtype = {
             "generic_investment":   "UInt8",
             "origin_id":            "String",
-            "area_id":              "UInt16",
+            "area_id":              "String",
             "ent_id":               "UInt8",
             "value_million":        "Float32",
             "count":                "UInt32",

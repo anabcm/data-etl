@@ -1,15 +1,15 @@
 enoe-1-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enoe/coe1t<quarter><year>.CSV
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enoe/coe1t<quarter><year>.CSV
 
 enoe-2-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enoe/coe2t<quarter><year>.CSV
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enoe/coe2t<quarter><year>.CSV
 
 social-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: "https://storage.googleapis.com/datamexico-data/enoe/sdemt<quarter><year>.CSV"
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: "gs://datamexico-data/enoe/sdemt<quarter><year>.CSV"
 
 housing-data:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/enoe/vivt<quarter><year>.CSV
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enoe/vivt<quarter><year>.CSV

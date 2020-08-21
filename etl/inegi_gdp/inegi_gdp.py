@@ -9,7 +9,7 @@ from bamboo_lib.helpers import grab_connector
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_excel('https://storage.googleapis.com/datamexico-data/gdp/Indicadores20200527082932.xls', header=4)
+        df = pd.read_excel(prev, header=4)
         return df
 
 class CleanStep(PipelineStep):
@@ -39,7 +39,7 @@ class CleanStep(PipelineStep):
                 'government_activities': ' 93 Actividades legislativas, gubernamentales, de impartición de justicia y de organismos internacionales y extraterritoriales'}
 
         mask = []
-        for k, v in levels.items():
+        for _k, v in levels.items():
             for col in df.columns:
                 if v in col:
                     mask.append(col)
@@ -105,9 +105,14 @@ class GDPPipeline(EasyPipeline):
             'value':      'UInt32'
         }
 
+        download_step = DownloadStep(
+            connector='gdp-data',
+            connector_path="conns.yaml"
+        )
+
         read_step = ReadStep()
         clean_step = CleanStep()
 
         load_step = LoadStep('inegi_gdp', db_connector, if_exists='drop', pk=['quarter_id', 'sector_id'], dtype=dtype)
 
-        return [read_step, clean_step, load_step]
+        return [download_step, read_step, clean_step, load_step]

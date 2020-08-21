@@ -1,3 +1,15 @@
 dataset:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/datamexico-data/inegi_economic_census/economic_census.csv
+
+economic-census-nat:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/national/ce2019_nac.csv
+
+economic-census-mun:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/{{file}}.csv
+
+economic-census-columns:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/diccionario_de_datos_ce2019.csv

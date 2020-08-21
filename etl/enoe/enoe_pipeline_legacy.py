@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -99,7 +98,7 @@ class TransformStep(PipelineStep):
 
         # Creating news geo ids, and deleting another values
         df["mun_id"] = df["ent_id"] + df["mun"]
-        list_drop = ["ent_id", "con", "v_sel", "n_hog", "h_mud", "numero_renglon", "mun"]
+        list_drop = ["ent_id", "con", "v_sel", "n_hog", "h_mud", "numero_renglon", "code" , "mun"]
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
@@ -119,6 +118,19 @@ class TransformStep(PipelineStep):
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
         df["population"] = df["population"].astype(int)
+
+        # Add groupby method
+        grouped = ["mun_id", "represented_city", "age", "has_job_or_business", "search_job_overseas", "search_job_mexico",
+                "search_start_business", "search_no_search", "search_no_knowledge", "search_job_year", "time_looking_job",
+                "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
+                "actual_job_days_worked_lastweek", "actual_frecuency_payments",
+                "actual_amount_pesos", "actual_minimal_wages_proportion", "actual_healthcare_attention", "second_activity",
+                "second_activity_group_id", "second_activity_task", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
+                "female_15yrs_children", "schooling_years" , "approved_years", "instruction_level", "mensual_wage", "work_history",
+                "unoccupied_condition", "classification_duration_unemployment", "underemployed_population", "underemployed_classification",
+                "classification_self_employed_unqualified_activities", "classification_formal_informal_jobs_first_activity"]
+
+        df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
         # Loading income values from spreedsheet and income_id column
         url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTieVnRovfP7AOMtqxIJcrFl8Tayz6Irz-Bc1en1NSIKtjjPtGaBRaCaSeePRrpQMmHMzSt2VO93Wav/pub?output=xlsx"
@@ -162,23 +174,11 @@ class TransformStep(PipelineStep):
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
 
         # Getting values of year and respective quarter for the survey
-        df = df[["code", "population", "mensual_wage", "has_job_or_business", 
-                 "second_activity", "eap", "occ_unocc_pop", "eap_comp",
-                 "schooling_years", "instruction_level", "approved_years",
-                 "classification_formal_informal_jobs_first_activity", "age",
-                 "actual_job_industry_group_id", "sex",  "actual_job_position",
-                 "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek"]].copy()
-
-        # filters economic active population, 0 = undefined
-        df = df.loc[df["eap"] != 0].copy()
-
-        # cut for non null values
-        df["workforce_is_wage"] = df["population"]
-        df.loc[df["mensual_wage"].isna(), "workforce_is_wage"] = 0
-
-        df["code"] = df["code"].astype(int)
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
+
+        #
+        df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
 
         return df
 
@@ -195,26 +195,48 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "code":                                                 "UInt32",
-            "population":                                           "UInt32",
-            "mensual_wage":                                         "Float32",
+            "mun_id":                                               "UInt16",
             "quarter_id":                                           "UInt16",
+            "represented_city":                                     "UInt8",
+            "age":                                                  "UInt8",
             "has_job_or_business":                                  "UInt8",
+            "search_job_overseas":                                  "UInt8",
+            "search_job_mexico":                                    "UInt8",
+            "search_start_business":                                "UInt8",
+            "search_no_search":                                     "UInt8",
+            "search_no_knowledge":                                  "UInt8",
+            "search_job_year":                                      "UInt8",
+            "time_looking_job":                                     "UInt8",
+            "actual_job_position":                                  "UInt16",
+            "actual_job_industry_group_id":                         "String",
+            "actual_job_hrs_worked_lastweek":                       "UInt8",
+            "actual_job_days_worked_lastweek":                      "UInt8",
+            "population":                                           "UInt64", 
+            "actual_frecuency_payments":                            "UInt8",
+            "actual_amount_pesos":                                  "UInt32",
+            "actual_minimal_wages_proportion":                      "UInt8",
+            "actual_healthcare_attention":                          "UInt8",
             "second_activity":                                      "UInt8",
+            "second_activity_task":                                 "UInt16",
+            "second_activity_group_id":                             "UInt16",
+            "income_id":                                            "UInt8",
+            "sex":                                                  "UInt8",
             "eap":                                                  "UInt8",
             "occ_unocc_pop":                                        "UInt8",
             "eap_comp":                                             "UInt8",
+            "_48hrs_less_1":                                        "UInt8",
+            "female_15yrs_children":                                "UInt8",
             "schooling_years":                                      "UInt8",
             "approved_years":                                       "UInt8",
             "instruction_level":                                    "UInt8",
+            "mensual_wage":                                         "UInt32",
+            "work_history":                                         "UInt8",
+            "unoccupied_condition":                                 "UInt8",
+            "classification_duration_unemployment":                 "UInt8",
+            "underemployed_population":                             "UInt8",
+            "underemployed_classification":                         "UInt8",
+            "classification_self_employed_unqualified_activities":  "UInt8",
             "classification_formal_informal_jobs_first_activity":   "UInt8",
-            "age":                                                  "UInt8",
-            "actual_job_industry_group_id":                         "UInt16",
-            "sex":                                                  "UInt8",
-            "actual_job_position":                                  "UInt16",
-            "actual_job_hrs_worked_lastweek":                       "UInt8",
-            "actual_job_days_worked_lastweek":                      "UInt8",
-            "workforce_is_wage":                                    "UInt32"
         }
 
         download_step = DownloadStep(
@@ -223,10 +245,14 @@ class ENOEPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
-            nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
-                           "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
-                           "eap_comp", "occ_unocc_pop", "eap", "second_activity"]
+            "inegi_enoe_legacy", db_connector, if_exists="append", pk=["mun_id", "quarter_id"], dtype=dtype, 
+            nullable_list=[
+              "search_job_year", "actual_job_position", "actual_job_industry_group_id", "actual_job_hrs_worked_lastweek",
+              "actual_amount_pesos", "second_activity_task", "second_activity_group_id", "second_activity","actual_healthcare_attention", 
+              "has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business", "search_no_search", 
+              "search_no_knowledge", "time_looking_job", "actual_job_days_worked_lastweek", "actual_frecuency_payments",
+              "actual_minimal_wages_proportion", "represented_city", "sex", "eap", "occ_unocc_pop", "eap_comp", "_48hrs_less_1",
+              "female_15yrs_children", "income_id"]
         )
 
         return [download_step, transform_step, load_step]

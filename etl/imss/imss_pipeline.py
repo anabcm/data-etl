@@ -7,7 +7,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
         # IMSS
-        df = pd.read_csv(prev, low_memory=False, encoding="latin-1", delimiter="|", chunksize=10**5)
+        df = pd.read_csv(prev[0], low_memory=False, encoding="latin-1", delimiter="|", chunksize=10**5)
         df = pd.concat(df)
 
         df.columns = df.columns.str.lower().str.strip()
@@ -46,7 +46,7 @@ class TransformStep(PipelineStep):
         df["salary"] = df["masa_sal_ta"] / df["count"]
 
         # Data dictonary from IMSS
-        df1 = pd.read_excel("https://storage.googleapis.com/datamexico-data/imss/diccionario_de_datos_1.xlsx",
+        df1 = pd.read_excel(prev[1],
                     sheet_name="entidad-municipio", header=1) 
 
         df1.rename(columns={"cve_municipio": "mun_id_imss",
@@ -64,7 +64,7 @@ class TransformStep(PipelineStep):
         df1 = df1[["mun_id_imss", "mun_id", "ent_id"]]
 
         # Data Mexico DW
-        df2 = pd.read_csv("https://storage.googleapis.com/datamexico-data/imss/Municipality.csv")
+        df2 = pd.read_csv(prev[2])
 
         df2 = df2[["Municipality ID", "Municipality"]].copy()
         df2.columns = ["mun_id", "mun_name"]
@@ -123,7 +123,7 @@ class IMSSPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="imss-data",
+            connector=["imss-data", "imss-dimension", "imss-geo-dimension"],
             connector_path="conns.yaml"
         )
 
