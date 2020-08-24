@@ -28,7 +28,6 @@ class TransformStep(PipelineStep):
         }, inplace=True)
 
         # Transforming str columns into int values
-        df["zona_metropolitana_id"] = df["zona_metropolitana_id"].astype(int)
         df["mun_id"] = df["mun_id"].astype(int)
         df["year"] = df["year"].astype(int)
         df["population"] = df["population"].astype(int)
@@ -48,7 +47,6 @@ class MetroAreaPopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "zm_id":        "UInt32",
             "mun_id":       "UInt32",
             "population":   "UInt64",
             "year":         "UInt16"
@@ -62,7 +60,7 @@ class MetroAreaPopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-            "conapo_metro_area_population", db_connector, if_exists="append", pk=["zm_id", "mun_id"], dtype=dtype, 
+            "conapo_metro_area_population", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype, 
         )
 
         return [download_step, transform_step, load_step]
