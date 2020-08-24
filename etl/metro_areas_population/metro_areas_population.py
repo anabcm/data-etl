@@ -32,6 +32,7 @@ class TransformStep(PipelineStep):
         df["mun_id"] = df["mun_id"].astype(int)
         df["year"] = df["year"].astype(int)
         df["population"] = df["population"].astype(int)
+        df.drop(columns=['zm_id'], inplace=True)
 
         return df
 
