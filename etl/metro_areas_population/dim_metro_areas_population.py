@@ -35,7 +35,7 @@ class MetroAreaPopulationPipeline(EasyPipeline):
 
         dtype = {
             "zm_id":   "UInt32",
-            "mun_id":  "UInt32",
+            "mun_id":  "UInt16",
         }
 
         download_step = DownloadStep(
