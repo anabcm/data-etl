@@ -47,7 +47,7 @@ class MetroAreaPopulationPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "mun_id":       "UInt32",
+            "mun_id":       "UInt16",
             "population":   "UInt64",
             "year":         "UInt16"
         }
