@@ -60,7 +60,7 @@ class MetroAreaPopulationPipeline(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-            "conapo_metro_area_population", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype, 
+            "conapo_metro_area_population", db_connector, if_exists="drop", pk=["mun_id"], dtype=dtype, 
         )
 
         return [download_step, transform_step, load_step]
