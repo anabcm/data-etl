@@ -6,6 +6,7 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 from helpers import norm, binarice_value
+from shared import SECTOR_REPLACE
 
 
 class TransformStep(PipelineStep):
@@ -24,7 +25,11 @@ class TransformStep(PipelineStep):
 
         df.columns = list(params.get('dtype').keys())
 
-        df[params.get('pk')] = df[params.get('pk')].astype(int)
+        if params.get('pk') == 'sector_id':
+            df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+
+        else:
+            df[params.get('pk')] = df[params.get('pk')].astype(int)
 
         return df
 

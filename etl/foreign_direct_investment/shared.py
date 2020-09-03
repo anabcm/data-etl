@@ -12,3 +12,13 @@ def get_dimensions():
     dim_country = query_to_df(db_connector, raw_query=dim_country_query)
 
     return [dim_geo, dim_country]
+
+SECTOR_REPLACE = {
+    31: '31-33',
+    32: '31-33',
+    33: '31-33',
+    43: '43-46',
+    46: '43-46',
+    48: '48-49',
+    49: '48-49'
+}

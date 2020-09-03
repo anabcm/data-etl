@@ -6,7 +6,7 @@ params = [
      'sheet_name': '7.1',
      'level': 'sector',
      'dtype': {
-         'sector_id': 'UInt8',
+         'sector_id': 'String',
          'year':      'UInt16',
          'value':     'Float32',
          'count':     'UInt16',
