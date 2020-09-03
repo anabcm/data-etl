@@ -34,7 +34,7 @@ params = [
          'count':              'UInt16',
          'value_c':            'UInt8'
      },
-     'table': 'fdi_6_industry_group'}
+     'table': 'fdi_7_industry_group'}
 ]
 
 pp = FDI7Pipeline
