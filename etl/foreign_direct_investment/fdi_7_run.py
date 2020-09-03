@@ -28,13 +28,13 @@ params = [
      'sheet_name': '7.3',
      'level': 'rama',
      'dtype': {
-         'rama_id':   'UInt16',
-         'year':      'UInt16',
-         'value':     'Float32',
-         'count':     'UInt16',
-         'value_c':   'UInt8'
+         'industry_group_id':  'UInt16',
+         'ent_id':             'UInt8',
+         'value':              'Float32',
+         'count':              'UInt16',
+         'value_c':            'UInt8'
      },
-     'table': 'fdi_7_rama'}
+     'table': 'fdi_6_industry_group'}
 ]
 
 pp = FDI7Pipeline
