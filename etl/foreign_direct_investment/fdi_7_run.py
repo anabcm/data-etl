@@ -24,7 +24,7 @@ params = [
          'value_c':      'UInt8'
      },
      'table': 'fdi_7_subsector'},
-    {'pk': 'rama_id',
+    {'pk': 'industry_group_id',
      'sheet_name': '7.3',
      'level': 'rama',
      'dtype': {
