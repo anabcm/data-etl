@@ -25,7 +25,7 @@ class FDIIndustryPipeline(EasyPipeline):
         }
 
         transform_step = TransformStep(connector=db_connector)
-        load_step = LoadStep('dim_sector_fdi', db_connector, dtype=dtypes,
+        load_step = LoadStep('dim_shared_sector_fdi', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['sector_id'])
         
         return [transform_step, load_step]
