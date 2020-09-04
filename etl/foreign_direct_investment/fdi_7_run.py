@@ -29,7 +29,7 @@ params = [
      'level': 'rama',
      'dtype': {
          'industry_group_id':  'UInt16',
-         'ent_id':             'UInt8',
+         'year':               'UInt16',
          'value':              'Float32',
          'count':              'UInt16',
          'value_c':            'UInt8'
