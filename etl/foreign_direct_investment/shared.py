@@ -22,3 +22,16 @@ SECTOR_REPLACE = {
     48: '48-49',
     49: '48-49'
 }
+
+COUNTRY_REPLACE = {
+    'Hong Kong (RAE de China)': 'Hong Kong',
+    'Taiwán (Provincia de China)': 'Taiwan',
+    'China, República Popular de': 'China',
+    'Federación de Rusia': 'Rusia',
+    'Estados Unidos de América': 'Estados Unidos',
+    'Reino Unido de la Gran Bretaña e Irlanda del Norte': 'Reino Unido',
+    'Corea, República de': 'Corea del Sur',
+    'República Checa': 'Chequia',
+    'Venezuela, República Bolivariana de': 'Venezuela',
+    'Otros países': 'xxa'
+}
