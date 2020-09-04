@@ -1,1 +1,0 @@
-bamboo-cli --folder . --entry pipeline_trade_balance
