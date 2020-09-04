@@ -28,22 +28,23 @@ class TransformStep(PipelineStep):
         df['pais'].replace(COUNTRY_REPLACE, inplace=True)
         df['pais'] = df['pais'].replace(dict(zip(dim_country['country_name_es'], dim_country['iso3'])))
 
-        df.columns = ['ent_id', 'year', 'country', 'value', 'count', 'value_c']
+        df.columns = ['ent_id', 'year', 'country', 'investment_type', 'value', 'count', 'value_c']
 
         return df
 
-class FDI3Pipeline(EasyPipeline):
+class FDI4Pipeline(EasyPipeline):
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            'ent_id':  'UInt8',
-            'year':    'UInt16',
-            'country': 'String',
-            'value':   'Float32',
-            'count':   'UInt16',
-            'value_c': 'UInt8'
+            'ent_id':          'UInt8',
+            'year':            'UInt16',
+            'country':         'String',
+            'investment_type': 'String',
+            'value':           'Float32',
+            'count':           'UInt16',
+            'value_c':         'UInt8'
         }
 
         download_step = DownloadStep(
@@ -53,12 +54,12 @@ class FDI3Pipeline(EasyPipeline):
 
         transform_step = TransformStep()
         load_step = LoadStep(
-            'fdi_3', db_connector, if_exists="drop", 
+            'fdi_4', db_connector, if_exists="drop", 
             pk=['ent_id', 'country'], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
 
 if __name__ == "__main__":
-    pp = FDI3Pipeline()
+    pp = FDI4Pipeline()
     pp.run({})
