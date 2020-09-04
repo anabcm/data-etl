@@ -12,7 +12,7 @@ from shared import get_dimensions, COUNTRY_REPLACE
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         data = prev
-        df = pd.read_excel(data, sheet_name='3')
+        df = pd.read_excel(data, sheet_name='4')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
         df = df.loc[~df['entidad_federativa'].str.contains('Total')].copy()
 
