@@ -3,7 +3,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
-from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm, ReadStep
+from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, APPROVED_WEEK, replace_geo, norm, ReadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -42,27 +42,7 @@ class TransformStep(PipelineStep):
         for col in [x for x in df.columns if x not in ['level', 'approved_week']]:
             df[col] = df[col].astype(int)
 
-        dim = {
-            'Del 30 de abril al 6 de mayo': 202018,
-            'Del 7 al 13 de mayo': 202019,
-            'Del 14 al 20 de mayo': 202020,
-            'Del 21 al 27 de mayo': 202021,
-            'Del 28 de mayo al 3 de junio': 202022,
-            'Del 4 al 10 de junio': 202023,
-            'Del 11 al 17 de junio': 202024,
-            'Del 18 al 24 de junio': 202025,
-            'Del 25 de junio al 1 de julio': 202026,
-            'Del 2 al 8 de julio': 202027,
-            'Del 9 al 15 de julio': 202028,
-            'Del 16 al 22 de julio': 202029,
-            'Del 23 al 29 de julio': 202030,
-            'Del 30 de julio al 5 de agosto': 202031,
-            'Del 6 al 12 de agosto': 202032,
-            'Del 13 al 19 de agosto': 202033,
-            'Del 20 al 26 de agosto': 202034,
-            'Del 27 al 31 de agosto': 202035
-        }
-        df['approved_week'].replace(dim, inplace=True)
+        df['approved_week'].replace(APPROVED_WEEK, inplace=True)
 
         return df
 
