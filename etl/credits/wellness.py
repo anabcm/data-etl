@@ -12,9 +12,10 @@ class TransformStep(PipelineStep):
         df.rename(columns=COLUMNS, inplace=True)
 
         # filter confidential values
-        df = df.loc[df['count'] != 'C'].copy()
+        df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
 
         # replace members in dimensions
+        df['person_type'] = df['person_type'].str.strip().str.lower().apply(lambda x: norm(x))
         df['sex'].replace(SEX, inplace=True)
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
