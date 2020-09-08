@@ -69,7 +69,8 @@ class WellnessWeeklyPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=['wellness-weekly-ent', 'wellness-weekly-mun'],
-            connector_path='conns.yaml'
+            connector_path='conns.yaml',
+            force=True
         )
 
         read_step = ReadStep()

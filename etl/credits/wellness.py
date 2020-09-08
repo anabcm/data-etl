@@ -51,7 +51,8 @@ class WellnessPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector='wellness-ent-total',
-            connector_path='conns.yaml'
+            connector_path='conns.yaml',
+            force=True
         )
 
         transform_step = TransformStep()

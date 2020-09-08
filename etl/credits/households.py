@@ -60,7 +60,8 @@ class HouseholdsPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=['households-ent-total', 'households-mun-total'],
-            connector_path='conns.yaml'
+            connector_path='conns.yaml',
+            force=True
         )
 
         read_step = ReadStep()
