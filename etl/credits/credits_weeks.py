@@ -2,16 +2,13 @@
 import pandas as pd
 from bamboo_lib.models import PipelineStep, EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
-from shared import APPROVED_WEEK
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.DataFrame.from_dict(APPROVED_WEEK, orient='index')
-        df.reset_index(inplace=True)
-        df.columns = ['approved_week_name', 'approved_week']
+        df = pd.read_csv(prev)
 
         return df
 
@@ -24,11 +21,17 @@ class CreditsWeeksPipeline(EasyPipeline):
             'approved_week':  'UInt32'
         }
 
+        download_step = DownloadStep(
+            connector='dim-weeks',
+            connector_path='conns.yaml',
+            force=True
+        )
+
         transform_step = TransformStep(connector=db_connector)
         load_step = LoadStep('credits_weeks', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['approved_week'])
         
-        return [transform_step, load_step]
+        return [download_step, transform_step, load_step]
 
 if __name__ == '__main__':
     pp = CreditsWeeksPipeline()

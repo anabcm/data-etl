@@ -63,28 +63,6 @@ MISSING_MUN = {
     'TLALTIZAPAN': 'TLALTIZAPAN DE ZAPATA'
 }
 
-APPROVED_WEEK = {
-    'Del 30 de abril al 6 de mayo': 202018,
-    'Del 7 al 13 de mayo': 202019,
-    'Del 14 al 20 de mayo': 202020,
-    'Del 21 al 27 de mayo': 202021,
-    'Del 28 de mayo al 3 de junio': 202022,
-    'Del 4 al 10 de junio': 202023,
-    'Del 11 al 17 de junio': 202024,
-    'Del 18 al 24 de junio': 202025,
-    'Del 25 de junio al 1 de julio': 202026,
-    'Del 2 al 8 de julio': 202027,
-    'Del 9 al 15 de julio': 202028,
-    'Del 16 al 22 de julio': 202029,
-    'Del 23 al 29 de julio': 202030,
-    'Del 30 de julio al 5 de agosto': 202031,
-    'Del 6 al 12 de agosto': 202032,
-    'Del 13 al 19 de agosto': 202033,
-    'Del 20 al 26 de agosto': 202034,
-    'Del 27 al 31 de agosto': 202035
-}
-
-
 def norm(string):
     return unicodedata.normalize('NFKD', string).encode('ASCII', 'ignore').decode("latin-1")
 
@@ -118,4 +96,7 @@ class ReadStep(PipelineStep):
 
         df = df.append(df_ent, sort=False)
 
-        return df
+        if len(prev) > 2:
+            return df, prev[2]
+        else:
+            return df

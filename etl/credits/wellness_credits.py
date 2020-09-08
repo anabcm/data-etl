@@ -3,11 +3,11 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
-from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, APPROVED_WEEK, replace_geo, norm, ReadStep
+from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm, ReadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, credits_weeks_csv = prev
 
         # filter confidential values
         df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
@@ -42,7 +42,8 @@ class TransformStep(PipelineStep):
         for col in [x for x in df.columns if x not in ['level', 'approved_week']]:
             df[col] = df[col].astype(int)
 
-        df['approved_week'].replace(APPROVED_WEEK, inplace=True)
+        credits_weeks = pd.read_csv(credits_weeks_csv)
+        df['approved_week'].replace(dict(zip(credits_weeks['approved_week_es'], credits_weeks['approved_week'])), inplace=True)
 
         return df
 
@@ -63,7 +64,7 @@ class WellnessWeeklyPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=['wellness-weekly-ent', 'wellness-weekly-mun'],
+            connector=['wellness-weekly-ent', 'wellness-weekly-mun', 'dim-weeks'],
             connector_path='conns.yaml',
             force=True
         )
