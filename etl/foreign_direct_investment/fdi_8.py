@@ -17,7 +17,7 @@ class TransformStep(PipelineStep):
         df = df.loc[~df[params.get('level')].str.contains('Total')].copy()
 
         for col in df.columns:
-            if ('monto' in col) & ('c' in col):
+            if (col == 'monto_c') | ('monto_c_' in col):
                 df[col] = df[col].apply(lambda x: binarice_value(x))
 
         split = df[params.get('level')].str.split(' ', n=1, expand=True)
@@ -33,6 +33,7 @@ class TransformStep(PipelineStep):
 
         df['quarter_id'] = df['year'].astype(int).astype(str) + df['quarter_id'].astype(int).astype(str)
         df['quarter_id'] = df['quarter_id'].astype(int)
+        df.fillna(0, inplace=True)
 
         return df
 
@@ -58,10 +59,7 @@ class FDI8Pipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             params.get('table'), db_connector, if_exists="drop", 
-            pk=[params.get('pk')], dtype=params.get('dtype'),
-            nullable_list=['value_between_companies', 'value_new_investments', 'value_re_investments', 
-                           'count_between_companies', 'count_new_investments', 'count_re_investments', 
-                           'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']
+            pk=[params.get('pk')], dtype=params.get('dtype')
         )
 
         return [download_step, transform_step, load_step]
