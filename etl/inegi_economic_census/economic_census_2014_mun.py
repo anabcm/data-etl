@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
         # filter
         df = df.loc[~df['Edad'].isna()].copy()
         df = df.loc[~df['clave_actividad_economica'].isna()].copy()
-        df = df.loc[~df['clave_municipio'].isna()].copy()
+        df = df.loc[df['clave_municipio'].isna()].copy()
         df = df.loc[df['clave_actividad_economica'].astype(str).str.len() == 6].copy()
 
         # geo_id
@@ -56,7 +56,7 @@ class EconomicCensusPipeline(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-            'inegi_economic_census', db_connector, dtype=dtypes, if_exists='append', 
+            'inegi_economic_census_mun', db_connector, dtype=dtypes, if_exists='append', 
             pk=['national_industry_id', 'mun_id', 'year']
         )
 
