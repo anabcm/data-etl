@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
         # filter
         df = df.loc[~df['Edad'].isna()].copy()
         df = df.loc[~df['clave_actividad_economica'].isna()].copy()
-        df = df.loc[~df['clave_municipio'].isna()].copy()
+        df = df.loc[df['clave_municipio'].isna()].copy()
         df = df.loc[df['clave_actividad_economica'].astype(str).str.len() == 6].copy()
 
         df.drop(columns=['entidad_federativa', 'clave_municipio', 'municipio', 'actividad_economica', 'Edad'], inplace=True)
