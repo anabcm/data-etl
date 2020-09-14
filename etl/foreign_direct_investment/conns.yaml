@@ -1,6 +1,6 @@
 fdi-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/foreign_direct_investment/IED_DataMexico_2020_2.xlsx
+  uri: gs://datamexico-data/foreign_direct_investment/IED_DataMéxico_2020_2_completo_v2.xlsx
 
 fdi-data-legacy:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
