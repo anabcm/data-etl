@@ -68,7 +68,7 @@ class Transform_94_Step(PipelineStep):
         df_final = pd.DataFrame()
         for option in ['between_companies', 'new_investments', 're_investments']:
             temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
-            temp.columns = ['year', 'count', 'value']
+            temp.columns = ['year', 'count', 'value_c']
             temp.dropna(subset=['value'], inplace=True)
             temp['investment_type'] = option
             df_final = df_final.append(temp)
@@ -106,7 +106,7 @@ class Transform_95_Step(PipelineStep):
         df_final = pd.DataFrame()
         for option in ['between_companies', 'new_investments', 're_investments']:
             temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
-            temp.columns = ['quarter_id', 'count', 'value']
+            temp.columns = ['quarter_id', 'count', 'value_c']
             temp.dropna(subset=['value'], inplace=True)
             temp['investment_type'] = option
             df_final = df_final.append(temp)
@@ -166,7 +166,7 @@ class FDI9Pipeline(EasyPipeline):
                     pk=['year'], dtype={'year': 'UInt16',
                                         'investment_type':  'String',
                                         'count':            'UInt16',
-                                        'value':            'Float32'})
+                                        'value_c':          'Float32'})
 
             return [download_step, transform_94_step, load_step]
 
@@ -176,7 +176,7 @@ class FDI9Pipeline(EasyPipeline):
                     pk=['quarter_id'], dtype={'quarter_id': 'UInt16',
                                               'investment_type':  'String',
                                               'count':            'UInt16',
-                                              'value':            'Float32'})
+                                              'value_c':          'Float32'})
 
             return [download_step, transform_95_step, load_step]
 

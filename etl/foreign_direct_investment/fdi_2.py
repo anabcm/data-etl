@@ -43,7 +43,7 @@ class TransformStep(PipelineStep):
         df_final = pd.DataFrame()
         for option in ['between_companies', 'new_investments', 're_investments']:
             temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
-            temp.columns = ['ent_id', 'year', 'quarter_id', 'count', 'value']
+            temp.columns = ['ent_id', 'year', 'quarter_id', 'count', 'value_c']
             temp.dropna(subset=['value'], inplace=True)
             temp['investment_type'] = option
             df_final = df_final.append(temp)
@@ -68,7 +68,7 @@ class FDI2Pipeline(EasyPipeline):
             'quarter_id':       'UInt16',
             'investment_type':  'String',
             'count':            'UInt16',
-            'value':            'Float32'
+            'value_c':          'Float32'
         }
 
         download_step = DownloadStep(
