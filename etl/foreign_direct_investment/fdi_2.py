@@ -44,7 +44,7 @@ class TransformStep(PipelineStep):
         for option in ['between_companies', 'new_investments', 're_investments']:
             temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
             temp.columns = ['ent_id', 'year', 'quarter_id', 'count', 'value_c']
-            temp.dropna(subset=['value'], inplace=True)
+            temp.dropna(subset=['value_c'], inplace=True)
             temp['investment_type'] = option
             df_final = df_final.append(temp)
         df = df_final.copy()
