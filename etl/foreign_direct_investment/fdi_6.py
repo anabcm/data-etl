@@ -5,7 +5,7 @@ from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
-from helpers import norm, binarice_value
+from helpers import norm
 from shared import get_dimensions, SECTOR_REPLACE
 
 
@@ -16,10 +16,6 @@ class TransformStep(PipelineStep):
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
         df.rename(columns={'entidad_federativa': 'ent_id'}, inplace=True)
         df = df.loc[~df[params.get('pk')].isna()].copy()
-
-        for col in df.columns:
-            if ('monto' in col) & ('c' in col):
-                df[col] = df[col].apply(lambda x: binarice_value(x))
 
         dim_geo = get_dimensions()[0]
         df[params.get('pk')].replace(dict(zip(dim_geo['ent_name'], dim_geo['ent_id'])), inplace=True)
@@ -32,6 +28,10 @@ class TransformStep(PipelineStep):
             df['sector'] = df['sector'].astype(str)
 
         df.columns = list(params.get('dtype').keys())
+
+        df['value'] = 0
+        df = df.loc[df['value_c'].astype(str).str.lower() != 'c'].copy()
+        df['value_c'] = df['value_c'].astype(float)
 
         return df
 

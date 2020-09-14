@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -5,7 +6,7 @@ from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
-from helpers import norm, binarice_value
+from helpers import norm
 from shared import get_dimensions
 
 
@@ -18,7 +19,8 @@ class TransformStep(PipelineStep):
 
         for col in df.columns:
             if (col == 'monto_c') | ('monto_c_' in col):
-                df[col] = df[col].apply(lambda x: binarice_value(x))
+                df.loc[df[col].astype(str).str.lower() == 'c', col] = np.nan
+                df[col] = df[col].astype(float)
 
         # get end_id dimension
         dim_geo = get_dimensions()[0]
@@ -34,7 +36,8 @@ class TransformStep(PipelineStep):
 
         df['quarter_id'] = df['year'].astype(int).astype(str) + df['quarter_id'].astype(int).astype(str)
         df['quarter_id'] = df['quarter_id'].astype(int)
-        df.fillna(0, inplace=True)
+
+        df.drop(columns=['value_between_companies', 'value_new_investments', 'value_re_investments'], inplace=True)
 
         return df
 
@@ -47,15 +50,12 @@ class FDI2Pipeline(EasyPipeline):
             'ent_id':                    'UInt8',
             'year':                      'UInt16',
             'quarter_id':                'UInt16',
-            'value_between_companies':   'Float32',
-            'value_new_investments':     'Float32',
-            'value_re_investments':      'Float32',
             'count_between_companies':   'UInt16',
             'count_new_investments':     'UInt16',
             'count_re_investments':      'UInt16',
-            'value_between_companies_c': 'UInt8',
-            'value_new_investments_c':   'UInt8',
-            'value_re_investments_c':    'UInt8'
+            'value_between_companies_c': 'Float32',
+            'value_new_investments_c':   'Float32',
+            'value_re_investments_c':    'Float32'
         }
 
         download_step = DownloadStep(
@@ -66,7 +66,10 @@ class FDI2Pipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             'fdi_2', db_connector, if_exists="drop", 
-            pk=['ent_id'], dtype=dtype
+            pk=['ent_id'], dtype=dtype, 
+            nullable_list=['value_between_companies_c', 'value_new_investments_c', 
+                           'value_re_investments_c', 'count_between_companies',
+                           'count_new_investments', 'count_re_investments']
         )
 
         return [download_step, transform_step, load_step]

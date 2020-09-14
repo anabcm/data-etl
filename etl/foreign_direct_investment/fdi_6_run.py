@@ -8,9 +8,9 @@ params = [
      'dtype': {
          'sector_id': 'String',
          'ent_id':    'UInt8',
-         'value':     'Float32',
+         'value':     'UInt8',
          'count':     'UInt16',
-         'value_c':   'UInt8'
+         'value_c':   'Float32'
      },
      'table': 'fdi_6_sector'},
     {'pk': 'ent_id',
@@ -19,9 +19,9 @@ params = [
      'dtype': {
          'subsector_id': 'UInt16',
          'ent_id':       'UInt8',
-         'value':        'Float32',
+         'value':        'UInt8',
          'count':        'UInt16',
-         'value_c':      'UInt8'
+         'value_c':      'Float32'
      },
      'table': 'fdi_6_subsector'},
     {'pk': 'ent_id',
@@ -30,9 +30,9 @@ params = [
      'dtype': {
          'industry_group_id':  'UInt16',
          'ent_id':             'UInt8',
-         'value':              'Float32',
+         'value':              'UInt8',
          'count':              'UInt16',
-         'value_c':            'UInt8'
+         'value_c':            'Float32'
      },
      'table': 'fdi_6_industry_group'}
 ]

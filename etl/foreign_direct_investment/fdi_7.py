@@ -5,7 +5,7 @@ from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
-from helpers import norm, binarice_value
+from helpers import norm
 from shared import SECTOR_REPLACE
 
 
@@ -15,10 +15,6 @@ class TransformStep(PipelineStep):
         df = pd.read_excel(data, sheet_name=params.get('sheet_name'))
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
         df = df.loc[~df[params.get('level')].str.contains('Total')].copy()
-
-        for col in df.columns:
-            if ('monto' in col) & ('c' in col):
-                df[col] = df[col].apply(lambda x: binarice_value(x))
 
         split = df[params.get('level')].str.split(' ', n=1, expand=True)
         df[params.get('level')] = split[0]
@@ -30,6 +26,10 @@ class TransformStep(PipelineStep):
 
         else:
             df[params.get('pk')] = df[params.get('pk')].astype(int)
+
+        df['value'] = 0
+        df = df.loc[df['value_c'].astype(str).str.lower() != 'c'].copy()
+        df['value_c'] = df['value_c'].astype(float)
 
         return df
 

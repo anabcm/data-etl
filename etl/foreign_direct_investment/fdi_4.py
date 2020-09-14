@@ -19,16 +19,15 @@ class TransformStep(PipelineStep):
         # get country, end_id dimensions
         dim_geo, dim_country = get_dimensions()
 
-        for col in df.columns:
-            if ('monto' in col) & ('c' in col):
-                df[col] = df[col].apply(lambda x: binarice_value(x))
-
         df['entidad_federativa'].replace(dict(zip(dim_geo['ent_name'], dim_geo['ent_id'])), inplace=True)
 
         df['pais'].replace(COUNTRY_REPLACE, inplace=True)
         df['pais'] = df['pais'].replace(dict(zip(dim_country['country_name_es'], dim_country['iso3'])))
 
         df.columns = ['ent_id', 'year', 'country', 'investment_type', 'value', 'count', 'value_c']
+        df.drop(columns=['value'], inplace=True)
+        df = df.loc[df['value_c'].astype(str).str.lower() != 'c'].copy()
+        df['value_c'] = df['value_c'].astype(float)
 
         return df
 
@@ -42,9 +41,8 @@ class FDI4Pipeline(EasyPipeline):
             'year':            'UInt16',
             'country':         'String',
             'investment_type': 'String',
-            'value':           'Float32',
             'count':           'UInt16',
-            'value_c':         'UInt8'
+            'value_c':         'Float32'
         }
 
         download_step = DownloadStep(

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline
@@ -5,7 +6,7 @@ from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
-from helpers import norm, binarice_value
+from helpers import norm
 from shared import SECTOR_REPLACE
 
 
@@ -18,7 +19,8 @@ class TransformStep(PipelineStep):
 
         for col in df.columns:
             if (col == 'monto_c') | ('monto_c_' in col):
-                df[col] = df[col].apply(lambda x: binarice_value(x))
+                df.loc[df[col].astype(str).str.lower() == 'c', col] = np.nan
+                df[col] = df[col].astype(float)
 
         split = df[params.get('level')].str.split(' ', n=1, expand=True)
         df[params.get('level')] = split[0]
@@ -33,7 +35,9 @@ class TransformStep(PipelineStep):
 
         df['quarter_id'] = df['year'].astype(int).astype(str) + df['quarter_id'].astype(int).astype(str)
         df['quarter_id'] = df['quarter_id'].astype(int)
-        df.fillna(0, inplace=True)
+
+        for col in ['value_between_companies', 'value_new_investments', 'value_re_investments']:
+            df[col] = 0
 
         return df
 
@@ -59,7 +63,10 @@ class FDI8Pipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             params.get('table'), db_connector, if_exists="drop", 
-            pk=[params.get('pk')], dtype=params.get('dtype')
+            pk=[params.get('pk')], dtype=params.get('dtype'), 
+            nullable_list=['value_between_companies_c', 'value_new_investments_c', 
+                           'value_re_investments_c', 'count_between_companies',
+                           'count_new_investments', 'count_re_investments']
         )
 
         return [download_step, transform_step, load_step]
