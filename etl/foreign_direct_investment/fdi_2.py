@@ -39,6 +39,22 @@ class TransformStep(PipelineStep):
 
         df.drop(columns=['value_between_companies', 'value_new_investments', 'value_re_investments'], inplace=True)
 
+        base = ['ent_id', 'year', 'quarter_id']
+        df_final = pd.DataFrame()
+        for option in ['between_companies', 'new_investments', 're_investments']:
+            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
+            temp.columns = ['ent_id', 'year', 'quarter_id', 'count', 'value']
+            temp.dropna(subset=['value'], inplace=True)
+            temp['investment_type'] = option
+            df_final = df_final.append(temp)
+        df = df_final.copy()
+
+        df['investment_type'].replace({
+            'between_companies': 'Cuentas entre compañías',
+            'new_investments': 'Nuevas inversiones',
+            're_investments': 'Reinversión de utilidades'
+        }, inplace=True)
+
         return df
 
 class FDI2Pipeline(EasyPipeline):
@@ -47,15 +63,12 @@ class FDI2Pipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            'ent_id':                    'UInt8',
-            'year':                      'UInt16',
-            'quarter_id':                'UInt16',
-            'count_between_companies':   'UInt16',
-            'count_new_investments':     'UInt16',
-            'count_re_investments':      'UInt16',
-            'value_between_companies_c': 'Float32',
-            'value_new_investments_c':   'Float32',
-            'value_re_investments_c':    'Float32'
+            'ent_id':           'UInt8',
+            'year':             'UInt16',
+            'quarter_id':       'UInt16',
+            'investment_type':  'String',
+            'count':            'UInt16',
+            'value':            'Float32'
         }
 
         download_step = DownloadStep(
@@ -67,9 +80,7 @@ class FDI2Pipeline(EasyPipeline):
         load_step = LoadStep(
             'fdi_2', db_connector, if_exists="drop", 
             pk=['ent_id'], dtype=dtype, 
-            nullable_list=['value_between_companies_c', 'value_new_investments_c', 
-                           'value_re_investments_c', 'count_between_companies',
-                           'count_new_investments', 'count_re_investments']
+            nullable_list=['count']
         )
 
         return [download_step, transform_step, load_step]
