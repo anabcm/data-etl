@@ -6,6 +6,7 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 from helpers import norm
+from shared import INVESTMENT_TYPE
 
 
 class Transform_92_Step(PipelineStep):
@@ -74,11 +75,7 @@ class Transform_94_Step(PipelineStep):
             df_final = df_final.append(temp)
         df = df_final.copy()
 
-        df['investment_type'].replace({
-            'between_companies': 'Cuentas entre compañías',
-            'new_investments': 'Nuevas inversiones',
-            're_investments': 'Reinversión de utilidades'
-        }, inplace=True)
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
         return df
 
@@ -113,11 +110,7 @@ class Transform_95_Step(PipelineStep):
         df = df_final.copy()
 
 
-        df['investment_type'].replace({
-            'between_companies': 'Cuentas entre compañías',
-            'new_investments': 'Nuevas inversiones',
-            're_investments': 'Reinversión de utilidades'
-        }, inplace=True)
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
         return df
 
@@ -164,7 +157,7 @@ class FDI9Pipeline(EasyPipeline):
 
             load_step = LoadStep('fdi_9_year_investment', db_connector, if_exists='drop', 
                     pk=['year'], dtype={'year': 'UInt16',
-                                        'investment_type':  'String',
+                                        'investment_type':  'UInt8',
                                         'count':            'UInt16',
                                         'value_c':          'Float32'})
 
@@ -174,7 +167,7 @@ class FDI9Pipeline(EasyPipeline):
 
             load_step = LoadStep('fdi_9_quarter_investment', db_connector, if_exists='drop', 
                     pk=['quarter_id'], dtype={'quarter_id': 'UInt16',
-                                              'investment_type':  'String',
+                                              'investment_type':  'UInt8',
                                               'count':            'UInt16',
                                               'value_c':          'Float32'})
 

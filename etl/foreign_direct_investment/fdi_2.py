@@ -7,7 +7,7 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 from helpers import norm
-from shared import get_dimensions
+from shared import get_dimensions, INVESTMENT_TYPE
 
 
 class TransformStep(PipelineStep):
@@ -49,11 +49,7 @@ class TransformStep(PipelineStep):
             df_final = df_final.append(temp)
         df = df_final.copy()
 
-        df['investment_type'].replace({
-            'between_companies': 'Cuentas entre compañías',
-            'new_investments': 'Nuevas inversiones',
-            're_investments': 'Reinversión de utilidades'
-        }, inplace=True)
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
         return df
 
@@ -66,7 +62,7 @@ class FDI2Pipeline(EasyPipeline):
             'ent_id':           'UInt8',
             'year':             'UInt16',
             'quarter_id':       'UInt16',
-            'investment_type':  'String',
+            'investment_type':  'UInt8',
             'count':            'UInt16',
             'value_c':          'Float32'
         }

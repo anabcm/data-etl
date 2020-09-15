@@ -13,6 +13,15 @@ def get_dimensions():
 
     return [dim_geo, dim_country]
 
+INVESTMENT_TYPE = {
+    'between_companies': 1,
+    'Cuentas entre compañías': 1,
+    'new_investments': 2,
+    'Nuevas inversiones': 2,
+    're_investments': 3,
+    'Reinversión de utilidades': 3
+}
+
 SECTOR_REPLACE = {
     31: '31-33',
     32: '31-33',

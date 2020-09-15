@@ -5,7 +5,7 @@ from bamboo_lib.models import Parameter
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
-from shared import get_dimensions, COUNTRY_REPLACE
+from shared import get_dimensions, COUNTRY_REPLACE, INVESTMENT_TYPE
 from helpers import norm
 
 
@@ -49,6 +49,8 @@ class Transform_102_Step(PipelineStep):
 
         df[['year', 'count', 'value_c']] = df[['year', 'count', 'value_c']].astype(float)
 
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
+
         return df
 
 class Transform_103_Step(PipelineStep):
@@ -76,11 +78,7 @@ class Transform_103_Step(PipelineStep):
             df_final = df_final.append(temp)
         df = df_final.copy()
 
-        df['investment_type'].replace({
-            'between_companies': 'Cuentas entre compañías',
-            'new_investments': 'Nuevas inversiones',
-            're_investments': 'Reinversión de utilidades'
-        }, inplace=True)
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
         return df
 
@@ -107,8 +105,8 @@ class FDI10Pipeline(EasyPipeline):
         if params.get('table') == 10.1:
 
             load_step = LoadStep('fdi_10_year_country', db_connector, if_exists='drop', 
-                    pk=['country', 'year'], dtype={'year': 'UInt16',
-                                                   'count': 'UInt16',
+                    pk=['country', 'year'], dtype={'year':    'UInt16',
+                                                   'count':   'UInt16',
                                                    'value_c': 'Float32'})
 
             return [download_step, transform_101_step, load_step]
@@ -116,9 +114,10 @@ class FDI10Pipeline(EasyPipeline):
         if params.get('table') == 10.2:
 
             load_step = LoadStep('fdi_10_year_country_investment', db_connector, if_exists='drop', 
-                    pk=['country', 'year'], dtype={'year': 'UInt16',
-                                                   'count': 'UInt16',
-                                                   'value_c': 'Float32'})
+                    pk=['country', 'year'], dtype={'year':             'UInt16',
+                                                   'investment_type':  'UInt8',
+                                                   'count':            'UInt16',
+                                                   'value_c':          'Float32'})
 
             return [download_step, transform_102_step, load_step]
 
@@ -126,7 +125,7 @@ class FDI10Pipeline(EasyPipeline):
 
             load_step = LoadStep('fdi_10_year_investment', db_connector, if_exists='drop', 
                     pk=['year'], dtype={'year':             'UInt16',
-                                        'investment_type':  'String',
+                                        'investment_type':  'UInt8',
                                         'count':            'UInt16',
                                         'value_c':          'Float32'})
 
