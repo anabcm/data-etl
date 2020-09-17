@@ -25,3 +25,7 @@ wellness-weekly-ent:
 wellness-weekly-mun:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/credits/bienestar_normal_semanal_municipal.csv
+
+dim-weeks:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/credits_weeks.csv

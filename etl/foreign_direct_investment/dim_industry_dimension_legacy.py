@@ -1,7 +1,7 @@
-
 import nltk
 import pandas as pd
-from bamboo_lib.models import PipelineStep, EasyPipeline
+from bamboo_lib.models import PipelineStep
+from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
 from sklearn.feature_extraction import stop_words
@@ -39,9 +39,6 @@ class ReadStep(PipelineStep):
         df = format_text(df, cols_es, stopwords=stopwords_es)
         df = format_text(df, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
-        for col in ['subsector_id', 'industry_group_id']:
-            df[col] = df[col].astype(int)
-
         return df
 
 class FDIIndustryPipeline(EasyPipeline):
@@ -50,13 +47,14 @@ class FDIIndustryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
-            'sector_id':           'String',
-            'subsector_id':        'UInt16',
-            'industry_group_id':   'UInt16'
+            'sector_id':                      'String',
+            'subsector_id':                   'String',
+            'industry_group_id':              'String'
+
         }
 
         read_step = ReadStep()
-        load_step = LoadStep('dim_shared_industry_fdi', db_connector, dtype=dtypes,
+        load_step = LoadStep('dim_shared_industry_fdi_legacy', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['sector_id', 'subsector_id', 'industry_group_id'])
         
         return [read_step, load_step]

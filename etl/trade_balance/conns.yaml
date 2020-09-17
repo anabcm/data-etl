@@ -1,3 +1,0 @@
-dataset:
-  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/mexican-atlas/products_rcpy_municipality.csv.bz2

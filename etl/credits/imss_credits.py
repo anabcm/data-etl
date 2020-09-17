@@ -61,7 +61,8 @@ class IMSSCreditsPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=['imss-ent-total', 'imss-mun-total'],
-            connector_path='conns.yaml'
+            connector_path='conns.yaml',
+            force=True
         )
 
         read_step = ReadStep()

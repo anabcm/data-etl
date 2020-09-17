@@ -7,12 +7,13 @@ from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_ge
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, credits_weeks_csv = prev
 
         # filter confidential values
-        df = df.loc[df['count'] != 'C'].copy()
+        df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
 
         # replace members in dimensions
+        df['person_type'] = df['person_type'].str.strip().str.lower().apply(lambda x: norm(x))
         df['sex'].replace(SEX, inplace=True)
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
@@ -41,13 +42,8 @@ class TransformStep(PipelineStep):
         for col in [x for x in df.columns if x not in ['level', 'approved_week']]:
             df[col] = df[col].astype(int)
 
-        dim = {
-            '23-29 abril': 202017,
-            '30 abril-6 mayo': 202018,
-            '14-20 mayo': 202020,
-            '28 mayo-3 junio': 202022
-        }
-        df['approved_week'].replace(dim, inplace=True)
+        credits_weeks = pd.read_csv(credits_weeks_csv)
+        df['approved_week'].replace(dict(zip(credits_weeks['approved_week_es'], credits_weeks['approved_week'])), inplace=True)
 
         return df
 
@@ -68,8 +64,9 @@ class WellnessWeeklyPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=['wellness-weekly-ent', 'wellness-weekly-mun'],
-            connector_path='conns.yaml'
+            connector=['wellness-weekly-ent', 'wellness-weekly-mun', 'dim-weeks'],
+            connector_path='conns.yaml',
+            force=True
         )
 
         read_step = ReadStep()

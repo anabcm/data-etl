@@ -28,7 +28,8 @@ AGE_RANGE = {
     '40 a 49 años': 7, 
     '50 a 59 años': 8,
     '60 y más años': 9, 
-    
+    '60 años o más': 9, 
+
     '20 a 49 años': 12,
     '50 a 69 años': 13, 
     '70 y más años': 14
@@ -61,7 +62,6 @@ MISSING_MUN = {
     'TLAQUEPAQUE': 'SAN PEDRO TLAQUEPAQUE',
     'TLALTIZAPAN': 'TLALTIZAPAN DE ZAPATA'
 }
-
 
 def norm(string):
     return unicodedata.normalize('NFKD', string).encode('ASCII', 'ignore').decode("latin-1")
@@ -96,4 +96,7 @@ class ReadStep(PipelineStep):
 
         df = df.append(df_ent, sort=False)
 
-        return df
+        if len(prev) > 2:
+            return df, prev[2]
+        else:
+            return df

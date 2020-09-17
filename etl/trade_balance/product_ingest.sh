@@ -1,1 +1,0 @@
-bamboo-cli --folder . --entry dim_product_pipeline
