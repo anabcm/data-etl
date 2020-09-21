@@ -48,7 +48,7 @@ class TransformStep(PipelineStep):
         df.columns = df.columns.str.replace('suma de ', '').str.replace('pni-', '')
 
         # melt step
-        if 'licenciatura' in params.get('url'):
+        if 'licenciatura' == params.get('dataset'):
             age_range = ['mat-h-17', 'mat-h-18', 'mat-h-19', 'mat-h-20', 'mat-h-21',
                          'mat-h-22', 'mat-h-23', 'mat-h-24', 'mat-h-25', 'mat-h-26', 
                          'mat-h-27', 'mat-h-28', 'mat-h-29', 'mat-h-30', 'mat-h-31', 'mat-h-32', 
