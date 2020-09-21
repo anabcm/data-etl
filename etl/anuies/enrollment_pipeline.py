@@ -3,12 +3,12 @@ import pandas as pd
 from helpers import format_text
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_excel(params.get('url'), header=1)
+        df = pd.read_excel(prev, header=1)
         df.columns = df.columns.str.lower().str.replace('suma de ', '')
         df.rename(columns={'entidad': 'ent_id', 'municipio': 'mun_id', 'cve campo unitario': 'career', 
                            'nivel': 'type', 'ciclo': 'period', 'clave centro de trabajo': 'campus_id', 
@@ -107,7 +107,7 @@ class TransformStep(PipelineStep):
 
         df.drop(columns=['career', 'period'], inplace=True)
 
-        df['year'] = params.get('period')
+        df['year'] = int(params.get('year_plus'))
         
         return df
 
@@ -115,8 +115,9 @@ class EnrollmentPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(name='url', dtype=str),
-            Parameter(name='period', dtype=int)
+            Parameter(name='dataset', dtype=str),
+            Parameter(name='year', dtype=int),
+            Parameter(name='year_plus', dtype=int)
         ]
 
     @staticmethod
@@ -134,9 +135,24 @@ class EnrollmentPipeline(EasyPipeline):
             'value':       'UInt32',
             'age':         'UInt8'
         }
-        
+
+        download_step = DownloadStep(
+            connector='data',
+            connector_path="conns.yaml"
+        )
+
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('anuies_enrollment', db_connector, if_exists='append', pk=['mun_id', 'campus_id', 'program', 'year'], dtype=dtype)
 
-        return [read_step, transform_step, load_step]
+        return [download_step, read_step, transform_step, load_step]
+
+if __name__ == "__main__":
+    pp = EnrollmentPipeline()
+    for year in range(2016, 2019):
+        for dataset in ['licenciatura', 'posgrado']: 
+            pp.run({
+                'dataset': dataset,
+                'year': str(year),
+                'year_plus': str(year+1)
+            })
