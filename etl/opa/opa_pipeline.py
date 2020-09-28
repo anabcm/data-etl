@@ -52,14 +52,14 @@ class OPAPipeline(EasyPipeline):
             'localization':                 'String',
             'fiscal_resources_start_date':  'UInt32',
             'fiscal_resources_end_date':    'UInt32',
+            'budget_cycle':                 'UInt16',
+            'status_operation':             'UInt8',
             'expected_benefits':            'String',
             'amount_approved':              'Float64',
             'modified_amount':              'Float64',
             'amount_exercised':             'Float64',
             'physical_advance':             'Float64',
-            'amount_total_inversion':       'UInt64',
-            'budget_cycle':                 'UInt64',
-            'status_operation':             'UInt64',
+            'amount_total_inversion':       'UInt64'
         }
 
         download_step = DownloadStep(
