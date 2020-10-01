@@ -63,12 +63,12 @@ class OPAPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector='opa-data',
+            connector='opa-budget-data',
             connector_path='conns.yaml'
         )
 
         transform_step = TransformStep()
-        load_step = LoadStep('budget_opa', db_connector, 
+        load_step = LoadStep('opa_budget', db_connector, 
                     if_exists='drop', pk=['id_investment_area', 'id_responsible_unit', 'id_investment_type'], dtype=dtype,
                     nullable_list=['amount_approved', 'modified_amount', 'amount_exercised', 'physical_advance',
                                    'latitude', 'longitude', 'localization']
