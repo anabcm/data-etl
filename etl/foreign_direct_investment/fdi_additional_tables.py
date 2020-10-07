@@ -6,15 +6,16 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 from helpers import norm
-from shared import SECTOR_REPLACE
+from shared import get_dimensions, SECTOR_REPLACE, COUNTRY_REPLACE, INVESTMENT_TYPE
 from util import validate_category
-
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
         df.rename(columns={
             'Año': 'year',
+            'Trimestre': 'quarter_id',
+            'Tipo de inversión': 'investment_type',
             'Sector': 'sector_id',
             'Subsector': 'subsector_id',
             'Rama': 'industry_group_id',
@@ -23,9 +24,9 @@ class TransformStep(PipelineStep):
             'Monto C': 'value_c'
         }, inplace=True)
 
-        pk_id = [x for x in df.columns if 'id' in x][0]
+        pk_id = params.get('pk')
 
-        df = df.loc[~df[pk_id].isna()].copy()
+        df = df.loc[df[pk_id] != 'Total general'].copy()
 
         split = df[pk_id].str.split(' ', n=1, expand=True)
         df[pk_id] = split[0]
@@ -37,11 +38,18 @@ class TransformStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        df = validate_category(df, pk_id, 'value_c', 'c')
+        temp = pd.DataFrame()
+        for investment_type in list(df['investment_type'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['investment_type'] == investment_type)], pk_id, 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value', 'count']] = df[['year', 'value', 'count']].astype(float)
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
+
+        df[['year', 'value', 'count', 'investment_type']] = df[['year', 'value', 'count', 'investment_type']].astype(float)
 
         return df
 
@@ -60,7 +68,7 @@ class Pipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         download_step = DownloadStep(
-            connector="fdi-data-additional",
+            connector="fdi-data-additional-2",
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

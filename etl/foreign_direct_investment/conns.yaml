@@ -6,6 +6,10 @@ fdi-data-additional:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/foreign_direct_investment/Tablas adicionales.xlsx
 
+fdi-data-additional-2:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/foreign_direct_investment/sector_subsector_rama_tipo_inversión.xlsx
+
 fdi-data-legacy:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/foreign_direct_investment/Tabla_pública_1T2020.xlsx
