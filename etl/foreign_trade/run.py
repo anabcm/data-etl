@@ -22,12 +22,15 @@ print('nat files: {}, mun files: {}, ent files: {}'.format(len(nat), len(mun), l
 
 for url in nat:
   type_, name_, level_name_ = get_level(url, LEVELS)
+  url = url.split('/foreign_trade/')[1]
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 for url in ent:
   type_, name_, level_name_ = get_level(url, LEVELS)
+  url = url.split('/foreign_trade/')[1]
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 for url in mun:
   type_, name_, level_name_ = get_level(url, LEVELS)
+  url = url.split('/foreign_trade/')[1]
   os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={}'.format(url, type_, name_))
 
 # countries
