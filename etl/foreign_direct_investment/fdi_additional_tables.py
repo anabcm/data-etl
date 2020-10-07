@@ -28,6 +28,9 @@ class TransformStep(PipelineStep):
 
         df = df.loc[df[pk_id] != 'Total general'].copy()
 
+        df['quarter_id'] = (df['year'].astype(int).astype(str) + df['quarter_id'].astype(int).astype(str)).astype(int)
+        df.drop(columns=['year'], inplace=True)
+
         split = df[pk_id].str.split(' ', n=1, expand=True)
         df[pk_id] = split[0]
         df[pk_id] = df[pk_id].astype(int)
@@ -49,7 +52,7 @@ class TransformStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['year', 'value', 'count', 'investment_type']] = df[['year', 'value', 'count', 'investment_type']].astype(float)
+        df[['value', 'count', 'investment_type']] = df[['value', 'count', 'investment_type']].astype(float)
 
         return df
 
