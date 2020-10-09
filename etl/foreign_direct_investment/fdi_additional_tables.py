@@ -138,7 +138,7 @@ class TransformStateStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value', 'count']] = df[['year', 'value', 'count']].astype(float)
+        df[['year', 'value_c', 'count']] = df[['year', 'value_c', 'count']].astype(float)
 
         return df
 
