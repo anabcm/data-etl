@@ -11,6 +11,7 @@ from util import validate_category
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
+        print(params)
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
         df.rename(columns={
             'Año': 'year',
@@ -31,7 +32,7 @@ class ReadStep(PipelineStep):
 class TransformInvestmentStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-
+        print('Investmen STEP')
         pk_id = params.get('pk')
 
         df = df.loc[df[pk_id] != 'Total general'].copy()
@@ -67,7 +68,7 @@ class TransformInvestmentStep(PipelineStep):
 class TransformCountryStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-
+        print('Country STEP')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -104,7 +105,7 @@ class TransformCountryStep(PipelineStep):
 class TransformStateStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-
+        print('State STEP')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -142,6 +143,122 @@ class TransformStateStep(PipelineStep):
 
         return df
 
+class TransformYearStep(PipelineStep):
+    def run_step(self, prev, params):
+        df = prev
+        print('Year STEP')
+        pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
+
+        df = df.loc[~df[pk_id].isna()].copy()
+
+        split = df[pk_id].str.split(' ', n=1, expand=True)
+        df[pk_id] = split[0]
+        df[pk_id] = df[pk_id].astype(int)
+
+        df['value_c'] = df['value_c'].astype(str).str.lower()
+
+        """temp = pd.DataFrame()
+        for country in list(df['ent_id'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()"""
+
+        level = ['sector_id', 'subsector_id', 'industry_group_id']
+        for i in level:
+            if i != pk_id:
+                df[i] = 0
+
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
+
+        df = df.loc[df['value_c'] != 'c'].copy()
+
+        df = df.loc[df['value_c'] != 'false'].copy()
+
+        df[['year', 'value_c', 'count']] = df[['year', 'value_c', 'count']].astype(float)
+
+        return df
+
+class TransformYearQuarterStep(PipelineStep):
+    def run_step(self, prev, params):
+        df = prev
+        print('Year YearQuarter')
+        pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
+
+        df = df.loc[df[pk_id] != 'Total general'].copy()
+
+        df['quarter_id'] = (df['year'].astype(int).astype(str) + df['quarter_id'].astype(int).astype(str)).astype(int)
+        df.drop(columns=['year'], inplace=True)
+
+        split = df[pk_id].str.split(' ', n=1, expand=True)
+        df[pk_id] = split[0]
+        df[pk_id] = df[pk_id].astype(int)
+
+        df['value_c'] = df['value_c'].astype(str).str.lower()
+
+        """temp = pd.DataFrame()
+        for country in list(df['ent_id'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()"""
+
+        level = ['sector_id', 'subsector_id', 'industry_group_id']
+        for i in level:
+            if i != pk_id:
+                df[i] = 0
+
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
+
+        df = df.loc[df['value_c'] != 'c'].copy()
+
+        df = df.loc[df['value_c'] != 'false'].copy()
+
+        df[['quarter_id', 'value_c', 'count']] = df[['quarter_id', 'value_c', 'count']].astype(float)
+
+        return df
+
+class TransformYearInvestmentStep(PipelineStep):
+    def run_step(self, prev, params):
+        df = prev
+        print('Year YearInvestment')
+        pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
+
+        df = df.loc[df[pk_id] != 'Total general'].copy()
+
+        split = df[pk_id].str.split(' ', n=1, expand=True)
+        df[pk_id] = split[0]
+        df[pk_id] = df[pk_id].astype(int)
+
+        df['value_c'] = df['value_c'].astype(str).str.lower()
+
+        """temp = pd.DataFrame()
+        for country in list(df['ent_id'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()"""
+
+        level = ['sector_id', 'subsector_id', 'industry_group_id']
+        for i in level:
+            if i != pk_id:
+                df[i] = 0
+
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
+
+        df = df.loc[df['value_c'] != 'c'].copy()
+
+        df.drop(columns=['value_c'], inplace=True)
+
+        df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
+
+        df[['year', 'value', 'count', 'investment_type']] = df[['year', 'value', 'count', 'investment_type']].astype(float)
+
+        return df
+
 class Pipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
@@ -170,14 +287,21 @@ class Pipeline(EasyPipeline):
             pk=[params.get('pk')], dtype=params.get('dtype')
         )
 
-        if int(params.get('sheet_name')) in range(1, 4):
+        if params.get('db-source') == 'fdi-data-additional-2':
             transform_step = TransformInvestmentStep()
-            return [download_step, read_step, transform_step, load_step]
         
-        elif int(params.get('sheet_name')) in range(4, 7):
-            transform_step = TransformCountryStep()
-            return [download_step, read_step, transform_step, load_step]
+        elif params.get('db-source') == 'fdi-data-additional':
+            if int(params.get('sheet_name')) in range(4, 7):
+                transform_step = TransformCountryStep()
+            else:
+                transform_step = TransformStateStep()
 
         else:
-            transform_step = TransformStateStep()
-            return [download_step, read_step, transform_step, load_step]
+            if int(params.get('sheet_name')) in range(1, 4):
+                transform_step = TransformYearStep()
+            elif int(params.get('sheet_name')) in range(4, 7):
+                transform_step = TransformYearQuarterStep()
+            else:
+                transform_step = TransformYearInvestmentStep()
+
+        return [download_step, read_step, transform_step, load_step]
