@@ -83,6 +83,7 @@ params = [
          'ent_id':            'UInt8',
          'year':              'UInt16',
          'value':             'Float32',
+         'value_C':           'Float32',
          'count':             'UInt16'
      },
      'if_exists': 'append',
@@ -97,6 +98,7 @@ params = [
          'ent_id':            'UInt8',
          'year':              'UInt16',
          'value':             'Float32',
+         'value_C':           'Float32',
          'count':             'UInt16'
      },
      'if_exists': 'append',
@@ -111,6 +113,7 @@ params = [
          'ent_id':            'UInt8',
          'year':              'UInt16',
          'value':             'Float32',
+         'value_C':           'Float32',
          'count':             'UInt16'
      },
      'if_exists': 'append',
