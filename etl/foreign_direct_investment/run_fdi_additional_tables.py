@@ -11,6 +11,7 @@ params = [
          'value':           'Float32',
          'count':           'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional-2',
      'table': 'fdi_quarter_industry_sector'},
     {'pk': 'subsector_id',
@@ -22,6 +23,7 @@ params = [
          'value':           'Float32',
          'count':           'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional-2',
      'table': 'fdi_quarter_industry_subsector'},
     {'pk': 'industry_group_id',
@@ -33,6 +35,7 @@ params = [
          'value':              'Float32',
          'count':              'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional-2',
      'table': 'fdi_quarter_industry_industry_group'},
     {'pk': 'sector_id',
@@ -44,6 +47,7 @@ params = [
          'value':      'Float32',
          'count':      'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional',
      'table': 'fdi_year_sector_country'},
     {'pk': 'subsector_id',
@@ -55,6 +59,7 @@ params = [
          'value':        'Float32',
          'count':        'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional',
      'table': 'fdi_year_subsector_country'},
     {'pk': 'industry_group_id',
@@ -66,8 +71,51 @@ params = [
          'value':             'Float32',
          'count':             'UInt16'
      },
+     'if_exists': 'drop',
      'db-source': 'fdi-data-additional',
-     'table': 'fdi_year_industry_group_country'}
+     'table': 'fdi_year_industry_group_country'},
+    {'pk': 'sector_id',
+     'sheet_name': '7',
+     'dtype': {
+         'sector_id':         'String',
+         'subsector_id':      'UInt16',
+         'industry_group_id': 'UInt16',
+         'ent_id':            'UInt8',
+         'year':              'UInt16',
+         'value':             'Float32',
+         'count':             'UInt16'
+     },
+     'if_exists': 'append',
+     'db-source': 'fdi-data-additional',
+     'table': 'fdi_year_state_industry'},
+    {'pk': 'subsector_id',
+     'sheet_name': '8',
+     'dtype': {
+         'sector_id':         'String',
+         'subsector_id':      'UInt16',
+         'industry_group_id': 'UInt16',
+         'ent_id':            'UInt8',
+         'year':              'UInt16',
+         'value':             'Float32',
+         'count':             'UInt16'
+     },
+     'if_exists': 'append',
+     'db-source': 'fdi-data-additional',
+     'table': 'fdi_year_state_industry'},
+    {'pk': 'industry_group_id',
+     'sheet_name': '9',
+     'dtype': {
+         'sector_id':         'String',
+         'subsector_id':      'UInt16',
+         'industry_group_id': 'UInt16',
+         'ent_id':            'UInt8',
+         'year':              'UInt16',
+         'value':             'Float32',
+         'count':             'UInt16'
+     },
+     'if_exists': 'append',
+     'db-source': 'fdi-data-additional',
+     'table': 'fdi_year_state_industry'}
 ]
 
 pp = Pipeline
@@ -77,5 +125,6 @@ for i in params:
         'sheet_name': i['sheet_name'],
         'dtype': i['dtype'],
         'table': i['table'],
-        'db-source': i['db-source']
+        'db-source': i['db-source'],
+        'if_exists': i['if_exists']
     })

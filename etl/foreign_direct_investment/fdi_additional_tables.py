@@ -20,6 +20,7 @@ class ReadStep(PipelineStep):
             'Subsector': 'subsector_id',
             'Rama': 'industry_group_id',
             'País de Origen DEAE': 'country_id',
+            'Entidad federativa': 'ent_id',
             'Monto': 'value',
             'Recuento': 'count',
             'Monto C': 'value_c'
@@ -48,12 +49,12 @@ class TransformInvestmentStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        temp = pd.DataFrame()
+        """temp = pd.DataFrame()
         for investment_type in list(df['investment_type'].unique()):
             temp = temp.append(validate_category(df.loc[(df['investment_type'] == investment_type)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()
+        temp = pd.DataFrame()"""
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -81,18 +82,59 @@ class TransformCountryStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        temp = pd.DataFrame()
+        """temp = pd.DataFrame()
         for country in list(df['country_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['country_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()
+        temp = pd.DataFrame()"""
 
         country_replace = get_dimensions()[1]
 
         df['country_id'].replace(COUNTRY_REPLACE, inplace=True)
 
         df['country_id'].replace(dict(zip(country_replace['country_name_es'], country_replace['iso3'])), inplace=True)
+
+        df = df.loc[df['value_c'] != 'c'].copy()
+
+        df[['year', 'value', 'count']] = df[['year', 'value', 'count']].astype(float)
+
+        return df
+
+class TransformStateStep(PipelineStep):
+    def run_step(self, prev, params):
+        df = prev
+
+        pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
+
+        df = df.loc[~df[pk_id].isna()].copy()
+
+        split = df[pk_id].str.split(' ', n=1, expand=True)
+        df[pk_id] = split[0]
+        df[pk_id] = df[pk_id].astype(int)
+
+        df['value_c'] = df['value_c'].astype(str).str.lower()
+
+        """temp = pd.DataFrame()
+        for country in list(df['ent_id'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()"""
+
+        ent_replace = get_dimensions()[0]
+
+        df['ent_id'].replace(dict(zip(ent_replace['ent_name'], ent_replace['ent_id'])), inplace=True)
+
+        df = df.loc[df['value_c'] != 'c'].copy()
+
+        level = ['sector_id', 'subsector_id', 'industry_group_id']
+        for i in level:
+            if i != pk_id:
+                df[i] = 0
+
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -108,7 +150,8 @@ class Pipeline(EasyPipeline):
             Parameter(name="sheet_name", dtype=str),
             Parameter(name="dtype", dtype=str),
             Parameter(name="table", dtype=str),
-            Parameter(name="db-source", dtype=str)
+            Parameter(name="db-source", dtype=str),
+            Parameter(name='if_exists', dtype=str)
         ]
 
     @staticmethod
@@ -123,14 +166,18 @@ class Pipeline(EasyPipeline):
         read_step = ReadStep()
         
         load_step = LoadStep(
-            params.get('table'), db_connector, if_exists="drop", 
+            params.get('table'), db_connector, if_exists=params.get('if_exists'), 
             pk=[params.get('pk')], dtype=params.get('dtype')
         )
 
-        if int(params.get('sheet_name')) < 4:
+        if int(params.get('sheet_name')) in range(1, 4):
             transform_step = TransformInvestmentStep()
             return [download_step, read_step, transform_step, load_step]
         
-        else:
+        elif int(params.get('sheet_name')) in range(4, 7):
             transform_step = TransformCountryStep()
+            return [download_step, read_step, transform_step, load_step]
+
+        else:
+            transform_step = TransformStateStep()
             return [download_step, read_step, transform_step, load_step]
