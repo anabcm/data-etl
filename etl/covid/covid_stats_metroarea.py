@@ -21,7 +21,7 @@ class TransformStep(PipelineStep):
         dicto_mz_population = dict(zip(mz_population["Metro Area ID"], mz_population["Projected Population"]))
 
         #Metroareas ids
-        zm_names = pd.read_csv("http://www.conapo.gob.mx/work/models/CONAPO/Marginacion/Datos_Abiertos/Delimitacion_ZM/ZM_2015.csv", encoding="latin-1")
+        zm_names = pd.read_csv(prev, encoding="latin-1")
         zm_names = zm_names[["CVE_ZM", "NOM_ZM", "CVE_MUN"]]
         zm_names = zm_names.rename(columns={"CVE_ZM": "zm_id", "CVE_MUN": "mun_id"})
         zm_names["zm_id"] = ("99" + zm_names["zm_id"].astype(str).str.replace(".", "")).astype(int)
@@ -195,6 +195,11 @@ class CovidStatsMetroareaPipeline(EasyPipeline):
             'day_from_10_deaths':               "UInt16"
         }
 
+        download_step = DownloadStep(
+            connector='zm-data',
+            connector_path="conns.yaml"
+        )
+
         xform_step = TransformStep()
         load_step = LoadStep(
             "gobmx_covid_stats_metroarea", db_connector, if_exists="drop", 
@@ -207,7 +212,7 @@ class CovidStatsMetroareaPipeline(EasyPipeline):
             dtype=dtypes
         )
 
-        return [xform_step, load_step]
+        return [download_step, xform_step, load_step]
 
 if __name__ == "__main__":
     pp = CovidStatsMetroareaPipeline()

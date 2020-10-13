@@ -5,3 +5,7 @@ covid-data-mx:
 population-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/conapo_zm/zm_population.csv
+
+zm-data:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/conapo_zm/ZM_2015.csv

@@ -2,13 +2,13 @@ import re
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 from util import hs6_converter, get_time, get_number, get_params
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # params
-        df = pd.read_csv(params.get('url'))
+        df = pd.read_csv(prev)
         df.columns = [row.strip().lower() for row in df.columns]
         return df
 
@@ -98,10 +98,16 @@ class ForeignTradePipeline(EasyPipeline):
         }
         
         read_step = ReadStep()
+
+        download_step = DownloadStep(
+            connector='foreign-trade',
+            connector_path='conns.yaml'
+        )
+
         transform_step = TransformStep()
         load_step = LoadStep('economy_foreign_trade_' + params.get('name'), db_connector, if_exists='append', 
                             pk=[params.get('name')+'_id', 'partner_country', 'month_id', 'year', 
                                 'hs2_id', 'hs4_id', 'hs6_id', 'level', 'product_level'], 
                              dtype=dtype)
 
-        return [read_step, transform_step, load_step]
+        return [download_step, read_step, transform_step, load_step]
