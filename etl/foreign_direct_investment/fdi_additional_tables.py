@@ -44,9 +44,13 @@ class TransformInvestmentStep(PipelineStep):
         df[pk_id] = split[0]
         df[pk_id] = df[pk_id].astype(int)
 
-        if params.get('pk') == 'sector_id':
-            df[pk_id].replace(SECTOR_REPLACE, inplace=True)
-            df[pk_id] = df[pk_id].astype(str)
+        level = ['sector_id', 'subsector_id', 'industry_group_id']
+        for i in level:
+            if i != pk_id:
+                df[i] = 0
+
+        df[pk_id].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
@@ -61,7 +65,7 @@ class TransformInvestmentStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['value', 'count', 'investment_type']] = df[['value', 'count', 'investment_type']].astype(float)
+        df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']] = df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
