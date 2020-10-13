@@ -50,10 +50,10 @@ params = [
          'sector_id':          'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
-         'year':       'UInt16',
-         'country_id': 'String',
-         'value':      'Float32',
-         'count':      'UInt16'
+         'year':               'UInt16',
+         'country_id':         'String',
+         'value':              'Float32',
+         'count':              'UInt16'
      },
      'if_exists': 'append',
      'db-source': 'fdi-data-additional',
@@ -64,10 +64,10 @@ params = [
          'sector_id':          'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
-         'year':         'UInt16',
-         'country_id':   'String',
-         'value':        'Float32',
-         'count':        'UInt16'
+         'year':               'UInt16',
+         'country_id':         'String',
+         'value':              'Float32',
+         'count':              'UInt16'
      },
      'if_exists': 'append',
      'db-source': 'fdi-data-additional',
