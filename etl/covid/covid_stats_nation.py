@@ -49,6 +49,11 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(data[-1], encoding="latin-1")
         df.columns = [x.strip().lower().replace(" ", "_") for x in df.columns]
 
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'resultado_lab'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'resultado_lab'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'resultado_lab'] = 2
+
         #Hospitalized
         df_hosp = df[["fecha_ingreso", "resultado_lab", "tipo_paciente"]]
         df_hosp = df_hosp[(df_hosp["resultado_lab"] == 1) & (df_hosp["tipo_paciente"] == 2)]

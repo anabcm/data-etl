@@ -35,6 +35,11 @@ class TransformStep(PipelineStep):
         df["municipio_res"] = df["municipio_res"].astype(str).str.zfill(3)
         df["mun_id"] = (df["entidad_res"] + df["municipio_res"]).astype(int)
 
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'resultado_lab'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'resultado_lab'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'resultado_lab'] = 2
+
         #Cases
         df1 = df[["mun_id", "fecha_ingreso", "resultado_lab"]]
         df1 = df1[df1["resultado_lab"] == 1]

@@ -62,6 +62,11 @@ class TransformStep(PipelineStep):
         # temp fix
         df['time_id'] = df['updated_date']
 
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'covid_positive'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'covid_positive'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'covid_positive'] = 2
+
         if values_check(df['updated_date'].max()):
             pass
         else:
@@ -121,7 +126,7 @@ class CovidPipeline(EasyPipeline):
         download_step = DownloadStep(
             connector='covid-data-mx',
             connector_path='conns.yaml',
-            force=True
+            force=False
         )
 
         path = grab_parent_dir('.') + '/covid/'

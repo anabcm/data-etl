@@ -70,6 +70,11 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(data[-1], encoding="latin-1")
         df.columns = [x.strip().lower().replace(" ", "_") for x in df.columns]
 
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'resultado_lab'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'resultado_lab'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'resultado_lab'] = 2
+
         #Suspect cases
         df_suspect = df[["entidad_res", "fecha_ingreso", "resultado_lab"]]
         df_suspect = df_suspect[df_suspect["resultado_lab"] == 3]
