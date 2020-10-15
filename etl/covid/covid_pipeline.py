@@ -121,7 +121,7 @@ class CovidPipeline(EasyPipeline):
         download_step = DownloadStep(
             connector='covid-data-mx',
             connector_path='conns.yaml',
-            force=True
+            force=False
         )
 
         path = grab_parent_dir('.') + '/covid/'

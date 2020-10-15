@@ -36,9 +36,9 @@ class TransformStep(PipelineStep):
         df["mun_id"] = (df["entidad_res"] + df["municipio_res"]).astype(int)
 
         #Cases
-        df1 = df[["mun_id", "fecha_ingreso", "resultado"]]
-        df1 = df1[df1["resultado"] == 1]
-        df1 = df1.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_cases"})
+        df1 = df[["mun_id", "fecha_ingreso", "resultado_lab"]]
+        df1 = df1[df1["resultado_lab"] == 1]
+        df1 = df1.rename(columns={"fecha_ingreso":"time_id", "resultado_lab":"daily_cases"})
         df1 = df1.groupby(["mun_id","time_id"]).sum().reset_index()
 
         df1["time_id"] = pd.to_datetime(df1["time_id"])
@@ -66,8 +66,8 @@ class TransformStep(PipelineStep):
         df1_["zm_id"] = df1_["zm_id"].fillna(method="ffill")
 
         #Deaths
-        df2 = df[["mun_id", "fecha_def", "resultado"]]
-        df2 = df2.rename(columns={"fecha_def":"time_id", "resultado":"daily_deaths"})
+        df2 = df[["mun_id", "fecha_def", "resultado_lab"]]
+        df2 = df2.rename(columns={"fecha_def":"time_id", "resultado_lab":"daily_deaths"})
         df2 = df2[df2["daily_deaths"] == 1]
         df2 = df2[df2["time_id"] != "9999-99-99"]
         df2 = df2.groupby(["mun_id","time_id"]).sum().reset_index()

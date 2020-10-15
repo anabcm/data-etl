@@ -29,7 +29,7 @@ rename_columns = {
     'renal_cronica': 'chronic_kidney_failure_diagnose',
     'tabaquismo': 'smoking_diagnose',
     'otro_caso': 'contact_another_covid_case',
-    'resultado': 'covid_positive',
+    'resultado_lab': 'covid_positive',
     'migrante': 'migrant',
     'pais_nacionalidad': 'country_nationality',
     'pais_origen': 'country_origin',
