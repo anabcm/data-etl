@@ -23,7 +23,7 @@ class FDIIndustryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
-            'sector_id':    'sector_id',
+            'sector_id':    'String',
             'subsector_id': 'UInt16'
         }
 
