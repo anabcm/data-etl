@@ -13,6 +13,8 @@ class TransformStep(PipelineStep):
         df = query_to_df(self.connector, raw_query=dim_industry_query)
         df.drop_duplicates(subset='sector_id', inplace=True)
 
+        df['sector_id'] = df['sector_id'].astype(int)
+
         return df
 
 class FDIIndustryPipeline(EasyPipeline):
