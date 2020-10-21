@@ -62,8 +62,8 @@ class TransformInvestmentStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['value', 'count', 'investment_type', 'quarter_id', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['value', 'count', 'investment_type', 'quarter_id', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']] = \
+            df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -104,8 +104,8 @@ class TransformCountryStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['year', 'value', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['year', 'value', 'count', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value', 'count', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -146,8 +146,8 @@ class TransformStateStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['year', 'value_c', 'count', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value_c', 'count', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -184,8 +184,8 @@ class TransformYearStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'false'].copy()
 
-        df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['year', 'value_c', 'count', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value_c', 'count', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -225,8 +225,8 @@ class TransformYearQuarterStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'false'].copy()
 
-        df[['quarter_id', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['quarter_id', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['quarter_id', 'value_c', 'count', 'industry_group_id', 'subsector_id']] = \
+            df[['quarter_id', 'value_c', 'count', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -265,8 +265,8 @@ class TransformYearInvestmentStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['year', 'value', 'count', 'investment_type', 'sector_id', 'industry_group_id', 'subsector_id']] = \
-            df[['year', 'value', 'count', 'investment_type', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['year', 'value', 'count', 'investment_type', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value', 'count', 'investment_type', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
