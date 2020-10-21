@@ -13,8 +13,6 @@ class TransformStep(PipelineStep):
         df = query_to_df(self.connector, raw_query=dim_industry_query)
         df.drop_duplicates(subset='sector_id', inplace=True)
 
-        df['sector_id'] = df['sector_id'].astype(int)
-
         return df
 
 class FDIIndustryPipeline(EasyPipeline):
@@ -23,7 +21,7 @@ class FDIIndustryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
-            'sector_id':  'UInt8'
+            'sector_id':  'String'
         }
 
         transform_step = TransformStep(connector=db_connector)

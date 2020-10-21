@@ -46,8 +46,8 @@ class TransformInvestmentStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
@@ -84,8 +84,8 @@ class TransformCountryStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
@@ -141,8 +141,8 @@ class TransformStateStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -177,8 +177,8 @@ class TransformYearStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -218,8 +218,8 @@ class TransformYearQuarterStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -256,8 +256,8 @@ class TransformYearInvestmentStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)"""
+        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df = df.loc[df['value_c'] != 'c'].copy()
 

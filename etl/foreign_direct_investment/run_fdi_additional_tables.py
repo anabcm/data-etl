@@ -5,7 +5,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '1',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'quarter_id':        'UInt16',
@@ -19,7 +19,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '2',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'quarter_id':        'UInt16',
@@ -33,7 +33,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '3',
      'dtype': {
-         'sector_id':          'UInt8',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'quarter_id':         'UInt16',
@@ -47,7 +47,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '4',
      'dtype': {
-         'sector_id':          'UInt8',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'year':               'UInt16',
@@ -61,7 +61,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '5',
      'dtype': {
-         'sector_id':          'UInt8',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'year':               'UInt16',
@@ -75,7 +75,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '6',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'year':              'UInt16',
@@ -89,7 +89,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '7',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'ent_id':            'UInt8',
@@ -104,7 +104,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '8',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'ent_id':            'UInt8',
@@ -119,7 +119,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '9',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'ent_id':            'UInt8',
@@ -134,7 +134,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '1',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'year':              'UInt16',
@@ -148,7 +148,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '2',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'year':              'UInt16',
@@ -162,7 +162,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '3',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'year':              'UInt16',
@@ -176,7 +176,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '4',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'quarter_id':        'UInt16',
@@ -190,7 +190,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '5',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'quarter_id':        'UInt16',
@@ -204,7 +204,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '6',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'quarter_id':        'UInt16',
@@ -218,7 +218,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '7',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'investment_type':   'UInt8',
@@ -233,7 +233,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '8',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'investment_type':   'UInt8',
@@ -248,7 +248,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '9',
      'dtype': {
-         'sector_id':         'UInt8',
+         'sector_id':         'String',
          'subsector_id':      'UInt16',
          'industry_group_id': 'UInt16',
          'investment_type':   'UInt8',

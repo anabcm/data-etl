@@ -38,8 +38,7 @@ class ReadStep(PipelineStep):
         df = format_text(df, cols_es, stopwords=stopwords_es)
         df = format_text(df, cols_en, stopwords=stop_words.ENGLISH_STOP_WORDS)
 
-        for col in ['sector_id', 'subsector_id', 'industry_group_id']:
-            df[col] = df[col].astype(int)
+        df[['subsector_id', 'industry_group_id']] = df[['subsector_id', 'industry_group_id']].astype(int)
 
         return df
 
@@ -55,7 +54,7 @@ class FDIIndustryPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
-            'sector_id':           'UInt8',
+            'sector_id':           'String',
             'subsector_id':        'UInt16',
             'industry_group_id':   'UInt16'
         }
