@@ -1,1 +1,0 @@
-bamboo-cli --folder . --entry fdi_industry_dimension

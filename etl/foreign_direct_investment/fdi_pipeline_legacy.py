@@ -89,3 +89,7 @@ class FDIPipeline(EasyPipeline):
         )	
 
         return [download_step, transform_step, load_step]
+
+if __name__ == "__main__":
+    pp = FDIPipeline()
+    pp.run({})
