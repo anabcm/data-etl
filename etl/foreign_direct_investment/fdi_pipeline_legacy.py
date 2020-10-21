@@ -71,7 +71,7 @@ class FDIPipeline(EasyPipeline):
         dtype = {	
             "generic_investment":   "UInt8",	
             "origin_id":            "String",	
-            "area_id":              "String",	
+            "area_id":              "UInt16",	
             "ent_id":               "UInt8",	
             "value_million":        "Float32",	
             "count":                "UInt32",	
@@ -81,7 +81,7 @@ class FDIPipeline(EasyPipeline):
         download_step = DownloadStep(	
             connector=["fdi-data-legacy", "fdi-countries"],	
             connector_path="conns.yaml"	
-        )	
+        )
         transform_step = TransformStep()	
         load_step = LoadStep(	
             "economy_fdi", db_connector, if_exists="drop", 	

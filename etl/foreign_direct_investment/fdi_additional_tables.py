@@ -1,10 +1,7 @@
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import PipelineStep, EasyPipeline, Parameter
+from bamboo_lib.steps import DownloadStep, LoadStep
 from helpers import norm
 from shared import get_dimensions, SECTOR_REPLACE, COUNTRY_REPLACE, INVESTMENT_TYPE
 from util import validate_category
@@ -49,8 +46,8 @@ class TransformInvestmentStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
@@ -65,7 +62,8 @@ class TransformInvestmentStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']] = df[['value', 'count', 'investment_type', 'quarter_id', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['value', 'count', 'investment_type', 'quarter_id', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['value', 'count', 'investment_type', 'quarter_id', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -86,8 +84,8 @@ class TransformCountryStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
@@ -106,7 +104,8 @@ class TransformCountryStep(PipelineStep):
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value', 'count', 'industry_group_id', 'subsector_id']] = df[['year', 'value', 'count', 'industry_group_id', 'subsector_id']].astype(float)
+        df[['year', 'value', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -142,12 +141,13 @@ class TransformStateStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
-        df[['year', 'value_c', 'count']] = df[['year', 'value_c', 'count']].astype(float)
+        df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -177,14 +177,15 @@ class TransformYearStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
         df = df.loc[df['value_c'] != 'false'].copy()
 
-        df[['year', 'value_c', 'count']] = df[['year', 'value_c', 'count']].astype(float)
+        df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -217,14 +218,15 @@ class TransformYearQuarterStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
         df = df.loc[df['value_c'] != 'false'].copy()
 
-        df[['quarter_id', 'value_c', 'count']] = df[['quarter_id', 'value_c', 'count']].astype(float)
+        df[['quarter_id', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['quarter_id', 'value_c', 'count', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
@@ -254,8 +256,8 @@ class TransformYearInvestmentStep(PipelineStep):
             if i != pk_id:
                 df[i] = 0
 
-        df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
-        df['sector_id'] = df['sector_id'].astype(str)
+        """df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+        df['sector_id'] = df['sector_id'].astype(str)"""
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -263,7 +265,8 @@ class TransformYearInvestmentStep(PipelineStep):
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
 
-        df[['year', 'value', 'count', 'investment_type']] = df[['year', 'value', 'count', 'investment_type']].astype(float)
+        df[['year', 'value', 'count', 'investment_type', 'sector_id', 'industry_group_id', 'subsector_id']] = \
+            df[['year', 'value', 'count', 'investment_type', 'sector_id', 'industry_group_id', 'subsector_id']].astype(float)
 
         return df
 
