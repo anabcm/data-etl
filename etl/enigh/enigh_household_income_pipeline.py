@@ -1,10 +1,8 @@
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 def fix_geo_level(df, target, lenght):
     max_ = df[target].max()
