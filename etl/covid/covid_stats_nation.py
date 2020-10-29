@@ -1,3 +1,4 @@
+
 import glob
 import numpy as np
 import os
@@ -9,6 +10,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from datetime import datetime
+
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):

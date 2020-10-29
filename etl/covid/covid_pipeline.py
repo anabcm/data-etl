@@ -8,7 +8,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, rename_countries, values_check, NoUpdateException
-from helpers import norm
+from etl.helpers import norm
 
 
 class TransformStep(PipelineStep):

@@ -9,8 +9,6 @@ from bamboo_lib.helpers import grab_parent_dir
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
-from shared import rename_columns, rename_countries
-from helpers import norm
 from datetime import datetime
 
 
