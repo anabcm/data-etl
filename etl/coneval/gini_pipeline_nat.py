@@ -1,14 +1,12 @@
 
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        excel = pd.ExcelFile('https://storage.googleapis.com/datamexico-data/coneval/GINI_Ent.xlsx')
+        excel = pd.ExcelFile(prev)
 
         sheets = {'Coeficiente de Gini 2008-2014': ['ent_id', '2008', '2010', '2012', '2014'],
                 'Coeficiente de Gini 2016-2018': ['ent_id', '2016', '2018']}
@@ -42,9 +40,14 @@ class CONEVALGiniPipeline(EasyPipeline):
             "year":         "UInt16"
         }
 
+        download_step = DownloadStep(
+            connector="gini-ent-data",
+            connector_path="conns.yaml"
+        )
+
         transform_step = TransformStep()
         load_step = LoadStep(
             "coneval_gini_nat", db_connector, if_exists="drop", pk=["ent_id", "year"], dtype=dtype
         )
 
-        return [transform_step, load_step]
+        return [download_step, transform_step, load_step]
