@@ -1,7 +1,7 @@
 import pandas as pd
 import gspread
 import time
-from helpers import query_to_df
+from etl.helpers import query_to_df
 from bamboo_lib.helpers import grab_connector
 from oauth2client.service_account import ServiceAccountCredentials
 

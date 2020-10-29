@@ -2,14 +2,14 @@ import nltk
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 from bamboo_lib.helpers import grab_connector
-from helpers import format_text, create_index, query_to_df, gouped_index
+from etl.helpers import format_text, create_index, query_to_df, gouped_index
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        df = pd.read_excel(params.get('url'), dtypes='str', header=1, usecols=list(range(0,11)))
+        df = pd.read_excel(prev, dtypes='str', header=1, usecols=list(range(0,11)))
         df.columns = df.columns.str.lower()
 
         return df
@@ -77,7 +77,9 @@ class CareersPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(name='url', dtype=str)
+            Parameter(name='dataset', dtype=str),
+            Parameter(name='year', dtype=int),
+            Parameter(name='year_plus', dtype=int)
         ]
 
     @staticmethod
@@ -90,10 +92,25 @@ class CareersPipeline(EasyPipeline):
             'name_es': 'String',
             'area':    'UInt32'
         }
-        
+
+        download_step = DownloadStep(
+            connector='data',
+            connector_path="conns.yaml"
+        )
+
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_careers_anuies', db_connector, if_exists='drop', 
                             pk=['code'], dtype=dtype, engine='ReplacingMergeTree')
 
-        return [read_step, transform_step, load_step]
+        return [download_step, read_step, transform_step, load_step]
+
+if __name__ == "__main__":
+    pp = CareersPipeline()
+    for dataset in ['licenciatura', 'posgrado']: 
+        for year in range(2016, 2019):
+            pp.run({
+                'dataset': dataset,
+                'year': str(year),
+                'year_plus': str(year+1)
+            })
