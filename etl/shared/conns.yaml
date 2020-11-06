@@ -1,0 +1,3 @@
+shared-age:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/age_range.xlsx
