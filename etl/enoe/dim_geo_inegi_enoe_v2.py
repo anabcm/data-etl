@@ -2,12 +2,12 @@ import pandas as pd
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv('https://storage.googleapis.com/datamexico-data/geo/enoe_dim_v2.csv')
+        df = pd.read_csv(prev)
         df['cve_ent'] = df['cve_ent'].astype(str)
         df['cve_mun_full'] = df['cve_mun_full'].astype(str)
         df['cve_mun'] = df['cve_mun'].astype(str)
@@ -35,11 +35,16 @@ class DimEnoeGeoV2Pipeline(EasyPipeline):
             'code':                     'UInt32'
         }
 
+        download_step = DownloadStep(
+            connector='enoe-geo-data',
+            connector_path='conns.yaml'
+        )
+
         read_step = ReadStep()
         load_step = LoadStep('dim_geo_inegi_enoe_v2', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['ent_id', 'mun_id', 'code'])
         
-        return [read_step, load_step]
+        return [download_step, read_step, load_step]
 
 if __name__ == '__main__':
     pp = DimEnoeGeoV2Pipeline()
