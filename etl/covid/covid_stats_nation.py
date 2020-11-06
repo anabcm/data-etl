@@ -1,3 +1,4 @@
+
 import glob
 import numpy as np
 import os
@@ -9,6 +10,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from datetime import datetime
+
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -49,24 +51,29 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(data[-1], encoding="latin-1")
         df.columns = [x.strip().lower().replace(" ", "_") for x in df.columns]
 
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'resultado_lab'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'resultado_lab'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'resultado_lab'] = 2
+
         #Hospitalized
-        df_hosp = df[["fecha_ingreso", "resultado", "tipo_paciente"]]
-        df_hosp = df_hosp[(df_hosp["resultado"] == 1) & (df_hosp["tipo_paciente"] == 2)]
+        df_hosp = df[["fecha_ingreso", "resultado_lab", "tipo_paciente"]]
+        df_hosp = df_hosp[(df_hosp["resultado_lab"] == 1) & (df_hosp["tipo_paciente"] == 2)]
         df_hosp = df_hosp.drop(columns="tipo_paciente")
-        df_hosp = df_hosp.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_hospitalized"})
+        df_hosp = df_hosp.rename(columns={"fecha_ingreso":"time_id", "resultado_lab":"daily_hospitalized"})
         df_hosp = df_hosp.groupby(["time_id"]).sum().reset_index()
 
         #Suspect cases
-        df_suspect = df[["fecha_ingreso", "resultado"]]
-        df_suspect = df_suspect[df_suspect["resultado"] == 3]
-        df_suspect["resultado"] = df_suspect["resultado"].replace(3,1)
-        df_suspect = df_suspect.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_suspect"})
+        df_suspect = df[["fecha_ingreso", "resultado_lab"]]
+        df_suspect = df_suspect[df_suspect["resultado_lab"] == 3]
+        df_suspect["resultado_lab"] = df_suspect["resultado_lab"].replace(3,1)
+        df_suspect = df_suspect.rename(columns={"fecha_ingreso":"time_id", "resultado_lab":"daily_suspect"})
         df_suspect = df_suspect.groupby(["time_id"]).sum().reset_index()
 
         #Cases
-        df1 = df[["fecha_ingreso", "resultado"]]
-        df1 = df1[df1["resultado"] == 1]
-        df1 = df1.rename(columns={"fecha_ingreso":"time_id", "resultado":"daily_cases"})
+        df1 = df[["fecha_ingreso", "resultado_lab"]]
+        df1 = df1[df1["resultado_lab"] == 1]
+        df1 = df1.rename(columns={"fecha_ingreso":"time_id", "resultado_lab":"daily_cases"})
         df1 = df1.groupby(["time_id"]).sum().reset_index()
 
         df1 = pd.merge(df1, df_hosp, how="outer", on="time_id")
@@ -85,9 +92,9 @@ class TransformStep(PipelineStep):
         df1_ = pd.merge(df_temp, df1, how="outer", on="time_id")
 
         # Deaths
-        df2 = df[["fecha_ingreso", "fecha_def", "resultado"]]
+        df2 = df[["fecha_ingreso", "fecha_def", "resultado_lab"]]
 
-        df2 = df2.rename(columns={"fecha_ingreso":"ingress_date", "fecha_def":"death_date", "resultado":"daily_deaths"})
+        df2 = df2.rename(columns={"fecha_ingreso":"ingress_date", "fecha_def":"death_date", "resultado_lab":"daily_deaths"})
 
         df2 = df2[df2["daily_deaths"] == 1]
         df2 = df2[df2["death_date"]!= "9999-99-99"]

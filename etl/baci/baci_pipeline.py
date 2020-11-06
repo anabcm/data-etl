@@ -1,17 +1,11 @@
-from datetime import datetime
 
 import pandas as pd
+from datetime import datetime
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.helpers import query_to_df
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import LoopHelper
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import LoadStep
-from bamboo_lib.steps import UnzipToFolderStep
-from bamboo_lib.steps import WildcardDownloadStep
-
-from util import REVISION_MAP, hs6_converter
+from bamboo_lib.models import Parameter, PipelineStep, EasyPipeline
+from bamboo_lib.steps import WildcardDownloadStep, UnzipToFolderStep, LoadStep
+from etl.util import REVISION_MAP, hs6_converter
 
 
 class ExtractStep(PipelineStep):

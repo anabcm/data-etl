@@ -1,20 +1,18 @@
-import glob
-import pandas as pd
 
-from google.cloud import storage
+import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         try:
-            df = pd.read_csv(params['url'], encoding='utf-8', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df = pd.read_csv(prev, encoding='utf-8', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
             df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
                     'tipounieco', 'latitud', 'longitud', 'fecha_alta']
         except:
-            df = pd.read_csv(params['url'], encoding='latin-1', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
+            df = pd.read_csv(prev, encoding='latin-1', dtype='str', usecols=[0, 3, 5, 25, 26, 28, 30, 32, 33, 37, 38, 39, 40])
             df.columns = ['id', 'codigo_act', 'per_ocu', 'cod_postal', 'cve_ent', 'cve_mun', 'cve_loc', 'ageb', 'manzana', 
                     'tipounieco', 'latitud', 'longitud', 'fecha_alta']
         return df
@@ -181,9 +179,14 @@ class DENUEPipeline(EasyPipeline):
             'directory_added_date': 'UInt32'
         }
 
+        download_step = DownloadStep(
+            connector='data',
+            connector_path="conns.yaml"
+        )
+
         read_step = ReadStep()
         transform_step = TransformStep()
         load_step = LoadStep('inegi_denue', connector=db_connector, if_exists='append', pk=['id', 'mun_id', 'national_industry_id'], dtype=dtypes, 
                                 nullable_list=['n_workers', 'postal_code', 'establishment', 'latitude', 'longitude', 'directory_added_date',
                                 'lower', 'middle', 'upper'])
-        return [read_step, transform_step, load_step]
+        return [download_step, read_step, transform_step, load_step]

@@ -9,7 +9,7 @@ from bamboo_lib.steps import LoadStep
 
 class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
-        df_labels = pd.ExcelFile("https://storage.googleapis.com/datamexico-data/shared/age_range.xlsx")
+        df_labels = pd.ExcelFile(prev)
         df = pd.read_excel(df_labels, "age_range")
         return df
 
@@ -24,10 +24,15 @@ class DimAgeRangePipeline(EasyPipeline):
             "age_range_id":  "UInt8"
         }
 
+        download_step = DownloadStep(
+            connector="shared-age",
+            connector_path="conns.yaml"
+        )
+
         extract_step = ExtractStep()
         load_step = LoadStep(
             "dim_shared_age", db_connector, if_exists="drop", dtype=dtype,
             pk=["age"]
         )
 
-        return [extract_step, load_step]
+        return [download_step, extract_step, load_step]

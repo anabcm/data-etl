@@ -9,7 +9,7 @@ class CreateStep(PipelineStep):
     def run_step(self, prev, params):
         data = []
 
-        for year in range(2000, 2030 + 1):
+        for year in range(1990, 2030 + 1):
             for month in range(1, 12 + 1):
                 month_id = str(month).zfill(2)
                 data.append({

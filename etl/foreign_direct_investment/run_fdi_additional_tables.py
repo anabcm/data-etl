@@ -33,7 +33,7 @@ params = [
     {'pk': 'industry_group_id',
      'sheet_name': '3',
      'dtype': {
-         'sector_id':          'String',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'quarter_id':         'UInt16',
@@ -47,7 +47,7 @@ params = [
     {'pk': 'sector_id',
      'sheet_name': '4',
      'dtype': {
-         'sector_id':          'String',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'year':               'UInt16',
@@ -61,7 +61,7 @@ params = [
     {'pk': 'subsector_id',
      'sheet_name': '5',
      'dtype': {
-         'sector_id':          'String',
+         'sector_id':         'String',
          'subsector_id':       'UInt16',
          'industry_group_id':  'UInt16',
          'year':               'UInt16',

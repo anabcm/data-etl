@@ -1,10 +1,8 @@
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 
 class TransformStep(PipelineStep):
@@ -33,10 +31,6 @@ class TransformStep(PipelineStep):
 
 class CONEVALGiniPipeline(EasyPipeline):
     @staticmethod
-    def parameter_list():
-        return []
-
-    @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
         dtype = {
@@ -50,6 +44,7 @@ class CONEVALGiniPipeline(EasyPipeline):
             connector="gini-mun-data",
             connector_path="conns.yaml"
         )
+
         transform_step = TransformStep()
         load_step = LoadStep(
             "coneval_gini_mun", db_connector, if_exists="drop", pk=["mun_id", "year"], dtype=dtype,

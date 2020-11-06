@@ -18,3 +18,4 @@ economic-census
 *.xls
 *.zip
 .vscode/settings.json
+*.json

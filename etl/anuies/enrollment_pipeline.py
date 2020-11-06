@@ -1,6 +1,6 @@
 import nltk
 import pandas as pd
-from helpers import format_text
+from etl.helpers import format_text
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep

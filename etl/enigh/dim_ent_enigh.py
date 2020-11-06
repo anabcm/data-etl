@@ -1,20 +1,9 @@
+
 import pandas as pd
-import unidecode
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
-
-def slug_parser(txt):
-    slug = txt.lower().replace(" ", "-")
-    slug = unidecode.unidecode(slug)
-
-    for char in ["]", "[", "(", ")"]:
-        slug = slug.replace(char, "")
-
-    return slug
+from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
+from etl.helpers import slug_parser
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):

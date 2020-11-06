@@ -2,11 +2,9 @@
 import pandas as pd
 from bamboo_lib.helpers import query_to_df
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
+
 
 class ExtractStep(PipelineStep):
     def run_step(self, prev, params):

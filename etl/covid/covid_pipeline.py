@@ -8,7 +8,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, rename_countries, values_check, NoUpdateException
-from helpers import norm
+from etl.helpers import norm
 
 
 class TransformStep(PipelineStep):
@@ -61,6 +61,11 @@ class TransformStep(PipelineStep):
 
         # temp fix
         df['time_id'] = df['updated_date']
+
+        # ids refactor
+        df.loc[df['clasificacion_final'].isin([1,2,3]), 'covid_positive'] = 1
+        df.loc[df['clasificacion_final'].isin([4,5,6]), 'covid_positive'] = 3
+        df.loc[df['clasificacion_final'] == 7, 'covid_positive'] = 2
 
         if values_check(df['updated_date'].max()):
             pass

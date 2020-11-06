@@ -1,3 +1,22 @@
+
+import unidecode
+import unicodedata
+
+def norm(string):
+    try:
+        return unicodedata.normalize('NFKD', string).encode('ASCII', 'ignore').decode("latin-1")
+    except:
+        return string
+
+def slug_parser(txt):
+    slug = txt.lower().replace(" ", "-")
+    slug = unidecode.unidecode(slug)
+
+    for char in ["]", "[", "(", ")"]:
+        slug = slug.replace(char, "")
+
+    return slug
+
 def format_text(df, cols_names=None, stopwords=None):
 
     # format

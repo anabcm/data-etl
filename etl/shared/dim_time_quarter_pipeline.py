@@ -8,7 +8,7 @@ class CreateStep(PipelineStep):
     def run_step(self, prev, params):
         data = []
 
-        for year in range(2000, 2030 + 1):
+        for year in range(1990, 2030 + 1):
             for quarter in range(1, 4 + 1):
                 data.append({
                     "year": year,

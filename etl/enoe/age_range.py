@@ -1,15 +1,13 @@
+
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
 
 class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv("https://storage.googleapis.com/datamexico-data/shared/age_range_enoe.csv")
+        df = pd.read_csv(prev)
         return df
 
 class DimAgeRangePipeline(EasyPipeline):
@@ -23,13 +21,18 @@ class DimAgeRangePipeline(EasyPipeline):
             "age_range_id":  "UInt8"
         }
 
+        download_step = DownloadStep(
+            connector='age-range-data',
+            connector_path='conns.yaml'
+        )
+
         extract_step = ExtractStep()
         load_step = LoadStep(
             "dim_age_range_enoe", db_connector, if_exists="drop", dtype=dtype,
             pk=["age"]
         )
 
-        return [extract_step, load_step]
+        return [download_step, extract_step, load_step]
 
 if __name__ == "__main__":
     pp = DimAgeRangePipeline()

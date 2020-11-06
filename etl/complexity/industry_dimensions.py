@@ -1,6 +1,6 @@
+
 import pandas as pd
-from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
-from bamboo_lib.models import Parameter, EasyPipeline
+from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.helpers import query_to_df
