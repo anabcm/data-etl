@@ -1,4 +1,16 @@
 
+import pandas as pd
+from bamboo_lib.connectors.models import Connector
+from bamboo_lib.helpers import query_to_df
+
+def clean_tables(table):
+    db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+    query = 'DROP TABLE {}'.format(table)
+    query_to_df(db_connector, raw_query=query)
+    print('Success! {}'.format(table))
+
+    return 0
+
 def format_text(df, cols_names=None, stopwords=None):
     # format
     for ele in cols_names:
