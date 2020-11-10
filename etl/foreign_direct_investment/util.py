@@ -3,6 +3,12 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.helpers import query_to_df
 
+def fill_levels(df, pk_id):
+    for level in ['sector_id', 'subsector_id', 'industry_group_id', 'ent_id', 'country_id']:
+        if pk_id != level:
+            df[level] = 0
+    return df
+
 def clean_tables(table):
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
     query = 'DROP TABLE {}'.format(table)
@@ -50,3 +56,14 @@ def validate_category(df, dim_column, target_column, target_value, threshold=0.1
     
     #print('init: {}, end: {}'.format(df.shape[0], temp.shape[0]))
     return temp
+
+def check_confidentiality(df, level, geo, industry, industry_pk, confidential_column, confidential_value, value):
+    query = list(df.loc[(df[level] == geo) & (df[industry_pk] == industry), confidential_column])
+    try:
+        test = query.count('C')/len(query)
+    except ZeroDivisionError:
+        test = 0
+    if test > 0.1:
+        return 'C'
+    else:
+        return value

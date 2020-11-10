@@ -6,7 +6,7 @@ from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import get_dimensions, COUNTRY_REPLACE, SECTOR_REPLACE
 #from util import fill_levels
-
+from util import check_confidentiality
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -64,17 +64,20 @@ class TransformStep(PipelineStep):
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=[params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.sort_values(by=['value'], ascending=False)[:3]
                 temp['top'] = range(1, temp.shape[0] + 1)
-                temp['indicador'] = 1
+                # temp['indicador'] = 1
                 ## fill levels to append
                 """temp = fill_levels(temp, pk_id)
                 temp['year'] = 0"""
+                for item in temp.iterrows():
+                    temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
+                        check_confidentiality(df, params.get('level'), item[1][params.get('level')], ele, pk_id, 'value_c', 'C',  item[1]['value'])
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)[:3]
                 temp['top'] = range(1, temp.shape[0] + 1)
-                temp['indicador'] = 2
+                # temp['indicador'] = 2
                 for item in temp.iterrows():
                     temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
                         list(df.loc[(df['year'] == item[1]['year']) & (df[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'])[0]
