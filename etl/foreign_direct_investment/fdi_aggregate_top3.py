@@ -5,7 +5,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import get_dimensions, COUNTRY_REPLACE, SECTOR_REPLACE
-from util import fill_levels
+#from util import fill_levels
 
 
 class TransformStep(PipelineStep):
