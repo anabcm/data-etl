@@ -104,8 +104,8 @@ class TransformStep(PipelineStep):
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
 
-        result['historic_IED'] = historic
-        result['accumulated_IED'] = last_period
+        result['accumulated_historic_IED'] = historic
+        result['accumulated_last_period_IED'] = last_period
 
         with open('{}.json'.format(params.get('file_name')), 'w') as outfile:
             json.dump(result, outfile)
