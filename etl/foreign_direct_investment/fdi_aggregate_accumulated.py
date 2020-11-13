@@ -1,5 +1,4 @@
 
-import glob
 import json
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
@@ -75,11 +74,17 @@ class TransformStep(PipelineStep):
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', pk_id, 'value', 'count']].groupby(by=['year', pk_id]).sum().reset_index()
-                temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
+                temp = temp.loc[(temp[pk_id] == ele) & (temp['year'] == temp['year'].max()), ['year', pk_id, 'value', 'count']] \
+                    .groupby(by=['year', pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
                 temp['check'] = None
+
                 for item in temp.iterrows():
-                    temp.loc[(temp['year'] == item[1]['year']) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
-                        list(df.loc[(df['year'] == item[1]['year']) & (df[pk_id] == item[1][pk_id]), 'value_c'])[0]
+                    try:
+                        temp.loc[(temp['year'] == item[1]['year']) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
+                            df.loc[(df['year'] == item[1]['year']) & (df[pk_id] == item[1][pk_id]), 'value_c'].sum()
+                    except Exception as e:
+                        print(e)
+                        temp.loc[(temp['year'] == item[1]['year']) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
             if pk_id == 'country_id':
