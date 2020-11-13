@@ -50,6 +50,15 @@ class TransformStep(PipelineStep):
 
             df.dropna(subset=[pk_id], inplace=True)
 
+            if pk_id != 'country_id':
+                split = df[pk_id].str.split(' ', n=1, expand=True)
+                df[pk_id] = split[0]
+                df[pk_id] = df[pk_id].astype(int)
+
+                if pk_id == 'sector_id':
+                    df['sector_id'].replace(SECTOR_REPLACE, inplace=True)
+                    df['sector_id'] = df['sector_id'].astype(str)
+
             temp = pd.DataFrame()
             top_3_historic = pd.DataFrame()
             top_3_last_period = pd.DataFrame()
