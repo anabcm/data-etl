@@ -93,6 +93,11 @@ class TransformStep(PipelineStep):
                 top_3_last_period = top_3_last_period[:3]
                 top_3_historic['top'] = range(1, top_3_historic.shape[0] + 1)
                 top_3_last_period['top'] = range(1, top_3_last_period.shape[0] + 1)
+            else:
+                top_3_historic.drop(columns=['value'], inplace=True)
+                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
+                top_3_last_period.drop(columns=['value'], inplace=True)
+                top_3_last_period.rename(columns={'check': 'value'}, inplace=True)
 
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
