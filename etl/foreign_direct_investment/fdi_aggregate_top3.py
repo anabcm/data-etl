@@ -85,6 +85,25 @@ class TransformStep(PipelineStep):
                 #temp = fill_levels(temp, pk_id)
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
+
+            if params.get('level') == 'ent_id':
+                top_3_historic['ent_name'] = top_3_historic['ent_id']
+                top_3_historic['ent_name'].replace(dict(zip(dim_geo['ent_id'], dim_geo['ent_name'])), inplace=True)
+                top_3_historic = top_3_historic[['ent_id', 'ent_name', pk_id, 'value', 'count', 'top']].copy()
+
+                top_3_last_period['ent_name'] = top_3_last_period['ent_id']
+                top_3_last_period['ent_name'].replace(dict(zip(dim_geo['ent_id'], dim_geo['ent_name'])), inplace=True)
+                top_3_last_period = top_3_last_period[['ent_id', 'ent_name', pk_id, 'value', 'count', 'year', 'top']].copy()
+
+            else:
+                top_3_historic['country_name'] = top_3_historic['country_id']
+                top_3_historic['country_name'].replace(dict(zip(dim_country['iso3'], dim_country['country_name_es'])), inplace=True)
+                top_3_historic = top_3_historic[['country_id', 'country_name', pk_id, 'value', 'count', 'top']].copy()
+
+                top_3_last_period['country_name'] = top_3_last_period['country_id']
+                top_3_last_period['country_name'].replace(dict(zip(dim_country['iso3'], dim_country['country_name_es'])), inplace=True)
+                top_3_last_period = top_3_last_period[['country_id', 'country_name', pk_id, 'value', 'count', 'year', 'top']].copy()
+
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
                                                                                                                 
