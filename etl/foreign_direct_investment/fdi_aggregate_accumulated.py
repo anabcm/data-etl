@@ -64,12 +64,18 @@ class TransformStep(PipelineStep):
 
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
-                temp = df.loc[df[pk_id] == ele, ['year', pk_id, 'value', 'count']].groupby(by=[pk_id]).sum().reset_index()
-                temp = temp.sort_values(by=['value'], ascending=False)
+                temp = df.loc[df[pk_id] == ele, [pk_id, 'value', 'count', 'value_c']] \
+                    .groupby(by=[pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
+                
+                # 
                 temp['check'] = None
                 for item in temp.iterrows():
-                    temp.loc[temp[pk_id] == item[1][pk_id], 'check'] = \
-                        check_confidentiality_no_geo(df, ele, pk_id, 'value_c', 'C',  item[1]['value'])
+                    if item[1][2] > 3:
+                        temp.loc[(temp[pk_id] == item[1][pk_id]), 'check'] = \
+                            temp.loc[(temp[pk_id] == item[1][pk_id]), 'value']
+                    else:
+                        temp.loc[(temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
+                        
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
