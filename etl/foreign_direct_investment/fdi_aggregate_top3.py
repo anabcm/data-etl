@@ -58,7 +58,7 @@ class TransformStep(PipelineStep):
 
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
-                temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count', 'value_c']] \
+                temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count', 'value_c']] \
                     .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)[:3]
                 
                 # 
@@ -66,12 +66,11 @@ class TransformStep(PipelineStep):
                 temp['top'] = range(1, temp.shape[0] + 1)
                 for item in temp.iterrows():
                     if item[1][3] > 3:
-                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
+                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
+                            temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
                     else:
                         temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
                         
-                #    temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
-                #        check_confidentiality(df, params.get('level'), item[1][params.get('level')], ele, pk_id, 'value_c', 'C',  item[1]['value'])
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio

@@ -62,30 +62,36 @@ class TransformStep(PipelineStep):
 
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
-                temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count']].groupby(by=[params.get('level'), pk_id]).sum().reset_index()
-                temp = temp.sort_values(by=['value'], ascending=False)[:3]
-                #temp['top'] = range(1, temp.shape[0] + 1)
-                # temp['indicador'] = 1
-                ## fill levels to append
-                """temp = fill_levels(temp, pk_id)
-                temp['year'] = 0"""
+                temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count', 'value_c']] \
+                    .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)[:3]
+                
+                # 
+                temp['check'] = None
+                temp['top'] = range(1, temp.shape[0] + 1)
                 for item in temp.iterrows():
-                    temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
-                        check_confidentiality(df, params.get('level'), item[1][params.get('level')], ele, pk_id, 'value_c', 'C',  item[1]['value'])
+                    if item[1][3] > 3:
+                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
+                            temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
+                    else:
+                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)[:3]
-                #temp['top'] = range(1, temp.shape[0] + 1)
-                # temp['indicador'] = 2
+
+                temp['check'] = None
                 for item in temp.iterrows():
-                    temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
-                        list(df.loc[(df['year'] == item[1]['year']) & (df[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'])[0]
-                ## fill levels to append
-                #temp = fill_levels(temp, pk_id)
+                    try:
+                        temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
+                            df.loc[(df['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'].sum()
+                    except Exception as e:
+                        print(e)
+                        temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
+            top_3_historic.drop(columns=['value'], inplace=True)
+            top_3_historic.rename(columns={'check': 'value'}, inplace=True)
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
 
@@ -94,15 +100,6 @@ class TransformStep(PipelineStep):
 
         with open('{}.json'.format(params.get('file_name')), 'w') as outfile:
             json.dump(result, outfile)
-
-        """    historic = historic.append(top_3_historic, sort=False)
-            last_period = last_period.append(top_3_last_period, sort=False)
-
-        df = pd.DataFrame()
-        df = df.append(historic).append(last_period)
-
-        df['year'] = df['year'].astype(int)
-        df[['sector_id', 'country_id', 'value']] = df[['sector_id', 'country_id', 'value']].astype(str)"""
 
         return df
 
@@ -118,20 +115,6 @@ class FDIaggregatePipeline(EasyPipeline):
 
     @staticmethod
     def steps(params):
-        #db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
-
-        """dtype = {
-            'year':              'UInt16',
-            'ent_id':            'UInt8',
-            'country_id':        'String',
-            'sector_id':         'String',
-            'subsector_id':      'UInt16',
-            'industry_group_id': 'UInt16',
-            'top':               'UInt8',
-            'indicador':         'UInt8',
-            'value':             'Float32',
-            'count':             'UInt16'
-        }"""
 
         download_step = DownloadStep(
             connector="fdi-data-additional-3",
