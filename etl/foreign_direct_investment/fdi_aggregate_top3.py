@@ -65,7 +65,7 @@ class TransformStep(PipelineStep):
                 temp['check'] = None
                 temp['top'] = range(1, temp.shape[0] + 1)
                 for item in temp.iterrows():
-                    if item[1][3] > 3:
+                    if item[1][3] > 2:
                         temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
                             temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
                     else:

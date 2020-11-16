@@ -70,7 +70,7 @@ class TransformStep(PipelineStep):
                 # 
                 temp['check'] = None
                 for item in temp.iterrows():
-                    if item[1][2] > 3:
+                    if item[1][2] > 2:
                         temp.loc[(temp[pk_id] == item[1][pk_id]), 'check'] = \
                             temp.loc[(temp[pk_id] == item[1][pk_id]), 'value']
                     else:
