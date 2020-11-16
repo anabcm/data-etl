@@ -5,7 +5,6 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import get_dimensions, COUNTRY_REPLACE, SECTOR_REPLACE
-#from util import fill_levels
 from util import check_confidentiality
 
 class TransformStep(PipelineStep):
@@ -13,8 +12,6 @@ class TransformStep(PipelineStep):
         data = prev
         
         result = {}
-        #historic = pd.DataFrame()
-        #last_period = pd.DataFrame()
         historic = {}
         last_period = {}
 
@@ -61,66 +58,61 @@ class TransformStep(PipelineStep):
 
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
-                temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=[params.get('level'), pk_id]).sum().reset_index()
-                temp = temp.sort_values(by=['value'], ascending=False)[:3]
+                temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count', 'value_c']] \
+                    .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)[:3]
+                
+                # 
+                temp['check'] = None
                 temp['top'] = range(1, temp.shape[0] + 1)
-                # temp['indicador'] = 1
-                ## fill levels to append
-                """temp = fill_levels(temp, pk_id)
-                temp['year'] = 0"""
                 for item in temp.iterrows():
-                    temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
-                        check_confidentiality(df, params.get('level'), item[1][params.get('level')], ele, pk_id, 'value_c', 'C',  item[1]['value'])
+                    if item[1][3] > 3:
+                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
+                    else:
+                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
+                        
+                #    temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
+                #        check_confidentiality(df, params.get('level'), item[1][params.get('level')], ele, pk_id, 'value_c', 'C',  item[1]['value'])
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)[:3]
-                temp['top'] = range(1, temp.shape[0] + 1)
-                # temp['indicador'] = 2
                 for item in temp.iterrows():
                     temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
                         list(df.loc[(df['year'] == item[1]['year']) & (df[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'])[0]
-                ## fill levels to append
-                #temp = fill_levels(temp, pk_id)
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
 
             if params.get('level') == 'ent_id':
                 top_3_historic['ent_name'] = top_3_historic['ent_id']
                 top_3_historic['ent_name'].replace(dict(zip(dim_geo['ent_id'], dim_geo['ent_name'])), inplace=True)
+                top_3_historic.drop(columns=['value'], inplace=True)
+                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
                 top_3_historic = top_3_historic[['ent_id', 'ent_name', pk_id, 'value', 'count', 'top']].copy()
 
                 top_3_last_period['ent_name'] = top_3_last_period['ent_id']
                 top_3_last_period['ent_name'].replace(dict(zip(dim_geo['ent_id'], dim_geo['ent_name'])), inplace=True)
-                top_3_last_period = top_3_last_period[['ent_id', 'ent_name', pk_id, 'value', 'count', 'year', 'top']].copy()
+                top_3_last_period = top_3_last_period[['ent_id', 'ent_name', pk_id, 'value', 'count', 'year']].copy()
 
             else:
                 top_3_historic['country_name'] = top_3_historic['country_id']
                 top_3_historic['country_name'].replace(dict(zip(dim_country['iso3'], dim_country['country_name_es'])), inplace=True)
+                top_3_historic.drop(columns=['value'], inplace=True)
+                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
                 top_3_historic = top_3_historic[['country_id', 'country_name', pk_id, 'value', 'count', 'top']].copy()
 
                 top_3_last_period['country_name'] = top_3_last_period['country_id']
                 top_3_last_period['country_name'].replace(dict(zip(dim_country['iso3'], dim_country['country_name_es'])), inplace=True)
-                top_3_last_period = top_3_last_period[['country_id', 'country_name', pk_id, 'value', 'count', 'year', 'top']].copy()
+                top_3_last_period = top_3_last_period[['country_id', 'country_name', pk_id, 'value', 'count', 'year']].copy()
 
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
-                                                                                                                
+
         result['top3_industry_ent_historic'] = historic
         result['top3_industry_ent_last_period'] = last_period
 
         with open('{}.json'.format(params.get('file_name')), 'w') as outfile:
             json.dump(result, outfile)
-
-        """    historic = historic.append(top_3_historic, sort=False)
-            last_period = last_period.append(top_3_last_period, sort=False)
-
-        df = pd.DataFrame()
-        df = df.append(historic).append(last_period)
-
-        df['year'] = df['year'].astype(int)
-        df[['sector_id', 'country_id', 'value']] = df[['sector_id', 'country_id', 'value']].astype(str)"""
 
         return df
 
@@ -131,29 +123,16 @@ class FDIaggregatePipeline(EasyPipeline):
             Parameter(name='level', dtype=str),
             Parameter(name='sheets', dtype=list),
             Parameter(name='dim', dtype=str),
-            Parameter(name='file_name', dtype=str)
+            Parameter(name='file_name', dtype=str),
+            Parameter(name='source', dtype=str)
         ]
 
     @staticmethod
     def steps(params):
-        #db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
-
-        """dtype = {
-            'year':              'UInt16',
-            'ent_id':            'UInt8',
-            'country_id':        'String',
-            'sector_id':         'String',
-            'subsector_id':      'UInt16',
-            'industry_group_id': 'UInt16',
-            'top':               'UInt8',
-            'indicador':         'UInt8',
-            'value':             'Float32',
-            'count':             'UInt16'
-        }"""
-
+        
         download_step = DownloadStep(
-            connector="fdi-data-additional",
-            connector_path="conns.yaml"
+            connector=params.get('source'),
+            connector_path='conns.yaml'
         )
 
         transform_step = TransformStep()
@@ -162,10 +141,11 @@ class FDIaggregatePipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = FDIaggregatePipeline()
-    for level, sheets in {'ent_id': [['7', '8', '9'], 'top3_ent'], 
-                          'country_id': [['4', '5', '6'], 'top3_country']}.items():
+    for level, sheets in {'ent_id': [['7', '8', '9'], 'top3_ent', "fdi-data-additional"], 
+                          'country_id': [['4', '5', '6'], 'top3_country', "fdi-data-additional"]}.items():
         df = pp.run({
             'level': level,
             'sheets': sheets[0],
-            'file_name': sheets[1]
+            'file_name': sheets[1],
+            'source': sheets[2]
         })
