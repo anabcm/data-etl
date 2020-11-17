@@ -3,6 +3,8 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.helpers import query_to_df
 
+LIMIT_C = 3
+
 def get_dimensions():
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
     dim_geo_query = 'SELECT ent_name, ent_id FROM dim_shared_geography_ent'
