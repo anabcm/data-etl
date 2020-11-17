@@ -4,6 +4,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
+from shared import SECTOR_REPLACE
 
 
 class TransformStep(PipelineStep):
