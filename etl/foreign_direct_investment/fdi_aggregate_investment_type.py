@@ -63,35 +63,22 @@ class TransformStep(PipelineStep):
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
                 temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count', 'value_c']] \
-                    .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)[:3]
-                
-                # 
-                temp['check'] = None
-                temp['top'] = range(1, temp.shape[0] + 1)
-                for item in temp.iterrows():
-                    if item[1][3] > 3:
-                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
-                            temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
-                    else:
-                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
+                    .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
+
+                # "C" values
+                temp.loc[temp['count'] <= 3, 'value'] = 'C'
+
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
-                temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)[:3]
+                temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
 
-                temp['check'] = None
-                for item in temp.iterrows():
-                    try:
-                        temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
-                            df.loc[(df['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'].sum()
-                    except Exception as e:
-                        print(e)
-                        temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
+                # "C" values
+                temp.loc[temp['count'] <= 3, 'value'] = 'C'
+
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
-            top_3_historic.drop(columns=['value'], inplace=True)
-            top_3_historic.rename(columns={'check': 'value'}, inplace=True)
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')
 
