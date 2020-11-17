@@ -49,13 +49,13 @@ class TransformStep(PipelineStep):
             top_3_last_period = pd.DataFrame()
 
             for ele in list(df[pk_id].unique()):
-                # top 3 entidades federativas que acumulan mas IED 1999 - 2020
+                # top 3 acumulan mas IED 1999 - 2020
                 temp = df.loc[df[pk_id] == ele, [pk_id, 'value', 'count']] \
                     .groupby(by=[pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
 
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
-                # top 3 entidades federativas que acumulan mas IED ultimo anio
+                # top 3 acumulan mas IED ultimo periodo
                 temp = df.loc[df[pk_id] == ele, ['year', pk_id, 'value', 'count']].groupby(by=['year', pk_id]).sum().reset_index()
                 temp = temp.loc[(temp[pk_id] == ele) & (temp['year'] == temp['year'].max()), ['year', pk_id, 'value', 'count']] \
                     .groupby(by=['year', pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
