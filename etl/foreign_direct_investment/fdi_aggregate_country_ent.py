@@ -4,7 +4,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
-from shared import get_dimensions, COUNTRY_REPLACE
+from shared import get_dimensions, COUNTRY_REPLACE, LIMIT_C
 
 
 class TransformStep(PipelineStep):
@@ -56,7 +56,7 @@ class TransformStep(PipelineStep):
                 
                 # 
                 # "C" values
-                temp.loc[temp['count'] < 3, 'value'] = 'C'
+                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
                 
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
@@ -66,7 +66,7 @@ class TransformStep(PipelineStep):
                 temp['top'] = range(1, temp.shape[0] + 1)
                 
                 # "C" values
-                temp.loc[temp['count'] < 3, 'value'] = 'C'
+                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
 
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
