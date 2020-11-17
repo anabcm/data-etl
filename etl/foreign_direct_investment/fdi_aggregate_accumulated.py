@@ -4,21 +4,6 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
-from shared import SECTOR_REPLACE
-#from util import fill_levels
-#from util import check_confidentiality
-#from etl.foreign_direct_investment.shared import get_dimensions, COUNTRY_REPLACE, SECTOR_REPLACE
-
-def check_confidentiality_no_geo(df, industry, industry_pk, confidential_column, confidential_value, value):
-    query = list(df.loc[df[industry_pk] == industry, confidential_column])
-    try:
-        test = query.count('C')/len(query)
-    except ZeroDivisionError:
-        test = 0
-    if test > 0.1:
-        return 'C'
-    else:
-        return value
 
 
 class TransformStep(PipelineStep):
@@ -64,51 +49,35 @@ class TransformStep(PipelineStep):
 
             for ele in list(df[pk_id].unique()):
                 # top 3 entidades federativas que acumulan mas IED 1999 - 2020
-                temp = df.loc[df[pk_id] == ele, [pk_id, 'value', 'count', 'value_c']] \
+                temp = df.loc[df[pk_id] == ele, [pk_id, 'value', 'count']] \
                     .groupby(by=[pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
-                
-                # 
-                temp['check'] = None
-                for item in temp.iterrows():
-                    if item[1][2] > 2:
-                        temp.loc[(temp[pk_id] == item[1][pk_id]), 'check'] = \
-                            temp.loc[(temp[pk_id] == item[1][pk_id]), 'value']
-                    else:
-                        temp.loc[(temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
-                        
+
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
                 # top 3 entidades federativas que acumulan mas IED ultimo anio
                 temp = df.loc[df[pk_id] == ele, ['year', pk_id, 'value', 'count']].groupby(by=['year', pk_id]).sum().reset_index()
                 temp = temp.loc[(temp[pk_id] == ele) & (temp['year'] == temp['year'].max()), ['year', pk_id, 'value', 'count']] \
                     .groupby(by=['year', pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
-                temp['check'] = None
 
-                for item in temp.iterrows():
-                    try:
-                        temp.loc[(temp['year'] == item[1]['year']) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
-                            df.loc[(df['year'] == item[1]['year']) & (df[pk_id] == item[1][pk_id]), 'value_c'].sum()
-                    except Exception as e:
-                        print(e)
-                        temp.loc[(temp['year'] == item[1]['year']) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
             if pk_id == 'country_id':
                 top_3_historic.sort_values(by=['value'], ascending=False, inplace=True)
-                top_3_historic.drop(columns=['value'], inplace=True)
-                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
                 top_3_historic = top_3_historic[:3]
+                # "C" values
+                top_3_historic.loc[top_3_historic['count'] < 3, 'value'] = 'C'
+
                 top_3_last_period.sort_values(by=['value'], ascending=False, inplace=True)
-                top_3_last_period.drop(columns=['value'], inplace=True)
-                top_3_last_period.rename(columns={'check': 'value'}, inplace=True)
                 top_3_last_period = top_3_last_period[:3]
+                # "C" values
+                top_3_last_period.loc[top_3_last_period['count'] < 3, 'value'] = 'C'
+
                 top_3_historic['top'] = range(1, top_3_historic.shape[0] + 1)
                 top_3_last_period['top'] = range(1, top_3_last_period.shape[0] + 1)
             else:
-                top_3_historic.drop(columns=['value'], inplace=True)
-                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
-                top_3_last_period.drop(columns=['value'], inplace=True)
-                top_3_last_period.rename(columns={'check': 'value'}, inplace=True)
+                # "C" values
+                top_3_historic.loc[top_3_historic['count'] < 3, 'value'] = 'C'
+                top_3_last_period.loc[top_3_last_period['count'] < 3, 'value'] = 'C'
 
             historic[pk_id.split('_id')[0]] = top_3_historic.to_dict(orient='records')
             last_period[pk_id.split('_id')[0]] = top_3_last_period.to_dict(orient='records')

@@ -57,36 +57,30 @@ class TransformStep(PipelineStep):
             top_3_last_period = pd.DataFrame()
 
             for ele in list(df[pk_id].unique()):
-                # top 3 entidades federativas que acumulan mas IED 1999 - 2020
+                # top 3 acumulan mas IED 1999 - 2020
                 temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count', 'value_c']] \
                     .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)[:3]
-                
-                # 
-                temp['check'] = None
                 temp['top'] = range(1, temp.shape[0] + 1)
-                for item in temp.iterrows():
-                    if item[1][3] > 2:
-                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = \
-                            temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value']
-                    else:
-                        temp.loc[(temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'check'] = 'C'
-                        
+
+                # "C" values
+                temp.loc[temp['count'] < 3, 'value'] = 'C'
+
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
-                # top 3 entidades federativas que acumulan mas IED ultimo anio
+                # top 3 acumulan mas IED ultimo periodo
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)[:3]
-                for item in temp.iterrows():
-                    temp.loc[(temp['year'] == item[1]['year']) & (temp[params.get('level')] == item[1][params.get('level')]) & (temp[pk_id] == item[1][pk_id]), 'value'] = \
-                        list(df.loc[(df['year'] == item[1]['year']) & (df[params.get('level')] == item[1][params.get('level')]) & (df[pk_id] == item[1][pk_id]), 'value_c'])[0]
+                temp['top'] = range(1, temp.shape[0] + 1)
+
+                # "C" values
+                temp.loc[temp['count'] < 3, 'value'] = 'C'
+
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
 
             if params.get('level') == 'ent_id':
                 top_3_historic['ent_name'] = top_3_historic['ent_id']
                 top_3_historic['ent_name'].replace(dict(zip(dim_geo['ent_id'], dim_geo['ent_name'])), inplace=True)
-                top_3_historic.drop(columns=['value'], inplace=True)
-                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
                 top_3_historic = top_3_historic[['ent_id', 'ent_name', pk_id, 'value', 'count', 'top']].copy()
 
                 top_3_last_period['ent_name'] = top_3_last_period['ent_id']
@@ -96,8 +90,6 @@ class TransformStep(PipelineStep):
             else:
                 top_3_historic['country_name'] = top_3_historic['country_id']
                 top_3_historic['country_name'].replace(dict(zip(dim_country['iso3'], dim_country['country_name_es'])), inplace=True)
-                top_3_historic.drop(columns=['value'], inplace=True)
-                top_3_historic.rename(columns={'check': 'value'}, inplace=True)
                 top_3_historic = top_3_historic[['country_id', 'country_name', pk_id, 'value', 'count', 'top']].copy()
 
                 top_3_last_period['country_name'] = top_3_last_period['country_id']

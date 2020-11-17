@@ -4,17 +4,13 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
-from shared import get_dimensions, COUNTRY_REPLACE, SECTOR_REPLACE
-#from util import fill_levels
-from util import check_confidentiality
+from shared import SECTOR_REPLACE
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         data = prev
 
         result = {}
-        #historic = pd.DataFrame()
-        #last_period = pd.DataFrame()
         historic = {}
         last_period = {}
 
@@ -38,16 +34,6 @@ class TransformStep(PipelineStep):
 
             df.dropna(subset=[params.get('level')], inplace=True)
 
-            """# get end_id dimension
-            dim_geo, dim_country = get_dimensions()
-
-            if params.get('level') == 'ent_id':
-                df['ent_id'].replace(dict(zip(dim_geo['ent_name'], dim_geo['ent_id'])), inplace=True)
-
-            else:
-                df['country_id'].replace(COUNTRY_REPLACE, inplace=True)
-                df['country_id'].replace(dict(zip(dim_country['country_name_es'], dim_country['iso3'])), inplace=True)"""
-
             split = df[pk_id].str.split(' ', n=1, expand=True)
             df[pk_id] = split[0]
             df[pk_id] = df[pk_id].astype(int)
@@ -61,21 +47,21 @@ class TransformStep(PipelineStep):
             top_3_last_period = pd.DataFrame()
 
             for ele in list(df[pk_id].unique()):
-                # top 3 entidades federativas que acumulan mas IED 1999 - 2020
+                # IED 1999 - 2020
                 temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'value', 'count', 'value_c']] \
                     .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] <= 3, 'value'] = 'C'
+                temp.loc[temp['count'] < 3, 'value'] = 'C'
 
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
-                # top 3 entidades federativas que acumulan mas IED ultimo anio
+                # IED ultimo periodo
                 temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] <= 3, 'value'] = 'C'
+                temp.loc[temp['count'] < 3, 'value'] = 'C'
 
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
