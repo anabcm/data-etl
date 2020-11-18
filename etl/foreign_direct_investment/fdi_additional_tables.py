@@ -206,13 +206,13 @@ class TransformYearQuarterStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        temp = pd.DataFrame()
+        """temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()
-        #df = validate_category(df, pk_id, 'value_c', 'c')
+        temp = pd.DataFrame()"""
+        df = validate_category(df, pk_id, 'value_c', 'c')
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
