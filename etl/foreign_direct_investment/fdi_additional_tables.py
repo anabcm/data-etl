@@ -246,8 +246,8 @@ class TransformYearInvestmentStep(PipelineStep):
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
         temp = pd.DataFrame()
-        for country in list(df['ent_id'].unique()):
-            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+        for country in list(df['investment_type'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['investment_type'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
         temp = pd.DataFrame()
