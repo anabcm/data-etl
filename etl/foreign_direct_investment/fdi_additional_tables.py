@@ -51,12 +51,12 @@ class TransformInvestmentStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for investment_type in list(df['investment_type'].unique()):
             temp = temp.append(validate_category(df.loc[(df['investment_type'] == investment_type)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -89,12 +89,12 @@ class TransformCountryStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for country in list(df['country_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['country_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         country_replace = get_dimensions()[1]
 
@@ -123,12 +123,12 @@ class TransformStateStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         ent_replace = get_dimensions()[0]
 
@@ -165,12 +165,12 @@ class TransformYearStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
@@ -206,12 +206,13 @@ class TransformYearQuarterStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
+        #df = validate_category(df, pk_id, 'value_c', 'c')
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
@@ -244,12 +245,12 @@ class TransformYearInvestmentStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
