@@ -49,7 +49,7 @@ class TransformStep(PipelineStep):
 
         df = temp.copy()
         temp = pd.DataFrame()
-        df.loc[df['value_c'].astype(str).str.lower() == 'c', 'value_c'] = 0
+        df = df.loc[df['value_c'].astype(str).str.lower() != 'c'].copy()
         df['value_c'] = df['value_c'].astype(float)
 
         return df

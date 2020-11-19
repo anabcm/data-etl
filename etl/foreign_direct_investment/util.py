@@ -46,12 +46,12 @@ def validate_category(df, dim_column, target_column, target_value, threshold=0.1
         temp[target_column] = temp[target_column].astype(str).str.lower()
         count = temp.loc[temp[dim_column] == sector, target_column].shape[0]
         value = len(list(temp.loc[(temp[dim_column] == sector) & (temp[target_column] == target_value), target_column]))
-        restul = round((value/count)*100, 3)
-        if restul > 10:
-            #print('result: {}%, drop: {}, ID: {}'.format(restul, True, sector))
+        result = round((value/count)*100, 3)
+        if result > 10:
+            #print('result: {}%, drop: {}, ID: {}'.format(result, True, sector))
             temp = temp.loc[temp[dim_column] != sector].copy()
         else:
-            #print('result: {}%, drop: {}, ID: {}'.format(restul, False, sector))
+            #print('result: {}%, drop: {}, ID: {}'.format(result, False, sector))
             pass
     
     #print('init: {}, end: {}'.format(df.shape[0], temp.shape[0]))
