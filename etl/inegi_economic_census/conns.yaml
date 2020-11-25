@@ -17,3 +17,23 @@ economic-census-mun:
 economic-census-columns:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_economic_census_2019/diccionario_de_datos_ce2019.csv
+
+data-financing3:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_03.xlsx
+
+data-financing4:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_04.xlsx
+
+data-financing5:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_05.xlsx
+
+data-financing6:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_06.xlsx
+
+
+
+
