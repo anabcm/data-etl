@@ -4,24 +4,14 @@ from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep
 
 
-#class ReadStep(PipelineStep):
-#    def run_step(self, prev, params):
-#        # read data
-#        data3, data4, data5, data6 = prev
-#        df3 = pd.read_excel(prev[0])
-#        df4 = pd.read_excel(prev[1])
-#        df5 = pd.read_excel(prev[2])
-#        df6 = pd.read_excel(prev[3])
-
-#       return df3, df4, df5, df6
-
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df3 = pd.read_excel(prev[0])
         df4 = pd.read_excel(prev[1])
         df5 = pd.read_excel(prev[2])
         df6 = pd.read_excel(prev[3])
-        
+        dim_uses = pd.read_csv(prev[4], sep=";", encoding="utf-8").to_dict(orient="list")
+        dim_sources = pd.read_csv(prev[5], sep=";", encoding="utf-8").to_dict(orient="list")
 
         #Dictionaries company age and company size
         company_size = {
@@ -37,6 +27,12 @@ class TransformStep(PipelineStep):
                         "Adultas (6 a 10 años)": 3,
                         "Mayores (más de 10 años)": 4
                     }
+        # Create dictionary uses of financing
+        dicto_uses = dict(zip(dim_uses["uses_financing_en"], dim_uses["uses_financing_id"]))
+
+        # Create dictionary uses of financing
+        dicto_sources = dict(zip(dim_sources["funding_source_en"], dim_sources["funding_source_id"]))
+
 
         data = []
         for df_ in [df3, df4, df5, df6]:
@@ -83,7 +79,7 @@ class TransformStep(PipelineStep):
                 df.columns = ["ent_id", "sector_id", "subsector_id", name, "general_name", "total_ue", 
                                 "ue_with_financing", "pct_with_financing", "Business Creation", "pct_business", 
                                 "Equipment or business expansion", "pct_equipment", "Purchase of premises or vehicle", 
-                                "pct_premises", "Debt payment", "pct_debt", "Acquisition of Inputs in the National market", 
+                                "pct_premises", "Debt Payment", "pct_debt", "Acquisition of Inputs in the National market", 
                                 "pct_inputs_nat", "Acquisition of Inputs in the Foreign market", "pct_inputs_foreign", 
                                 "Payment of wages", "pct_wages", "Did not specify", "pct_no_specify", "ind1", "ind2"]
 
@@ -120,7 +116,10 @@ class TransformStep(PipelineStep):
         df_final["filter_source_financing"] = [1 if x != "Does not apply" else 0 for x in df_final["funding_source"]]
 
         df_final["dataset_size"] = [1 if x != 0 else 0 for x in df_final["size_id"]]
-  
+
+        df_final["uses_of_financing"] = df_final["uses_of_financing"].replace(dicto_uses)
+        df_final["funding_source"] = df_final["funding_source"].replace(dicto_sources)
+
         return df_final
 
 class FinancingCensusPipeline(EasyPipeline):
@@ -136,27 +135,26 @@ class FinancingCensusPipeline(EasyPipeline):
             "total_ue":                  "UInt32",
             "ue_with_financing":         "UInt16",
             "size_id":                   "UInt8",
-            "funding_source":            "String",
+            "funding_source":            "UInt8",
             "financed_ue":               "UInt16",
             "age_id":                    "UInt8",
-            "uses_of_financing":         "String",
+            "uses_of_financing":         "UInt8",
             "ue_by_uses_of_financing":   "UInt16",
             "filter_source_financing":   "UInt8",
             "dataset_size":              "UInt8"
         }
 
         download_step = DownloadStep(
-            connector=["data-financing3", "data-financing4", "data-financing5", "data-financing6"],
+            connector=["data-financing3", "data-financing4", "data-financing5", "data-financing6", "dim-financing-uses", "dim-financing-source"],
             connector_path="conns.yaml"
         )
 
-       # read_step = ReadStep()
         transform_step = TransformStep()
         
         load_step = LoadStep(
             "financing_census", db_connector, if_exists="append",
-            pk=["ent_id", "subsector_id", "total_ue", "ue_with_financing", "size_id", "financed_ue", 
-                "age_id", "ue_by_uses_of_financing", "filter_source_financing", "dataset_size"], dtype=dtypes
+            pk=["ent_id", "subsector_id", "total_ue", "ue_with_financing", "size_id", 
+                "age_id",  "uses_of_financing", "funding_source"], dtype=dtypes
         )
 
         return [download_step, transform_step, load_step]

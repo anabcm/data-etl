@@ -34,6 +34,13 @@ data-financing6:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_06.xlsx
 
+dim-financing-uses:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/financing_uses_ids.csv
+
+dim-financing-source:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/funding_source_ids.csv
 
 
 
