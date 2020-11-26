@@ -9,7 +9,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
         df = pd.read_csv(prev, sep=";", encoding="utf-8")
-        print(df)
+
         return df
 
 
