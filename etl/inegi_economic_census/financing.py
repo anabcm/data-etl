@@ -36,19 +36,19 @@ class TransformStep(PipelineStep):
 
         data = []
         for df_ in [df3, df4, df5, df6]:
-            name = "size" if df_.shape[0]<15000 else "age" #df3 o df5 --> size
-            dict_values = company_size if df_.shape[0]<15000 else company_age
+            name = "size" if df_.shape[0] < 15000 else "age" #df3 o df5 --> size
+            dict_values = company_size if df_.shape[0] < 15000 else company_age
             
-            if df_.shape[1]==24:
+            if df_.shape[1] == 24:
 
                 df = df_.iloc[8:]
                 df = df[:-15]
                 
                 df.columns = ["ent_id", "sector_id", "subsector_id", name, "general_name", "total_ue", 
-                                "ue_with_financing", "pct_with_financing", "Banks", "pct_bank", 
-                                "Popular Savings Banks", "pct_saving", "Providers", "pct_providers", "Relatives or Friends", "pct_friends", 
-                                "Goverment", "pct_goverment", "Loans", "pct_loans", "Partners", "pct_partners",
-                                "Others", "pct_others"] 
+                              "ue_with_financing", "pct_with_financing", "Banks", "pct_bank",
+                              "Popular Savings Banks", "pct_saving", "Providers", "pct_providers", 
+                              "Relatives or Friends", "pct_friends", "Goverment", "pct_goverment", 
+                              "Loans", "pct_loans", "Partners", "pct_partners", "Others", "pct_others"] 
                 
                 df["ent_id"] = df["ent_id"].str[0:2].astype(int)
                 df = df.drop(df[df["ent_id"] == 0].index)
@@ -56,17 +56,17 @@ class TransformStep(PipelineStep):
 
                 df["subsector_id"] = df["subsector_id"].str.replace("Subsector ", "")
 
-                df = df.loc[:,~df.columns.str.startswith("pct")]
+                df = df.loc[:, ~df.columns.str.startswith("pct")]
 
                 df["general_name"] = df["general_name"].str.strip()
             
-                df[name+"_id"] = df["general_name"].map(dict_values)
+                df[name + "_id"] = df["general_name"].map(dict_values)
 
                 df["Others (government, private, partners)"] = df["Goverment"] + df["Loans"] + df["Partners"] + df["Others"]
 
                 df = df.drop(columns=["sector_id", "general_name", name, "Goverment", "Loans", "Partners", "Others"])
 
-                df = df.melt(id_vars=["ent_id", "subsector_id", "total_ue", "ue_with_financing", name+"_id"], var_name="funding_source", value_name="financed_ue")
+                df = df.melt(id_vars=["ent_id", "subsector_id", "total_ue", "ue_with_financing", name + "_id"], var_name="funding_source", value_name="financed_ue")
 
                 for i in ["subsector_id", "total_ue", "ue_with_financing", "financed_ue"]:
                     df[i] =  df[i].astype(int)
@@ -77,26 +77,26 @@ class TransformStep(PipelineStep):
                 df = df[:-15]
 
                 df.columns = ["ent_id", "sector_id", "subsector_id", name, "general_name", "total_ue", 
-                                "ue_with_financing", "pct_with_financing", "Business Creation", "pct_business", 
-                                "Equipment or business expansion", "pct_equipment", "Purchase of premises or vehicle", 
-                                "pct_premises", "Debt Payment", "pct_debt", "Acquisition of Inputs in the National market", 
-                                "pct_inputs_nat", "Acquisition of Inputs in the Foreign market", "pct_inputs_foreign", 
-                                "Payment of wages", "pct_wages", "Did not specify", "pct_no_specify", "ind1", "ind2"]
+                              "ue_with_financing", "pct_with_financing", "Business Creation", "pct_business", 
+                              "Equipment or business expansion", "pct_equipment", "Purchase of premises or vehicle", 
+                              "pct_premises", "Debt Payment", "pct_debt", "Acquisition of Inputs in the National market", 
+                              "pct_inputs_nat", "Acquisition of Inputs in the Foreign market", "pct_inputs_foreign", 
+                              "Payment of wages", "pct_wages", "Did not specify", "pct_no_specify", "ind1", "ind2"]
 
                 df["ent_id"] = df["ent_id"].str[0:2].astype(int)
                 df = df.drop(df[df["ent_id"] == 0].index)
                 df = df.dropna(subset=["sector_id", "subsector_id", name])
 
                 df["subsector_id"] = df["subsector_id"].str.replace("Subsector ", "")
-                df = df.loc[:,~df.columns.str.startswith("pct")]
+                df = df.loc[:, ~df.columns.str.startswith("pct")]
 
                 df["general_name"] = df["general_name"].str.strip()
 
-                df[name+"_id"] = df["general_name"].map(dict_values)
+                df[name + "_id"] = df["general_name"].map(dict_values)
 
                 df = df.drop(columns=["sector_id", "general_name", name, "ind1", "ind2"])
 
-                df = df.melt(id_vars=["ent_id", "subsector_id", "total_ue", "ue_with_financing", name+"_id"], var_name="uses_of_financing", value_name="ue_by_uses_of_financing")
+                df = df.melt(id_vars=["ent_id", "subsector_id", "total_ue", "ue_with_financing", name + "_id"], var_name="uses_of_financing", value_name="ue_by_uses_of_financing")
 
                 for i in ["subsector_id", "total_ue", "ue_with_financing", "ue_by_uses_of_financing"]:
                     df[i] =  df[i].astype(int)
@@ -123,7 +123,6 @@ class TransformStep(PipelineStep):
         return df_final
 
 class FinancingCensusPipeline(EasyPipeline):
-
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch(
@@ -152,7 +151,7 @@ class FinancingCensusPipeline(EasyPipeline):
         transform_step = TransformStep()
         
         load_step = LoadStep(
-            "financing_census", db_connector, if_exists="append",
+            "financing_census", db_connector, if_exists="drop",
             pk=["ent_id", "subsector_id", "total_ue", "ue_with_financing", "size_id", 
                 "age_id",  "uses_of_financing", "funding_source"], dtype=dtypes
         )

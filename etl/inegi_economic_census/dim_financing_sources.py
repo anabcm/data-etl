@@ -32,7 +32,7 @@ class DimFinancingSources(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-            "dim_financing_uses", db_connector, dtype=dtype,
+            "dim_financing_source", db_connector, dtype=dtype,
             if_exists="append", pk=["funding_source_id"]
         )
 
