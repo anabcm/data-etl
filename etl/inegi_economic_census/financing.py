@@ -120,6 +120,8 @@ class TransformStep(PipelineStep):
         df_final["uses_of_financing"] = df_final["uses_of_financing"].replace(dicto_uses)
         df_final["funding_source"] = df_final["funding_source"].replace(dicto_sources)
 
+        df_final['year'] = 2019
+
         return df_final
 
 class FinancingCensusPipeline(EasyPipeline):
@@ -140,7 +142,8 @@ class FinancingCensusPipeline(EasyPipeline):
             "uses_of_financing":         "UInt8",
             "ue_by_uses_of_financing":   "UInt16",
             "filter_source_financing":   "UInt8",
-            "dataset_size":              "UInt8"
+            "dataset_size":              "UInt8",
+            "year":                      "UInt16"
         }
 
         download_step = DownloadStep(
