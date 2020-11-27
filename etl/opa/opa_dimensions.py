@@ -7,12 +7,9 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 class DimRamosStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv(prev)
+        df = pd.read_excel(prev)
 
-        df.columns = df.columns.str.lower()
-
-        df = df[['id_ramo', 'descripcion_ramo']].drop_duplicates(keep='last').copy()
-        df.columns = ['id_investment_area', 'investment_area']
+        # columns = ["id_investment_area", "investment_area_es", "investment_area_en"]
 
         return df
 
@@ -21,11 +18,8 @@ class DimURStep(PipelineStep):
 
         df = pd.read_csv(prev)
 
-        df.columns = df.columns.str.lower()
-        df = df[['id_ur', 'descripcion_ur']].drop_duplicates().copy()
-        df.columns = ['id_responsible_unit', 'responsible_unit']
-        # 'id_responsible_unit' = HHE does not have 'responsible_unit'
-        df.dropna(inplace=True)
+        # columns = ["id_responsible_unit", "responsible_unit_es", "responsible_unit_en"]
+        # 'id_responsible_unit' = HHE does not have 'responsible_unit' -> No especificado
 
         return df
 
@@ -40,12 +34,12 @@ class OPADimsMobility(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
-        download_step = DownloadStep(
-            connector='opa-data',
-            connector_path="conns.yaml"
-        )
-
         if params.get('pipeline') == 'ramos':
+
+            download_step = DownloadStep(
+                connector='opa-investment-area',
+                connector_path="conns.yaml"
+            )
 
             transform_step = DimRamosStep()
 
@@ -60,6 +54,11 @@ class OPADimsMobility(EasyPipeline):
             return [download_step, transform_step, load_step]
         
         else:
+
+            download_step = DownloadStep(
+                connector='opa-responsible-unit',
+                connector_path="conns.yaml"
+            )
 
             transform_step = DimURStep()
 
