@@ -158,6 +158,9 @@ class TransformStep(PipelineStep):
                     "underemployed_population", "underemployed_classification", "classification_self_employed_unqualified_activities",
                     "classification_formal_informal_jobs_first_activity"]:
             df[col] = df[col].astype(float)
+        
+        # Set column type
+        df['second_activity_group_id'] = df['second_activity_group_id'].fillna(0).astype(int).astype(str)
 
         # Turning small comunities ids to NaN values
         df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
@@ -202,14 +205,14 @@ class ETOEPipeline(EasyPipeline):
             "actual_job_industry_group_id":                         "String",
             "actual_job_hrs_worked_lastweek":                       "UInt8",
             "actual_job_days_worked_lastweek":                      "UInt8",
-            "population":                                           "UInt64", 
+            "population":                                           "UInt64",
             "actual_frecuency_payments":                            "UInt8",
             "actual_amount_pesos":                                  "UInt32",
             "actual_minimal_wages_proportion":                      "UInt8",
             "actual_healthcare_attention":                          "UInt8",
             "second_activity":                                      "UInt8",
             "second_activity_task":                                 "UInt16",
-            "second_activity_group_id":                             "UInt16",
+            "second_activity_group_id":                             "String",
             "income_id":                                            "UInt8",
             "sex":                                                  "UInt8",
             "eap":                                                  "UInt8",
