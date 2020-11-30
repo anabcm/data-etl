@@ -7,7 +7,7 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 class DimRamosStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_excel(prev)
+        df = pd.read_csv(prev)
 
         # columns = ["id_investment_area", "investment_area_es", "investment_area_en"]
 
