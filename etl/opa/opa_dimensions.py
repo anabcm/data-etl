@@ -7,7 +7,7 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 class DimRamosStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv(prev)
+        df = pd.read_excel(prev)
 
         # columns = ["id_investment_area", "investment_area_es", "investment_area_en"]
 
@@ -16,8 +16,8 @@ class DimRamosStep(PipelineStep):
 class DimURStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv(prev)
-
+        df = pd.read_excel(prev)
+        df["id_responsible_unit"] = df["id_responsible_unit"].astype(str)
         # columns = ["id_responsible_unit", "responsible_unit_es", "responsible_unit_en"]
         # 'id_responsible_unit' = HHE does not have 'responsible_unit' -> No especificado
 
