@@ -6,6 +6,10 @@ imss-dimension:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/imss/diccionario_de_datos_1.xlsx
 
+imss-economic-sector-dimension:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/imss/dim_economic_sector.xlsx
+
 imss-geo-dimension:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/imss/Municipality.csv
