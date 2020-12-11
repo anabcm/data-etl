@@ -29,7 +29,7 @@ class ReadStep(PipelineStep):
 class TransformInvestmentStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('Investmen STEP')
+        print('Investmen STEP: fdi_quarter_industry_investment')
         pk_id = params.get('pk')
 
         df = df.loc[df[pk_id] != 'Total general'].copy()
@@ -51,12 +51,12 @@ class TransformInvestmentStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
+        temp = pd.DataFrame()
         for investment_type in list(df['investment_type'].unique()):
             temp = temp.append(validate_category(df.loc[(df['investment_type'] == investment_type)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         df = df.loc[df['value_c'] != 'c'].copy()
 
@@ -70,7 +70,7 @@ class TransformInvestmentStep(PipelineStep):
 class TransformCountryStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('Country STEP')
+        print('Country STEP: fdi_year_industry_country')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -112,7 +112,7 @@ class TransformCountryStep(PipelineStep):
 class TransformStateStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('State STEP')
+        print('State STEP: fdi_year_state_industry')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -154,7 +154,7 @@ class TransformStateStep(PipelineStep):
 class TransformYearStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('Year STEP')
+        print('Year STEP: fdi_year_industry')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -164,13 +164,13 @@ class TransformYearStep(PipelineStep):
         df[pk_id] = df[pk_id].astype(int)
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
-
         """temp = pd.DataFrame()
         for country in list(df['ent_id'].unique()):
             temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
         temp = pd.DataFrame()"""
+        df = validate_category(df, pk_id, 'value_c', 'c')
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
@@ -192,7 +192,7 @@ class TransformYearStep(PipelineStep):
 class TransformYearQuarterStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('Year YearQuarter')
+        print('Year YearQuarter: fdi_quarter_industry')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
 
         df = df.loc[df[pk_id] != 'Total general'].copy()
@@ -212,6 +212,7 @@ class TransformYearQuarterStep(PipelineStep):
 
         df = temp.copy()
         temp = pd.DataFrame()"""
+        df = validate_category(df, pk_id, 'value_c', 'c')
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:
@@ -233,7 +234,7 @@ class TransformYearQuarterStep(PipelineStep):
 class TransformYearInvestmentStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
-        print('Year YearInvestment')
+        print('Year YearInvestment: fdi_year_investment_industry')
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x) & ('ent_id' not in x)][0]
 
         df = df.loc[df[pk_id] != 'Total general'].copy()
@@ -244,12 +245,12 @@ class TransformYearInvestmentStep(PipelineStep):
 
         df['value_c'] = df['value_c'].astype(str).str.lower()
 
-        """temp = pd.DataFrame()
-        for country in list(df['ent_id'].unique()):
-            temp = temp.append(validate_category(df.loc[(df['ent_id'] == country)], pk_id, 'value_c', 'c'))
+        temp = pd.DataFrame()
+        for country in list(df['investment_type'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['investment_type'] == country)], pk_id, 'value_c', 'c'))
 
         df = temp.copy()
-        temp = pd.DataFrame()"""
+        temp = pd.DataFrame()
 
         level = ['sector_id', 'subsector_id', 'industry_group_id']
         for i in level:

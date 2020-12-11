@@ -1,14 +1,11 @@
 import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
+from bamboo_lib.steps import DownloadStep, LoadStep
 from helpers import norm
 from shared import get_dimensions, INVESTMENT_TYPE
-
+from util import validate_category
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -16,11 +13,6 @@ class TransformStep(PipelineStep):
         df = pd.read_excel(data, sheet_name='2.4')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
         df = df.loc[~df['entidad_federativa'].str.contains('Total')].copy()
-
-        for col in df.columns:
-            if (col == 'monto_c') | ('monto_c_' in col):
-                df.loc[df[col].astype(str).str.lower() == 'c', col] = np.nan
-                df[col] = df[col].astype(float)
 
         # get end_id dimension
         dim_geo = get_dimensions()[0]
@@ -42,7 +34,7 @@ class TransformStep(PipelineStep):
         base = ['ent_id', 'year', 'quarter_id']
         df_final = pd.DataFrame()
         for option in ['between_companies', 'new_investments', 're_investments']:
-            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]
+            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]].copy()
             temp.columns = ['ent_id', 'year', 'quarter_id', 'count', 'value_c']
             temp.dropna(subset=['value_c'], inplace=True)
             temp['investment_type'] = option
@@ -50,6 +42,15 @@ class TransformStep(PipelineStep):
         df = df_final.copy()
 
         df['investment_type'].replace(INVESTMENT_TYPE, inplace=True)
+
+        temp = pd.DataFrame()
+        for ent in list(df['ent_id'].unique()):
+            temp = temp.append(validate_category(df.loc[(df['ent_id'] == ent)], 'investment_type', 'value_c', 'c'))
+
+        df = temp.copy()
+        temp = pd.DataFrame()
+        df = df.loc[df['value_c'].astype(str).str.lower() != 'c'].copy()
+        df['value_c'] = df['value_c'].astype(float)
 
         return df
 

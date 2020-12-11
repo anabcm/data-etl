@@ -1,4 +1,7 @@
+
 import re
+import logging
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -16,7 +19,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
 
-        params, url = get_params(params.get('url')), params.get('url')
+        custom_params, url = get_params(params.get('url')), params.get('url')
 
         names = {
             'municipality_code': 'mun_id',
@@ -29,8 +32,16 @@ class TransformStep(PipelineStep):
         }
         df.rename(columns=names, inplace=True)
 
+        if 'unanonymized' in params.get('table'):
+            logging.debug('Unanonymized values...')
+            df.drop(columns=['value'], inplace=True)
+            df.rename(columns={'unanonymized_value': 'value'}, inplace=True)
+        else:
+            logging.debug('Anonymized values...')
+            df.drop(columns=['unanonymized_value'], inplace=True)
+
         # negative values
-        df.value.replace('C', pd.np.nan, inplace=True)
+        df.value.replace('C', np.nan, inplace=True)
         df.value = df.value.astype('float')
         df = df.loc[df.value > 0].copy()
 
@@ -40,18 +51,18 @@ class TransformStep(PipelineStep):
         # fill columns
         level = ['hs6_id', 'hs4_id', 'hs2_id']
         for i in level:
-            if i != params['depth']:
+            if i != custom_params['depth']:
                 df[i] = 0
 
         # drop date, create time dimension
-        for k, v in params['datetime'].items():
+        for k, v in custom_params['datetime'].items():
             df[k] = v
         df.drop(columns='date', inplace=True)
 
         # hs codes
-        df[params['depth']] = df[params['depth']].astype('str').str.zfill(get_number(params['depth']))
-        for row in df[params['depth']].unique():
-            df[params['depth']].replace(row, hs6_converter(row), inplace=True)
+        df[custom_params['depth']] = df[custom_params['depth']].astype('str').str.zfill(get_number(custom_params['depth']))
+        for row in df[custom_params['depth']].unique():
+            df[custom_params['depth']].replace(row, hs6_converter(row), inplace=True)
 
         for col in df.columns[df.columns != 'partner_country']:
             df[col] = df[col].astype('float').round(0).astype('int')
@@ -64,8 +75,8 @@ class TransformStep(PipelineStep):
             df['ent_id'] = 0
 
         # explicit level name
-        df['level'] = int(params['level'][2])
-        df['product_level'] = int(re.findall(r"(\d){1}", params['depth'])[0])
+        df['level'] = int(custom_params['level'][2])
+        df['product_level'] = int(re.findall(r"(\d){1}", custom_params['depth'])[0])
 
         return df
 
@@ -76,12 +87,13 @@ class ForeignTradePipeline(EasyPipeline):
             Parameter('url', dtype=str),
             Parameter('type', dtype=str),
             Parameter('name', dtype=str),
+            Parameter('table', dtype=str),
         ]
 
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
-        
+
         dtype = {
             'level':                         'UInt8',
             'product_level':                 'UInt8',
@@ -96,7 +108,7 @@ class ForeignTradePipeline(EasyPipeline):
             'month_id':                      'UInt32',
             'year':                          'UInt16'
         }
-        
+
         read_step = ReadStep()
 
         download_step = DownloadStep(
@@ -105,7 +117,7 @@ class ForeignTradePipeline(EasyPipeline):
         )
 
         transform_step = TransformStep()
-        load_step = LoadStep('economy_foreign_trade_' + params.get('name'), db_connector, if_exists='append', 
+        load_step = LoadStep(params.get('table') + params.get('name'), db_connector, if_exists='append', 
                             pk=[params.get('name')+'_id', 'partner_country', 'month_id', 'year', 
                                 'hs2_id', 'hs4_id', 'hs6_id', 'level', 'product_level'], 
                              dtype=dtype)

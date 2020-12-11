@@ -3,12 +3,14 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.helpers import query_to_df
 
+LIMIT_C = 3
+
 def get_dimensions():
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
     dim_geo_query = 'SELECT ent_name, ent_id FROM dim_shared_geography_ent'
     dim_geo = query_to_df(db_connector, raw_query=dim_geo_query)
 
-    dim_country_query = 'SELECT country_name_es, iso3 FROM dim_shared_country'
+    dim_country_query = 'SELECT country_name_es, country_name, iso3 FROM dim_shared_country'
     dim_country = query_to_df(db_connector, raw_query=dim_country_query)
 
     return [dim_geo, dim_country]
@@ -45,11 +47,35 @@ COUNTRY_REPLACE = {
     'República Checa': 'Chequia',
     'Venezuela, República Bolivariana de': 'Venezuela',
     'Venezuela República Bolivariana de': 'Venezuela',
-    'Siria República Árabe de': 'Syria',
+    'Siria República Árabe de': 'syr',
+    'Siria, República Árabe de': 'syr',
     'Serbia República de': 'srb',
     'Bolivia (Estado Plurinacional de)': 'bol',
     'Bermudas': 'bmu',
+    'Bahamas, Las': 'bhs',
     'Irán República Islámica de': 'irn',
+    'Irán, República Islámica de': 'irn',
     'Congo República Democrática del': 'cod',
+    'Cisjordania y la Franja de Gaza': 'pse',
+    'Serbia y Montenegro': 'scg',
+    'Serbia, República de': 'srb',
+    'Antillas Holandesas': 'ant',
+    'Islas Vírgenes de los Estados Unidos': 'vir',
+    'Suazilandia': 'swz',
+    'Brunei Darussalam': 'brn',
+    'Fiyi, República de': 'fji',
+    'Kazajstán, República de': 'kaz',
+    'Surinam': 'sur',
+    'Bahréin': 'bhr',
+    'Belarús': 'blr',
+    'Guyana': 'guy',
+    'Qatar': 'qat',
+    'Yemen, República de': 'yar',
+    'Micronesia, Estados Federados de': 'fsm',
+    'Nepal, República Federal Democrática de': 'npl',
+    'Corea, República Popular Democrática de': 'prk',
+    'Guyana Francesa': 'guf',
+    'Montenegro, República de': 'mne',
+    'Costa de Marfil': 'civ',
     'Otros países': 'xxa'
 }

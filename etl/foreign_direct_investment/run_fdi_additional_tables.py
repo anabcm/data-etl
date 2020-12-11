@@ -1,5 +1,13 @@
 
 from fdi_additional_tables import Pipeline
+from util import clean_tables
+
+for table in ['fdi_quarter_industry_investment', 'fdi_year_industry_country', 'fdi_year_state_industry', 
+              'fdi_year_industry', 'fdi_year_investment_industry', 'fdi_quarter_industry']:
+    try:
+        clean_tables(table)
+    except:
+        print('Table: {} does not exist'.format(table))
 
 params = [
     {'pk': 'sector_id',
