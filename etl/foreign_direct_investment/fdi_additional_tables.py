@@ -10,10 +10,12 @@ class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         print(params)
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
+        df.columns = df.columns.str.strip()
         df.rename(columns={
             'Año': 'year',
             'Trimestre': 'quarter_id',
             'Tipo de inversión': 'investment_type',
+            'Inversión': 'investment_type',
             'Sector': 'sector_id',
             'Subsector': 'subsector_id',
             'Rama': 'industry_group_id',
