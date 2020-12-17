@@ -181,24 +181,24 @@ class CovidStatsMetroareaPipeline(EasyPipeline):
         dtypes = {
             'time_id':                          "UInt32",
             'zm_id':                            "UInt32",
-            'daily_cases':                      "UInt32",
-            'daily_deaths':                     "UInt32",
-            'accum_cases':                      "UInt32",
-            'accum_deaths':                     "UInt32",
+            'daily_cases':                      "Int64",
+            'daily_deaths':                     "Int64",
+            'accum_cases':                      "Int64",
+            'accum_deaths':                     "Int64",
             'avg7_daily_cases':                 "Float32",
             'avg7_accum_cases':                 "Float32",
             'avg7_daily_deaths':                "Float32",
             'avg7_accum_deaths':                "Float32",
-            'sum_last7_daily_cases':            "Int32",
-            'sum_last7_daily_deaths':           "Int32",
-            'sum_last7_accum_cases':            "Int32",
-            'sum_last7_accum_deaths':           "Int32",
+            'sum_last7_daily_cases':            "Int64",
+            'sum_last7_daily_deaths':           "Int64",
+            'sum_last7_accum_cases':            "Int64",
+            'sum_last7_accum_deaths':           "Int64",
             'rate_daily_cases':                 "Float32",
             'rate_accum_cases':                 "Float32",
             'rate_daily_deaths':                "Float32",
             'rate_accum_deaths':                "Float32",
-            'day_from_50_cases':                "UInt16",
-            'day_from_10_deaths':               "UInt16"
+            'day_from_50_cases':                "Int64",
+            'day_from_10_deaths':               "Int64"
         }
 
         download_step = DownloadStep(
