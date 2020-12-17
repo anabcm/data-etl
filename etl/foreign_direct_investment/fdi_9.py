@@ -14,7 +14,8 @@ class Transform_92_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.2')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'value', 'count', 'value_c']	
 
@@ -32,7 +33,8 @@ class Transform_93_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.3')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'quarter', 'value', 'count', 'value_c']
 
@@ -52,7 +54,8 @@ class Transform_94_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.4')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'value_between_companies', 'value_new_investments', 'value_re_investments', 	
                     'count_between_companies', 'count_new_investments', 'count_re_investments',	
@@ -84,7 +87,8 @@ class Transform_95_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.5')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'quarter', 'value_between_companies', 'value_new_investments', 'value_re_investments', 	
                     'count_between_companies', 'count_new_investments', 'count_re_investments',	

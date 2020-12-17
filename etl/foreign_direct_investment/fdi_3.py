@@ -14,6 +14,7 @@ class TransformStep(PipelineStep):
         data = prev
         df = pd.read_excel(data, sheet_name='3')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
         df = df.loc[~df['entidad_federativa'].str.contains('Total')].copy()
 
         # get country, end_id dimensions

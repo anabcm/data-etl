@@ -15,6 +15,7 @@ class Transform_101_Step(PipelineStep):
 
         df = pd.read_excel(data, sheet_name='10.1')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
         df.columns = ['year', 'country', 'value', 'count', 'value_c']
         df = df.loc[~df['year'].astype(str).str.contains('Total')].copy()
         df = df.loc[df['value_c'] != 'C'].copy()
@@ -36,6 +37,7 @@ class Transform_102_Step(PipelineStep):
 
         df = pd.read_excel(data, sheet_name='10.2')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
         df.columns = ['year', 'country', 'investment_type', 'value', 'count', 'value_c']
         df = df.loc[~df['year'].astype(str).str.contains('Total')].copy()
         df = df.loc[df['value_c'] != 'C'].copy()
@@ -59,6 +61,7 @@ class Transform_103_Step(PipelineStep):
 
         df = pd.read_excel(data, sheet_name='10.3')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
         df.columns = ['year', 'value_between_companies', 'value_new_investments', 'value_re_investments', 
                     'count_between_companies', 'count_new_investments', 'count_re_investments',
                     'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']
