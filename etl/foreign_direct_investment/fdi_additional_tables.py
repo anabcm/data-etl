@@ -13,6 +13,7 @@ class ReadStep(PipelineStep):
         df.columns = df.columns.str.strip()
         df.rename(columns={
             'Año': 'year',
+            'Año de materialización': 'year',
             'Trimestre': 'quarter_id',
             'Tipo de inversión': 'investment_type',
             'Inversión': 'investment_type',
@@ -23,7 +24,9 @@ class ReadStep(PipelineStep):
             'País de Origen_otros': 'country_id',
             'Entidad federativa': 'ent_id',
             'Monto': 'value',
+            'Suma de Monto en millones': 'value',
             'Recuento': 'count',
+            'Recuento distinto de Expediente': 'count',
             'Monto C': 'value_c'
         }, inplace=True)
 
@@ -74,6 +77,7 @@ class TransformCountryStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
         print('Country STEP: fdi_year_industry_country')
+        print(df.head())
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
