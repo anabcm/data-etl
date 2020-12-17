@@ -20,6 +20,7 @@ class ReadStep(PipelineStep):
             'Subsector': 'subsector_id',
             'Rama': 'industry_group_id',
             'País de Origen DEAE': 'country_id',
+            'País de Origen_otros': 'country_id',
             'Entidad federativa': 'ent_id',
             'Monto': 'value',
             'Recuento': 'count',
