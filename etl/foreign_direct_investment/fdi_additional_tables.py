@@ -289,7 +289,8 @@ class Pipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=params.get('db-source'),
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         read_step = ReadStep()
