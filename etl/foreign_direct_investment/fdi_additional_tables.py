@@ -11,6 +11,7 @@ class ReadStep(PipelineStep):
         print(params)
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
         df.columns = df.columns.str.strip()
+        print(df.columns)
         df.rename(columns={
             'Año': 'year',
             'Año de materialización': 'year',
