@@ -21,6 +21,7 @@ class TransformStep(PipelineStep):
                 'Año': 'year',
                 'Año de materialización': 'year',
                 'Trimestre': 'quarter_id',
+                'Trimestre de materialización':  'quarter_id',
                 'Tipo de inversión': 'investment_type',
                 'Inversión': 'investment_type',
                 'Sector': 'sector_id',
