@@ -19,14 +19,20 @@ class TransformStep(PipelineStep):
 
             df.rename(columns={
                 'Año': 'year',
-                'Entidad federativa': 'ent_id',
-                'País de Origen DEAE': 'country_id',
+                'Año de materialización': 'year',
+                'Trimestre': 'quarter_id',
                 'Tipo de inversión': 'investment_type',
-                'Subsector': 'subsector_id',
+                'Inversión': 'investment_type',
                 'Sector': 'sector_id',
+                'Subsector': 'subsector_id',
                 'Rama': 'industry_group_id',
+                'País de Origen DEAE': 'country_id',
+                'País de Origen_otros': 'country_id',
+                'Entidad federativa': 'ent_id',
                 'Monto': 'value',
+                'Suma de Monto en millones': 'value',
                 'Recuento': 'count',
+                'Recuento distinto de Expediente': 'count',
                 'Monto C': 'value_c'
             }, inplace=True)
 
