@@ -5,6 +5,8 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import SECTOR_REPLACE, LIMIT_C
+from static import FDI_COLUMNS
+
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -17,26 +19,7 @@ class TransformStep(PipelineStep):
         for sheet in params.get('sheets'):
             df = pd.read_excel(data, sheet_name=sheet)
 
-            df.rename(columns={
-                'Año': 'year',
-                'Año de materialización': 'year',
-                'Trimestre': 'quarter_id',
-                'Trimestre de materialización':  'quarter_id',
-                'Tipo de inversión': 'investment_type',
-                'Inversión': 'investment_type',
-                'Sector': 'sector_id',
-                'Subsector': 'subsector_id',
-                'Rama': 'industry_group_id',
-                'País de Origen DEAE': 'country_id',
-                'País de Origen_otros': 'country_id',
-                'País': 'country_id',
-                'Entidad federativa': 'ent_id',
-                'Monto': 'value',
-                'Suma de Monto en millones': 'value',
-                'Recuento': 'count',
-                'Recuento distinto de Expediente': 'count',
-                'Monto C': 'value_c'
-            }, inplace=True)
+            df.rename(columns=FDI_COLUMNS, inplace=True)
 
             pk_id = [x for x in df.columns if x in ['sector_id', 'subsector_id', 'industry_group_id']][0]
 

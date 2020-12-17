@@ -5,6 +5,8 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 from helpers import norm
 from shared import get_dimensions, SECTOR_REPLACE, COUNTRY_REPLACE, INVESTMENT_TYPE
 from util import validate_category
+from static import FDI_COLUMNS
+
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
@@ -12,26 +14,7 @@ class ReadStep(PipelineStep):
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
         df.columns = df.columns.str.strip()
         print(df.columns)
-        df.rename(columns={
-            'Año': 'year',
-            'Año de materialización': 'year',
-            'Trimestre': 'quarter_id',
-            'Trimestre de materialización':  'quarter_id',
-            'Tipo de inversión': 'investment_type',
-            'Inversión': 'investment_type',
-            'Sector': 'sector_id',
-            'Subsector': 'subsector_id',
-            'Rama': 'industry_group_id',
-            'País de Origen DEAE': 'country_id',
-            'País de Origen_otros': 'country_id',
-            'País': 'country_id',
-            'Entidad federativa': 'ent_id',
-            'Monto': 'value',
-            'Suma de Monto en millones': 'value',
-            'Recuento': 'count',
-            'Recuento distinto de Expediente': 'count',
-            'Monto C': 'value_c'
-        }, inplace=True)
+        df.rename(columns=FDI_COLUMNS, inplace=True)
 
         return df
 
