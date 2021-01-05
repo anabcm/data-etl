@@ -48,7 +48,7 @@ class TransformStep(PipelineStep):
         for col in [x for x in df.columns if x != 'sector_id']:
             df[col] = df[col].astype(float)
         
-        df['sector_id'] = df['sector_id'].astype(str)
+        df['sector_id'] = df['sector_id'].astype(str).str.strip()
 
         df['year'] = 2019
 
