@@ -35,7 +35,7 @@ class TransformStep(PipelineStep):
             df = df.loc[~df['CODIGO'].isna()].copy()
             temp = temp.append(df)
             print(temp.shape, df.shape)
-        
+
         df = temp.copy()
         df.drop(columns=['MUNICIPIO', 'ID_ESTRATO'], inplace=True)
 
@@ -47,6 +47,8 @@ class TransformStep(PipelineStep):
 
         for col in [x for x in df.columns if x != 'sector_id']:
             df[col] = df[col].astype(float)
+        
+        df['sector_id'] = df['sector_id'].astype(str)
 
         df['year'] = 2019
 
@@ -83,7 +85,6 @@ class EconomicCensusPipeline(EasyPipeline):
             connector_path="conns.yaml"
         )
 
-        # Definition of each step
         transform_step = TransformStep()
         load_step = LoadStep(
             'inegi_economic_census_state_stats', db_connector, dtype=dtypes, if_exists='drop', 
