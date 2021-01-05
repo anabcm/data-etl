@@ -52,7 +52,7 @@ class TransformStep(PipelineStep):
 
         df.columns = df.columns.str.lower()
 
-        df = df[['ent_id', 'ue', 'year'] + ['a111a', 'a121a', 'a131a', 'a211a', 'a221a', 'a511a', 
+        df = df[['ent_id', 'ue', 'year', 'sector_id'] + ['a111a', 'a121a', 'a131a', 'a211a', 'a221a', 'a511a', 
                 'a700a', 'a800a', 'h000a', 'h000b', 'h000c', 'h000d', 'h001a', 'h001b', 'h001c', 
                 'h001d', 'h010a', 'h010b', 'h010c', 'h010d', 'h020a', 'h020b', 'h020c', 'h020d', 
                 'h101a', 'h101b', 'h101c', 'h101d', 'h203a', 'h203b', 'h203c', 'h203d', 'i000a', 
