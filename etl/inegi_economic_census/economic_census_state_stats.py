@@ -8,15 +8,12 @@ from bamboo_lib.helpers import grab_connector
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        label = ''
-        data = []
-        for ele in prev:
-            if 'diccionario' in ele[1]['file']:
-                label = ele[0]
-            elif 'ce2019_nac' in ele[1]['file']:
-                continue
-            else:
-                data.append(ele[0])
+
+        # find data files
+        data = [x[0] for x in prev if ('ce2019' in x[1]['file']) & ('diccionario' not in x[1]['file']) & ('national' not in x[1]['file'])]
+
+        # find column names file
+        label = [x[0] for x in prev if 'diccionario' in x[1]['file']][0]
 
         temp = pd.DataFrame()
         for ele in data:
@@ -31,21 +28,25 @@ class TransformStep(PipelineStep):
             df.columns = columns
             df.replace(' ', np.nan, inplace=True)
 
+            df = df.loc[(df['CODIGO'].str.strip().str.len() == 2) | (df['CODIGO'] == '31-33') | (df['CODIGO'].str.strip() == '48-49')].copy()
+
             df = df.loc[df['ID_ESTRATO'].isna()].copy()
-            df = df.loc[df['CODIGO'].isna()].copy()
             df = df.loc[df['MUNICIPIO'].isna()].copy()
+            df = df.loc[~df['CODIGO'].isna()].copy()
             temp = temp.append(df)
+            print(temp.shape, df.shape)
         
         df = temp.copy()
-        df.drop(columns=['MUNICIPIO', 'CODIGO', 'ID_ESTRATO'], inplace=True)
-
-        for col in list(df.columns[1::]):
-            df[col] = df[col].astype(float)
+        df.drop(columns=['MUNICIPIO', 'ID_ESTRATO'], inplace=True)
 
         df.rename(columns={
             'ENTIDAD': 'ent_id',
-            'UE': 'ue'
+            'UE': 'ue',
+            'CODIGO': 'sector_id'
         }, inplace=True)
+
+        for col in [x for x in df.columns if x != 'sector_id']:
+            df[col] = df[col].astype(float)
 
         df['year'] = 2019
 
@@ -71,9 +72,10 @@ class EconomicCensusPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtypes = {
-            'ent_id':  'UInt8',
-            'ue':      'Float32',
-            'year':    'UInt16'
+            'ent_id':    'UInt8',
+            'ue':        'Float32',
+            'sector_id': 'String',
+            'year':      'UInt16'
         }
 
         download_step = WildcardDownloadStep(
