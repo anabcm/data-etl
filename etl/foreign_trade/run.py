@@ -22,18 +22,18 @@ for file in files:
 print('nat files: {}, mun files: {}, ent files: {}'.format(len(nat), len(mun), len(ent)))
 
 for table in ['economy_foreign_trade_', 'economy_foreign_trade_unanonymized_']:
-	nat = check_update(nat, table)
-	for url in nat:
+	nat_ = check_update(nat, table)
+	for url in nat_:
 		type_, name_, level_name_ = get_level(url, LEVELS)
 		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
 
-	ent = check_update(ent, table)
-	for url in ent:
+	ent_ = check_update(ent, table)
+	for url in ent_:
 		type_, name_, level_name_ = get_level(url, LEVELS)
 		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
 
-	mun = check_update(mun, table)
-	for url in mun:
+	mun_ = check_update(mun, table)
+	for url in mun_:
 		type_, name_, level_name_ = get_level(url, LEVELS)
 		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
 
