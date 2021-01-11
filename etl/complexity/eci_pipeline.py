@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
             "parents": "true"
         }
 
-        BASE_URL = "https://api.datamexico.org/tesseract/data"
+        BASE_URL = "https://dev-api.datamexico.org/tesseract/data"
         r = requests.get(BASE_URL, params=params)
         data = r.json()["data"]
         df_time = pd.DataFrame(data)
