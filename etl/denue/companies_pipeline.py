@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
@@ -62,9 +63,9 @@ class TransformStep(PipelineStep):
                     continue
 
         #range creation
-        df['lower'] = pd.np.nan
-        df['upper'] = pd.np.nan
-        df['middle'] = pd.np.nan
+        df['lower'] = np.nan
+        df['upper'] = np.nan
+        df['middle'] = np.nan
 
         for ele in df.per_ocu.unique():
             try:
@@ -115,7 +116,7 @@ class TransformStep(PipelineStep):
             try:
                 float(code)
             except:
-                df.postal_code.replace(code, pd.np.nan, inplace=True)
+                df.postal_code.replace(code, np.nan, inplace=True)
         
         # data types conversion
         dtypes = {
@@ -132,6 +133,7 @@ class TransformStep(PipelineStep):
             'middle':               'float',
             'upper':                'int'
         }
+        df['directory_added_date'] = df['directory_added_date'].astype(str).str.replace(' ', '')
         
         for key, val in dtypes.items():
             try:
