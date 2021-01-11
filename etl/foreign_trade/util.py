@@ -3,18 +3,17 @@ import pandas as pd
 from bamboo_lib.helpers import query_to_df
 from bamboo_lib.connectors.models import Connector
 
-def check_update(files):
+def check_update(files, table):
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
     current_files = []
     for level in ['ent', 'mun']:
-        for table in ['economy_foreign_trade', 'economy_foreign_trade_unanonymized']:
-            try:
-                query = 'SELECT distinct(url) FROM {}_{}'.format(table, level)
-                temp = list(query_to_df(db_connector, raw_query=query)['url'])
-            except:
-                temp = []
-            current_files = current_files + temp
+        try:
+            query = 'SELECT distinct(url) FROM {}{}'.format(table, level)
+            temp = list(query_to_df(db_connector, raw_query=query)['url'])
+        except:
+            temp = []
+        current_files = current_files + temp
 
     if len(current_files) > 0:
         df = pd.DataFrame({'url': files})
