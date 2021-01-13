@@ -7,6 +7,23 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
+def fix_duplicated(df): 
+    """
+    # incremental deduplication
+    ## step 1   |  ## step 2   | ## step 3
+    code | aux  |  code | aux  |  code | aux 
+     105    1   |   105    1   |   105     1
+     105    1   |   105    2   |   105     2
+     105    1   |   105    2   |   105     3
+    """
+    iter_times = 1
+    df['aux'] = 1
+    while 0 != df.loc[df.duplicated(subset=['code', 'aux']), 'aux'].shape[0]:
+        df.loc[df.duplicated(subset=['code', 'aux']), 'aux'] = df.loc[df.duplicated(subset=['code', 'aux']), 'aux'] + 1
+        iter_times += 1
+    df['code'] = df['code'] + df['aux'].astype(str).str.zfill(len(str(iter_times)))
+    df.drop(columns='aux', inplace=True)
+    return df
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -16,22 +33,28 @@ class TransformStep(PipelineStep):
 
         # Loading 2 ENOE files, in order to create 1 quarter per year data || New loading step
         cols = [["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac"],
-                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac"]]
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac_tri"],
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac"],
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac_tri"]]
 
         def upper_(array):
             return [x.upper() for x in array]
         def lower_(array):
             return [x.lower() for x in array]
+        def keep_(array):
+            return [x for x in array]
 
         # ENOE COE1T
         for col in cols:
-            for op in [upper_, lower_]:
+            for op in [upper_, lower_, keep_]:
                 try:
                     dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str, 
                                 usecols=op(col))
                     break
-                except:
+                except Exception as e:
+                    print(e)
                     continue
+        dt_1.rename(columns={"fac_tri": "fac"}, inplace=True)
 
         # ENOE COE2T
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
@@ -47,6 +70,11 @@ class TransformStep(PipelineStep):
         # Creating df, based in unique individual values (prevent overpopulation with merge)
         dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
         dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
+
+        # duplicated codes
+        if (params.get('year') == '20') & (params.get('quarter') == '3'):
+            dt_1 = fix_duplicated(dt_1)
+            dt_2 = fix_duplicated(dt_2)
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
 
@@ -103,7 +131,7 @@ class TransformStep(PipelineStep):
         df.drop(list_drop, axis=1, inplace=True)
 
         # Replacing NaN an empty values in order to change content of the columns with IDs
-        df.replace(pd.np.nan, 999999, inplace=True)
+        df.replace(np.nan, 999999, inplace=True)
         df.replace(" ", 999999, inplace=True)
 
         # Changing columns with IDs trought cycle
@@ -134,10 +162,10 @@ class TransformStep(PipelineStep):
         df.income_id = df.income_id.astype("int")
 
         # Turning back NaN values in the respective columns
-        df.replace(999999, pd.np.nan, inplace=True)
-        df["actual_job_days_worked_lastweek"].replace("9", pd.np.nan, inplace=True)
-        df["actual_job_hrs_worked_lastweek"].replace("999", pd.np.nan, inplace=True)
-        df["income_id"].replace(99, pd.np.nan, inplace=True)
+        df.replace(999999, np.nan, inplace=True)
+        df["actual_job_days_worked_lastweek"].replace("9", np.nan, inplace=True)
+        df["actual_job_hrs_worked_lastweek"].replace("999", np.nan, inplace=True)
+        df["income_id"].replace(99, np.nan, inplace=True)
 
         #Setting types
         for col in ["has_job_or_business", "search_job_overseas", "search_job_mexico", "search_start_business",
@@ -156,7 +184,7 @@ class TransformStep(PipelineStep):
             df[item] = df[item].astype(int)
 
         # Turning small comunities ids to NaN values
-        df["represented_city"].replace([81, 82, 83, 84, 85, 86], pd.np.nan, inplace=True)
+        df["represented_city"].replace([81, 82, 83, 84, 85, 86], np.nan, inplace=True)
 
         # Filter population for 15 and/or older
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
@@ -196,7 +224,7 @@ class ENOEPipeline(EasyPipeline):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
         dtype = {
-            "code":                                                 "UInt32",
+            "code":                                                 "UInt64",
             "population":                                           "UInt32",
             "mensual_wage":                                         "Float32",
             "quarter_id":                                           "UInt16",
