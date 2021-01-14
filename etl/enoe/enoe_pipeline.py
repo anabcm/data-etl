@@ -52,7 +52,7 @@ class TransformStep(PipelineStep):
                                 usecols=op(col))
                     break
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     continue
         dt_1.rename(columns={"fac_tri": "fac"}, inplace=True)
 
@@ -209,6 +209,8 @@ class TransformStep(PipelineStep):
         df["quarter_id"] = df["quarter_id"].astype(int)
         df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
 
+        print(df.info())
+
         return df
 
 class ENOEPipeline(EasyPipeline):
@@ -256,7 +258,7 @@ class ENOEPipeline(EasyPipeline):
             nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
                            "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
                            "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", 
-                           "instruction_level", "approved_years"]
+                           "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity"]
         )
 
         return [download_step, transform_step, load_step]
