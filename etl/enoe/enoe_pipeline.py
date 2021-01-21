@@ -230,9 +230,10 @@ class TransformStep(PipelineStep):
         df = df.loc[(df["age"] >= 15)].reset_index(col_fill="ffill", drop=True)
 
         # Getting values of year and respective quarter for the survey
-        df = df[["code", "population", "mensual_wage", "has_job_or_business", 
-                 "second_activity", "eap", "occ_unocc_pop", "eap_comp",
-                 "schooling_years", "instruction_level", "approved_years",
+        df = df[["code", "population", "population_monthly", "mensual_wage", 
+                 "has_job_or_business", "second_activity", "eap", 
+                 "occ_unocc_pop", "eap_comp", "schooling_years", 
+                 "instruction_level", "approved_years", 
                  "classification_formal_informal_jobs_first_activity", "age",
                  "actual_job_industry_group_id", "sex",  "actual_job_position",
                  "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek"]].copy()
