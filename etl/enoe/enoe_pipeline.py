@@ -81,13 +81,13 @@ class TransformStep(PipelineStep):
 
         # Creating df, based in unique individual values (prevent overpopulation with merge)
         if 'fac_men' in dt_1.columns:
+            index_cols = ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren"]
             dt_1 = fill_level(dt_1, index_cols)
             dt_2 = fill_level(dt_2, index_cols)
             dt_1["code"] = dt_1["cd_a"] + dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["tipo"] + dt_1["mes_cal"] + dt_1["ca"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
             dt_2["code"] = dt_2["cd_a"] + dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["tipo"] + dt_2["mes_cal"] + dt_2["ca"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
             sdem_cols = SDEM_COLS_2
         else:
-            index_cols = ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren"]
             dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
             dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
             dt_1["population_monthly"] = np.nan
