@@ -268,7 +268,7 @@ class ENOEPipeline(EasyPipeline):
         dtype = {
             "code":                                                 "UInt64",
             "population":                                           "UInt32",
-            "population_monthly"                                    "UInt32",
+            "population_monthly":                                   "UInt32",
             "mensual_wage":                                         "Float32",
             "quarter_id":                                           "UInt16",
             "has_job_or_business":                                  "UInt8",
