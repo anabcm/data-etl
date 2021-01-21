@@ -90,6 +90,7 @@ class TransformStep(PipelineStep):
             index_cols = ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren"]
             dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
             dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
+            dt_1["population_monthly"] = np.nan
             sdem_cols = SDEM_COLS_1
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
@@ -267,6 +268,7 @@ class ENOEPipeline(EasyPipeline):
         dtype = {
             "code":                                                 "UInt64",
             "population":                                           "UInt32",
+            "population_monthly"                                    "UInt32",
             "mensual_wage":                                         "Float32",
             "quarter_id":                                           "UInt16",
             "has_job_or_business":                                  "UInt8",
@@ -296,7 +298,7 @@ class ENOEPipeline(EasyPipeline):
             "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
             nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
                            "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
-                           "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", 
+                           "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", "population_monthly",
                            "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity"]
         )
 
