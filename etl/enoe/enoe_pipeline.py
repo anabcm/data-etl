@@ -1,28 +1,33 @@
+
 import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.models import EasyPipeline
-from bamboo_lib.models import Parameter
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.models import EasyPipeline, Parameter, PipelineStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 
-def fix_duplicated(df): 
+from static import SDEM_COLS_1, SDEM_COLS_2, COE2_COLS_1, COE2_COLS_2, VIVT_COLS_1, VIVT_COLS_2
+
+def fill_level(df, cols):
     """
-    # incremental deduplication
-    ## step 1   |  ## step 2   | ## step 3
-    code | aux  |  code | aux  |  code | aux 
-     105    1   |   105    1   |   105     1
-     105    1   |   105    2   |   105     2
-     105    1   |   105    2   |   105     3
+    complete level lenght
+    col1 | col2
+    1       1
+    9       2
+    99      3
+    999     99
+    
+    col1 | col2
+    001     01
+    009     02
+    099     03
+    999     99
     """
-    iter_times = 1
-    df['aux'] = 1
-    while 0 != df.loc[df.duplicated(subset=['code', 'aux']), 'aux'].shape[0]:
-        df.loc[df.duplicated(subset=['code', 'aux']), 'aux'] = df.loc[df.duplicated(subset=['code', 'aux']), 'aux'] + 1
-        iter_times += 1
-    df['code'] = df['code'] + df['aux'].astype(str).str.zfill(len(str(iter_times)))
-    df.drop(columns='aux', inplace=True)
+    fix_id = {}
+    for ele in cols:
+        ma, mi = df[ele].astype(int).max(), df[ele].astype(int).min()
+        fix_id[ele] = [len(str(mi)), len(str(ma))]
+    for k, v in fix_id.items():
+        df[k] = df[k].astype(int).astype(str).str.zfill(v[1])
     return df
 
 class TransformStep(PipelineStep):
@@ -33,9 +38,9 @@ class TransformStep(PipelineStep):
 
         # Loading 2 ENOE files, in order to create 1 quarter per year data || New loading step
         cols = [["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac"],
-                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac_tri"],
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "tipo", "mes_cal", "ca", "n_ren", "n_inf", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac_tri", "fac_men"],
                 ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac"],
-                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac_tri"]]
+                ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "tipo", "mes_cal", "ca", "n_ren", "n_inf", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5c_thrs", "p5c_tdia", "fac_tri", "fac_men"]]
 
         def upper_(array):
             return [x.upper() for x in array]
@@ -54,11 +59,18 @@ class TransformStep(PipelineStep):
                 except Exception as e:
                     # print(e)
                     continue
-        dt_1.rename(columns={"fac_tri": "fac"}, inplace=True)
 
         # ENOE COE2T
+        if 'fac_men' in dt_1.columns:
+            coe2_cols = COE2_COLS_2
+        else:
+            coe2_cols = COE2_COLS_1
         dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"])
+        usecols= lambda x: x.lower() in coe2_cols)
+
+        # Columns exceptions 2020T3
+        dt_1.rename(columns={"fac_tri": "fac"}, inplace=True)
+        dt_2.rename(columns={"ï»¿cd_a": "cd_a"}, inplace=True)
 
         # Standarizing headers, some files are capitalized
         dt_1.columns = dt_1.columns.str.lower()
@@ -68,32 +80,47 @@ class TransformStep(PipelineStep):
         dt_1.rename(index=str, columns={"p5c_thrs": "p5b_thrs","p5c_tdia": "p5b_tdia"}, inplace=True)
 
         # Creating df, based in unique individual values (prevent overpopulation with merge)
-        dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
-        dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
-
-        # duplicated codes
-        if (params.get('year') == '20') & (params.get('quarter') == '3'):
-            dt_1 = fix_duplicated(dt_1)
-            dt_2 = fix_duplicated(dt_2)
+        if 'fac_men' in dt_1.columns:
+            dt_1["code"] = dt_1["cd_a"] + dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["tipo"] + dt_1["mes_cal"] + dt_1["ca"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
+            dt_2["code"] = dt_2["cd_a"] + dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["tipo"] + dt_2["mes_cal"] + dt_2["ca"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
+            sdem_cols = SDEM_COLS_2
+        else:
+            index_cols = ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren"]
+            dt_1 = fill_level(dt_1, index_cols)
+            dt_2 = fill_level(dt_2, index_cols)
+            dt_1["code"] = dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
+            dt_2["code"] = dt_2["ent"] + dt_2["con"] + dt_2["v_sel"] + dt_2["n_hog"] + dt_2["h_mud"] + dt_2["n_ren"]
+            sdem_cols = SDEM_COLS_1
 
         df = pd.merge(dt_1, dt_2[["code", "p6b1", "p6b2", "p6c", "p6d", "p7", "p7a", "p7c"]], on="code", how="left")
+
+        # Test
+        test = dt_1.loc[dt_1['eda'].astype(int) >= 15, 'fac'].astype(int).sum()
+        assert test == df.loc[df['eda'].astype(int) >= 15, 'fac'].astype(int).sum(), "Merge Failed in VIVT"
 
         # Loading social-demographic table, adding gender and active/inactive economic population
         # ENOE SDEMT
         social_ = pd.read_csv(prev[2], index_col=None, header=0, encoding="latin-1", dtype=str,
-                        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren", 
-                                "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c", "anios_esc", 
-                                "cs_p13_1", "cs_p13_2", "ingocup", "d_ant_lab", "d_cexp_est", "dur_des", 
-                                "sub_o", "s_clasifi", "cp_anoc", "emp_ppal"])
+                        usecols= lambda x: x.lower() in sdem_cols)
         social_.columns = social_.columns.str.lower()
 
         # Creating same code value to identified individual values
-        social_["code"] = social_["ent"] + social_["con"] + social_["v_sel"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
+        if 'fac_men' in dt_1.columns:
+            index_cols = ["cd_a", "ent", "con", "v_sel", "tipo", "mes_cal", "ca", "n_hog", "h_mud", "n_ren"]
+            social_ = fill_level(social_, index_cols)
+            social_["code"] = social_["cd_a"] + social_["ent"] + social_["con"] + social_["v_sel"] + social_["tipo"] + social_["mes_cal"] + social_["ca"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
+            viv_cols = VIVT_COLS_2
+        else:
+            social_["code"] = social_["ent"] + social_["con"] + social_["v_sel"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
+            viv_cols = VIVT_COLS_1
 
         # Merging just the needed column from social-demographic
         df = pd.merge(df, social_[["code", "sex", "clase1", "clase2", "clase3", "ma48me1sm", "hij5c", "anios_esc", 
                                 "cs_p13_1", "cs_p13_2", "ingocup", "d_ant_lab", "d_cexp_est", "dur_des", 
                                 "sub_o", "s_clasifi", "cp_anoc", "emp_ppal"]], on="code", how="left")
+
+        # Test
+        assert test == df.loc[df['eda'].astype(int) >= 15, 'fac'].astype(int).sum(), "Merge Failed in SDEM"
 
         # Dictionaries for renaming the columns
         part1 = pd.read_excel(df_labels, "part1")
@@ -106,7 +133,7 @@ class TransformStep(PipelineStep):
         # Loading table with mun and loc values
         # ENOE VIVT
         housing = pd.read_csv(prev[3], index_col=None, header=0, encoding="latin-1", dtype=str, 
-                        usecols= lambda x: x.lower() in ["ent", "con", "v_sel", "mun"])
+                        usecols= lambda x: x.lower() in viv_cols)
         housing.columns = housing.columns.str.lower()
 
         # 2020 data format change
@@ -119,11 +146,23 @@ class TransformStep(PipelineStep):
         df["v_sel"] = df["v_sel"].str.zfill(2)
 
         # Creating an unique value to compare between dfs
-        df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
-        housing["code"] = housing["ent"] + housing["con"] + housing["v_sel"]
+        if 'fac_men' in dt_1.columns:
+            index_cols = ["cd_a", "ent", "con", "v_sel", "tipo", "mes_cal", "ca"]
+            housing = fill_level(housing, index_cols)
+            index_cols = ["represented_city", "ent_id", "con", "v_sel", "tipo", "mes_cal", "ca"]
+            df = fill_level(df, index_cols)
+
+            df["code"] = df["represented_city"] + df["ent_id"] + df["con"] + df["v_sel"] + df["tipo"] + df["mes_cal"] + df["ca"]
+            housing["code"] = housing["cd_a"] + housing["ent"] + housing["con"] + housing["v_sel"] + housing["tipo"] + housing["mes_cal"] + housing["ca"]
+        else:
+            df["code"] = df["ent_id"] + df["con"] + df["v_sel"]
+            housing["code"] = housing["ent"] + housing["con"] + housing["v_sel"]
 
         # Merging just the needed column from vivienda
         df = pd.merge(df, housing[["code", "mun"]], on="code", how="left")
+
+        # Test
+        assert test == df.loc[df['age'].astype(int) >= 15, 'population'].astype(int).sum(), "Merge Failed in VIVT"
 
         # Creating news geo ids, and deleting another values
         df["mun_id"] = df["ent_id"] + df["mun"]
