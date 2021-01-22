@@ -1,4 +1,5 @@
 
+import logging
 import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
