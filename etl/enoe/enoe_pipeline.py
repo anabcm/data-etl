@@ -65,8 +65,7 @@ class TransformStep(PipelineStep):
             coe2_cols = COE2_COLS_2
         else:
             coe2_cols = COE2_COLS_1
-        dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str,
-        usecols= lambda x: x.lower() in coe2_cols)
+        dt_2 = pd.read_csv(prev[1], index_col=None, header=0, encoding="latin-1", dtype=str, usecols= lambda x: x.lower() in coe2_cols)
 
         # Columns exceptions 2020T3
         dt_1.rename(columns={"fac_tri": "fac",
@@ -81,8 +80,8 @@ class TransformStep(PipelineStep):
         dt_1.rename(index=str, columns={"p5c_thrs": "p5b_thrs","p5c_tdia": "p5b_tdia"}, inplace=True)
 
         # Creating df, based in unique individual values (prevent overpopulation with merge)
-        if 'fac_men' in dt_1.columns:
-            index_cols = ["ent", "con", "v_sel", "n_hog", "h_mud", "n_ren"]
+        if 'population_monthly' in dt_1.columns:
+            index_cols = ["cd_a", "ent", "con", "v_sel", "tipo", "mes_cal", "ca", "n_hog", "h_mud", "n_ren"]
             dt_1 = fill_level(dt_1, index_cols)
             dt_2 = fill_level(dt_2, index_cols)
             dt_1["code"] = dt_1["cd_a"] + dt_1["ent"] + dt_1["con"] + dt_1["v_sel"] + dt_1["tipo"] + dt_1["mes_cal"] + dt_1["ca"] + dt_1["n_hog"] + dt_1["h_mud"] + dt_1["n_ren"]
@@ -107,7 +106,7 @@ class TransformStep(PipelineStep):
         social_.columns = social_.columns.str.lower()
 
         # Creating same code value to identified individual values
-        if 'fac_men' in dt_1.columns:
+        if 'population_monthly' in dt_1.columns:
             index_cols = ["cd_a", "ent", "con", "v_sel", "tipo", "mes_cal", "ca", "n_hog", "h_mud", "n_ren"]
             social_ = fill_level(social_, index_cols)
             social_["code"] = social_["cd_a"] + social_["ent"] + social_["con"] + social_["v_sel"] + social_["tipo"] + social_["mes_cal"] + social_["ca"] + social_["n_hog"] + social_["h_mud"] + social_["n_ren"]
@@ -148,7 +147,7 @@ class TransformStep(PipelineStep):
         df["v_sel"] = df["v_sel"].str.zfill(2)
 
         # Creating an unique value to compare between dfs
-        if 'fac_men' in dt_1.columns:
+        if 'population_monthly' in dt_1.columns:
             index_cols = ["cd_a", "ent", "con", "v_sel", "tipo", "mes_cal", "ca"]
             housing = fill_level(housing, index_cols)
             index_cols = ["represented_city", "ent_id", "con", "v_sel", "tipo", "mes_cal", "ca"]
