@@ -233,6 +233,9 @@ class TransformStep(PipelineStep):
         # rename 2020T3 columns
         df.rename(columns={"fac_men": "population_monthly"}, inplace=True)
 
+        # filters economic active population, 0 = undefined
+        df = df.loc[df["eap"] != 0].copy()
+
         return df
 
 class SubsetStep(PipelineStep):
@@ -249,16 +252,15 @@ class SubsetStep(PipelineStep):
                  "actual_job_industry_group_id", "sex",  "actual_job_position",
                  "actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek"]].copy()
 
-        # filters economic active population, 0 = undefined
-        df = df.loc[df["eap"] != 0].copy()
-
         # cut for non null values
         df["workforce_is_wage"] = df["population"]
         df["workforce_is_wage_monthly"] = df["population_monthly"]
         df.loc[df["mensual_wage"].isna(), "workforce_is_wage"] = 0
         df.loc[df["mensual_wage"].isna(), "workforce_is_wage_monthly"] = 0
 
-        df["code"] = df["code"].astype(int)
+        # unique code over time
+        df["code"] = range(1, df.shape[0] + 1)
+        df["code"] = df["code"].astype(str) + "20" + params["year"] + params["quarter"]
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
         df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
@@ -272,7 +274,9 @@ class GeoStep(PipelineStep):
         logging.debug('GEO STEP')
         df = prev
         df = df[['code', 'mun_id']].copy()
-        df.drop_duplicates(subset=['code', 'mun_id'], inplace=True)
+        df["code"] = range(1, df.shape[0] + 1)
+        df["code"] = df["code"].astype(str) + "20" + params["year"] + params["quarter"]
+        df.drop_duplicates(subset=['code'], inplace=True)
 
         query = 'SELECT nation_id, nation_name, ent_id, ent_name, ent_slug, ent_iso3, cve_ent, mun_id, mun_name, mun_slug, cve_mun, cve_mun_full FROM dim_shared_geography_mun'
         geo = query_to_df(self.connector, raw_query=query)
@@ -282,7 +286,7 @@ class GeoStep(PipelineStep):
             query = "SELECT * from dim_geo_inegi_enoe_v2"
             temp = query_to_df(self.connector, query)
             df = df.append(temp, sort=True).copy()
-            df.drop_duplicates(subset=['code'], inplace=True)
+            df.drop_duplicates(subset=["code"], inplace=True)
         except Exception as e:
             print(e)
             None
