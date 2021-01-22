@@ -243,7 +243,9 @@ class TransformStep(PipelineStep):
 
         # cut for non null values
         df["workforce_is_wage"] = df["population"]
+        df["workforce_is_wage_monthly"] = df["population_monthly"]
         df.loc[df["mensual_wage"].isna(), "workforce_is_wage"] = 0
+        df.loc[df["mensual_wage"].isna(), "workforce_is_wage_monthly"] = 0
 
         df["code"] = df["code"].astype(int)
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
@@ -287,7 +289,8 @@ class ENOEPipeline(EasyPipeline):
             "actual_job_position":                                  "UInt16",
             "actual_job_hrs_worked_lastweek":                       "UInt8",
             "actual_job_days_worked_lastweek":                      "UInt8",
-            "workforce_is_wage":                                    "UInt32"
+            "workforce_is_wage":                                    "UInt32",
+            "workforce_is_wage_monthly":                            "UInt32"
         }
 
         download_step = DownloadStep(
