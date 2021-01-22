@@ -305,7 +305,8 @@ class ENOEPipeline(EasyPipeline):
             nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
                            "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
                            "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", "population_monthly",
-                           "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity"]
+                           "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity",
+                           "workforce_is_wage_monthly"]
         )
 
         return [download_step, transform_step, load_step]
