@@ -269,7 +269,7 @@ class SubsetStep(PipelineStep):
 class GeoStep(PipelineStep):
     def run_step(self, prev, params):
         logging.debug('GEO STEP')
-        prev = df
+        df = prev
         df = df[['code', 'mun_id']].copy()
         df.drop_duplicates(subset=['code', 'mun_id'], inplace=True)
 
