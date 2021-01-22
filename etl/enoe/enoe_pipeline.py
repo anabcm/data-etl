@@ -274,7 +274,7 @@ class GeoStep(PipelineStep):
         df = df[['code', 'mun_id']].copy()
         df.drop_duplicates(subset=['code', 'mun_id'], inplace=True)
 
-        query = 'SELECT nation_id, nation_name, ent_id, ent_name, ent_slug, ent_iso3, cve_ent, mun_id, mun_name, mun_slug, cve_mun, cve_mun_full FROM dim_geo_mun'
+        query = 'SELECT nation_id, nation_name, ent_id, ent_name, ent_slug, ent_iso3, cve_ent, mun_id, mun_name, mun_slug, cve_mun, cve_mun_full FROM dim_shared_geography_mun'
         geo = query_to_df(self.connector, raw_query=query)
         df = pd.merge(df, geo, on="mun_id", how="left")
 
