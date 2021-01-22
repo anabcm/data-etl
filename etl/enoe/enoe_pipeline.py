@@ -375,7 +375,7 @@ if __name__ == '__main__':
                 pp = ENOEPipeline()
                 pp.run(
                     {
-                        'year': str(year),
+                        'year': str(year)[2::],
                         'quarter': str(quarter),
                         'table_case': table_case
                     }
