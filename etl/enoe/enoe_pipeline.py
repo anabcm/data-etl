@@ -69,7 +69,8 @@ class TransformStep(PipelineStep):
         usecols= lambda x: x.lower() in coe2_cols)
 
         # Columns exceptions 2020T3
-        dt_1.rename(columns={"fac_tri": "fac"}, inplace=True)
+        dt_1.rename(columns={"fac_tri": "fac",
+                             "fac_men": "population_monthly"}, inplace=True)
         dt_2.rename(columns={"ï»¿cd_a": "cd_a"}, inplace=True)
 
         # Standarizing headers, some files are capitalized
