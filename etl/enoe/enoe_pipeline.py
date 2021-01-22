@@ -293,7 +293,7 @@ class ENOEPipeline(EasyPipeline):
         return [
             Parameter(label="Year", name="year", dtype=str),
             Parameter(label="Quarter", name="quarter", dtype=str),
-            Parameter(label="Pipeline", name="pipeline", dtype=str)
+            Parameter(label="Table", name="table_case", dtype=str)
         ]
 
     @staticmethod
@@ -308,7 +308,7 @@ class ENOEPipeline(EasyPipeline):
         subset_step = SubsetStep()
         geo_step = GeoStep(connector=db_connector)
 
-        if params.get('pipeline') == 'geo':
+        if params.get('table_case') == 'geo':
 
             dtypes = {
                         'nation_id':                'String',
@@ -371,12 +371,12 @@ class ENOEPipeline(EasyPipeline):
 if __name__ == '__main__':
     for year in range(2010, 2020 + 1):
         for quarter in range(1, 4 + 1):
-            for pipeline in ['etl', 'geo']:
+            for table_case in ['etl', 'geo']:
                 pp = ENOEPipeline()
                 pp.run(
                     {
                         'year': str(year),
                         'quarter': str(quarter),
-                        'pipeline': pipeline
+                        'table_case': table_case
                     }
                 )
