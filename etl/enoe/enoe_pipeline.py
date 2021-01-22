@@ -5,6 +5,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, Parameter, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
+from bamboo_lib.helpers import query_to_df
 
 from static import SDEM_COLS_1, SDEM_COLS_2, COE2_COLS_1, COE2_COLS_2, VIVT_COLS_1, VIVT_COLS_2
 
