@@ -32,7 +32,7 @@ class DimEnoeGeoV2Pipeline(EasyPipeline):
             'mun_slug':                 'String',
             'cve_mun':                  'String',
             'cve_mun_full':             'String', 
-            'code':                     'UInt32'
+            'code':                     'UInt64'
         }
 
         download_step = DownloadStep(
