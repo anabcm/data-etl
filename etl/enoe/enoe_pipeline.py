@@ -376,7 +376,7 @@ if __name__ == '__main__':
                 pp.run(
                     {
                         'year': str(year),
-                        'quarter': str(quarter)
+                        'quarter': str(quarter),
                         'pipeline': pipeline
                     }
                 )
