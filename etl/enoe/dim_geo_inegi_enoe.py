@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 from bamboo_lib.models import EasyPipeline, Parameter, PipelineStep
 from bamboo_lib.connectors.models import Connector
