@@ -236,15 +236,8 @@ class TransformStep(PipelineStep):
         # filters economic active population, 0 = undefined
         df = df.loc[df["eap"] != 0].copy()
 
-        return df
-
-class SubsetStep(PipelineStep):
-    def run_step(self, prev, params):
-        logging.debug('SUBSET STEP')
-        df = prev
-
-            # Getting values of year and respective quarter for the survey
-        df = df[["code", "population", "population_monthly", "mensual_wage", 
+        # Getting values of year and respective quarter for the survey
+        df = df[["code", "mun_id", "population", "population_monthly", "mensual_wage", 
                  "has_job_or_business", "second_activity", "eap", 
                  "occ_unocc_pop", "eap_comp", "schooling_years", 
                  "instruction_level", "approved_years", 
@@ -260,7 +253,7 @@ class SubsetStep(PipelineStep):
 
         # unique code over time
         df["code"] = range(1, df.shape[0] + 1)
-        df["code"] = df["code"].astype(str) + "20" + params["year"] + params["quarter"]
+        df["code"] = df["code"].astype(str) + "T20" + params["year"] + params["quarter"]
         df["quarter_id"] = "20" + params["year"] + params["quarter"]
         df["quarter_id"] = df["quarter_id"].astype(int)
         df["actual_job_industry_group_id"] = df["actual_job_industry_group_id"].fillna(0).astype(int).astype(str)
@@ -269,120 +262,57 @@ class SubsetStep(PipelineStep):
 
         return df
 
-class GeoStep(PipelineStep):
-    def run_step(self, prev, params):
-        logging.debug('GEO STEP')
-        df = prev
-        df = df[['code', 'mun_id']].copy()
-        df["code"] = range(1, df.shape[0] + 1)
-        df["code"] = df["code"].astype(str) + "20" + params["year"] + params["quarter"]
-        df.drop_duplicates(subset=['code'], inplace=True)
-
-        query = 'SELECT nation_id, nation_name, ent_id, ent_name, ent_slug, ent_iso3, cve_ent, mun_id, mun_name, mun_slug, cve_mun, cve_mun_full FROM dim_shared_geography_mun'
-        geo = query_to_df(self.connector, raw_query=query)
-        df = pd.merge(df, geo, on="mun_id", how="left")
-
-        try:
-            query = "SELECT * from dim_geo_inegi_enoe_v2"
-            temp = query_to_df(self.connector, query)
-            df = df.append(temp, sort=True).copy()
-            df.drop_duplicates(subset=["code"], inplace=True)
-        except Exception as e:
-            print(e)
-            None
-
-        return df
-
 class ENOEPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
             Parameter(label="Year", name="year", dtype=str),
-            Parameter(label="Quarter", name="quarter", dtype=str),
-            Parameter(label="Table", name="table_case", dtype=str)
+            Parameter(label="Quarter", name="quarter", dtype=str)
         ]
 
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch("clickhouse-database", open("../conns.yaml"))
 
+        # Run ETL
+        dtype = {
+                    "code":                                                 "String",
+                    "population":                                           "UInt32",
+                    "population_monthly":                                   "UInt32",
+                    "mensual_wage":                                         "Float32",
+                    "quarter_id":                                           "UInt16",
+                    "has_job_or_business":                                  "UInt8",
+                    "second_activity":                                      "UInt8",
+                    "eap":                                                  "UInt8",
+                    "occ_unocc_pop":                                        "UInt8",
+                    "eap_comp":                                             "UInt8",
+                    "schooling_years":                                      "UInt8",
+                    "approved_years":                                       "UInt8",
+                    "instruction_level":                                    "UInt8",
+                    "classification_formal_informal_jobs_first_activity":   "UInt8",
+                    "age":                                                  "UInt8",
+                    "actual_job_industry_group_id":                         "String",
+                    "sex":                                                  "UInt8",
+                    "actual_job_position":                                  "UInt16",
+                    "actual_job_hrs_worked_lastweek":                       "UInt8",
+                    "actual_job_days_worked_lastweek":                      "UInt8",
+                    "workforce_is_wage":                                    "UInt32",
+                    "workforce_is_wage_monthly":                            "UInt32"
+                }
+
         download_step = DownloadStep(
             connector=["enoe-1-data", "enoe-2-data", "social-data", "housing-data"],
             connector_path="conns.yaml"
         )
+
         transform_step = TransformStep()
-        subset_step = SubsetStep()
-        geo_step = GeoStep(connector=db_connector)
 
-        if params.get('table_case') == 'geo':
-
-            dtypes = {
-                        'nation_id':                'String',
-                        'nation_name':              'String', 
-                        'ent_id':                   'UInt8', 
-                        'ent_name':                 'String', 
-                        'ent_slug':                 'String', 
-                        'ent_iso3':                 'String', 
-                        'cve_ent':                  'String', 
-                        'mun_id':                   'UInt16', 
-                        'mun_name':                 'String', 
-                        'mun_slug':                 'String',
-                        'cve_mun':                  'String',
-                        'cve_mun_full':             'String', 
-                        'code':                     'UInt64'
-                    }
-
-            # Generate dim table
-            load_step = LoadStep('dim_geo_inegi_enoe_v2', db_connector, dtype=dtypes,
-                if_exists='drop', pk=['ent_id', 'mun_id', 'code'])
-            return [download_step, transform_step, geo_step, load_step]
-
-        else:
-            # Run ETL
-            dtype = {
-                        "code":                                                 "UInt64",
-                        "population":                                           "UInt32",
-                        "population_monthly":                                   "UInt32",
-                        "mensual_wage":                                         "Float32",
-                        "quarter_id":                                           "UInt16",
-                        "has_job_or_business":                                  "UInt8",
-                        "second_activity":                                      "UInt8",
-                        "eap":                                                  "UInt8",
-                        "occ_unocc_pop":                                        "UInt8",
-                        "eap_comp":                                             "UInt8",
-                        "schooling_years":                                      "UInt8",
-                        "approved_years":                                       "UInt8",
-                        "instruction_level":                                    "UInt8",
-                        "classification_formal_informal_jobs_first_activity":   "UInt8",
-                        "age":                                                  "UInt8",
-                        "actual_job_industry_group_id":                         "String",
-                        "sex":                                                  "UInt8",
-                        "actual_job_position":                                  "UInt16",
-                        "actual_job_hrs_worked_lastweek":                       "UInt8",
-                        "actual_job_days_worked_lastweek":                      "UInt8",
-                        "workforce_is_wage":                                    "UInt32",
-                        "workforce_is_wage_monthly":                            "UInt32"
-                    }
-
-            load_step = LoadStep(
-            "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
-            nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
-                           "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
-                           "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", "population_monthly",
-                           "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity",
-                           "workforce_is_wage_monthly"]
-            )
-            return [download_step, transform_step, subset_step, load_step]
-
-if __name__ == '__main__':
-    for year in range(2010, 2020 + 1):
-        for quarter in range(1, 4 + 1):
-            for table_case in ['etl', 'geo']:
-                pp = ENOEPipeline()
-                pp.run(
-                    {
-                        'year': str(year)[2::],
-                        'quarter': str(quarter),
-                        'table_case': table_case
-                    }
-                )
+        load_step = LoadStep(
+        "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
+        nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
+                        "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
+                        "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", "population_monthly",
+                        "instruction_level", "approved_years", "classification_formal_informal_jobs_first_activity",
+                        "workforce_is_wage_monthly"]
+        )
+        return [download_step, transform_step, load_step]
