@@ -67,7 +67,7 @@ class DimEnoeGeoV2Pipeline(EasyPipeline):
         )
 
         transform_step = TransformStep()
-        geo_step = GeoStep()
+        geo_step = GeoStep(connector=db_connector)
         load_step = LoadStep('dim_geo_inegi_enoe_v2', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['ent_id', 'mun_id', 'code'])
         
