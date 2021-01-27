@@ -43,7 +43,7 @@ class TransformStep(PipelineStep):
                     .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
+                temp.loc[(temp['count'] < LIMIT_C) & (temp['count'] != 0), 'value'] = 'C'
 
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
