@@ -52,7 +52,7 @@ class TransformStep(PipelineStep):
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
+                temp.loc[(temp['count'] < LIMIT_C) & (temp['count'] != 0), 'value'] = 'C'
 
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
