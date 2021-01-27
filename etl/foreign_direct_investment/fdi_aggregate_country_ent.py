@@ -33,6 +33,8 @@ class TransformStep(PipelineStep):
 
             df['country_id'].replace(COUNTRY_REPLACE, inplace=True)
             df['country_id'].replace(dict(zip(dim_country['country_name_es'], dim_country['iso3'])), inplace=True)
+            # filter "Otros países"
+            df = df.loc[df['country_id'] != 'xxa'].copy()
 
             temp = pd.DataFrame()
             top_3_historic = pd.DataFrame()
