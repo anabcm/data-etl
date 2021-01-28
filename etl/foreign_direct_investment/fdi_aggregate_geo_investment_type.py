@@ -24,7 +24,7 @@ COLUMNS = {
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_excel('data/foreign_direct_investment_IED_DataMéxico_2020_2_completo_v2.xlsx', sheet_name='2.4')
+        df = pd.read_excel(prev, sheet_name='2.4')
 
         pk_id = 'ent_id'
 
