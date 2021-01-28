@@ -72,7 +72,7 @@ class TransformStep(PipelineStep):
         for ele in list(df[pk_id].unique()):
             # IED 1999 - 2020
             temp = df.loc[df[pk_id] == ele, [params.get('level'), pk_id, 'ent_name', 'value', 'count', 'value_c']] \
-                .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
+                .groupby(by=[params.get('level'), pk_id, 'ent_name']).sum().reset_index().sort_values(by=['value'], ascending=False)
 
             # "C" values
             temp.loc[(temp['count'] < LIMIT_C) & (temp['count'] != 0), 'value'] = 'C'
@@ -80,7 +80,8 @@ class TransformStep(PipelineStep):
             top_3_historic = top_3_historic.append(temp, sort=False)
 
             # IED ultimo periodo
-            temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'ent_name', 'value', 'count']].groupby(by=['year', params.get('level'), pk_id]).sum().reset_index()
+            temp = df.loc[df[pk_id] == ele, ['year', params.get('level'), pk_id, 'ent_name', 'value', 'count']] \
+                .groupby(by=['year', params.get('level'), pk_id, 'ent_name']).sum().reset_index()
             temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
 
             # "C" values
