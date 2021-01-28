@@ -40,7 +40,7 @@ class TransformStep(PipelineStep):
         dim_geo = get_dimensions()[0]
 
         df['ent_name'] = df['ent_id']
-        df['ent_name'].replace(dict(zip(dim_geo['ent_name'], dim_geo['ent_id'])), inplace=True)
+        df['ent_id'].replace(dict(zip(dim_geo['ent_name'], dim_geo['ent_id'])), inplace=True)
 
         df['year'] = df['year'].astype(int)
 
