@@ -41,4 +41,4 @@ class DimCategories(EasyPipeline):
 
 if __name__ == "__main__":
     dim_categories_pipeline = DimCategories()
-    dim_categories_uses_pipeline.run({})
+    dim_categories_pipeline.run({})

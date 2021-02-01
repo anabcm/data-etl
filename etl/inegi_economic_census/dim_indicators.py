@@ -41,4 +41,4 @@ class DimIndicators(EasyPipeline):
 
 if __name__ == "__main__":
     dim_indicators_pipeline = DimIndicators()
-    dim_indicators_uses_pipeline.run({})
+    dim_indicators_pipeline.run({})
