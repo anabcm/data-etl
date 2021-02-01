@@ -205,7 +205,7 @@ class TransformStep(PipelineStep):
         df_internet = pd.concat(frames_final_internet)
 
 
-# *********************************** BUSINESS MANAGEMENT *******************************************
+        # *********************************** BUSINESS MANAGEMENT *******************************************
         #Problems
         df_probnce19_03 = probnce19_03
         column_name = ["ent_id", "sector_id", "subsector_id", "category_id", "category", "total_ue", "value_no_problem", "pct_no_problem", "value_problem", "pct_problem", "credit_lack_value", "credit_lack_pct", "government_value", "government_pct", "taxes_value", "taxes_pct", "competition_value", "competition_pct", "informality_value", "informality_pct", "it_value", "it_pct", "demand_value", "demand_pct", "materials_value", "materials_pct", "services_payment_value", "services_payment_pct", "gob_payment_value", "gob_payment_pct", "staff_exp_value", "staff_exp_pct", "insecurity_value", "insecurity_pct", "corruption_value", "corruption_pct", "costs_value", "costs_pct", "other_problem_value", "other_problem_pct"]
@@ -286,7 +286,7 @@ class TransformStep(PipelineStep):
         df_business = pd.concat(frames_final_business)
 
 
-# *********************************** STAFF *******************************************
+        # *********************************** STAFF *******************************************
         #Turnover and remained staff by size
         df_capance19_02 = capance19_02
 
@@ -357,7 +357,7 @@ class TransformStep(PipelineStep):
         df_staff = pd.concat(frames_final_staff)
 
 
-# *********************************** INFORMATION TECHNOLOGY *******************************************
+        # *********************************** INFORMATION TECHNOLOGY *******************************************
         #Computer service and internet
         data = []
         for df in [ticsnce19_01, ticsnce19_02]:
@@ -403,7 +403,7 @@ class TransformStep(PipelineStep):
         df_tic = pd.concat(frames_final_tic)
 
 
-# *********************************** INNOVATION *******************************************
+        # *********************************** INNOVATION *******************************************
         #Innovation by geo
         df_innonce19_01 = innonce19_01
         selected_columns = ["Column1", "Column2", "Column3", "Column5", "Column8", "Column6"]
@@ -459,7 +459,7 @@ class TransformStep(PipelineStep):
         df_innovation = pd.concat(frames_final_innovation)
 
 
-# *********************************** ENVIRONMENTAL *******************************************
+        # *********************************** ENVIRONMENTAL *******************************************
         #Knowledge of environmental regulations
         df_medance19_01 = medance19_01
 
@@ -562,7 +562,7 @@ class TransformStep(PipelineStep):
         df_environmental = pd.concat(frames_final_environmental)
 
 
-# *********************************** FINAL DF *******************************************
+        # *********************************** FINAL DF *******************************************
         #Concat all dataframes
         frames_final = [df_financing, df_internet, df_business, df_staff, df_tic, df_innovation, df_environmental]
         df = pd.concat(frames_final)
@@ -577,6 +577,11 @@ class TransformStep(PipelineStep):
   
         for i in ["subsector_id", "category", "indicator"]:
           df[i] = df[i].astype(int)
+        
+        df['sector_id'] = df['sector_id'].astype(str)
+
+        df['nation_id'] = df['nation_id'].replace({1: 'mex'}, inplace=True)
+        df['nation_id'] = df['nation_id'].astype(str)
 
         df.reset_index(drop=True, inplace=True)
 
@@ -589,7 +594,7 @@ class IndicatorsCensusPipeline(EasyPipeline):
             "clickhouse-database", open("../conns.yaml"))
 
         dtypes = {
-            "nation_id":        "UInt8",
+            "nation_id":        "String",
             "ent_id":           "UInt8",
             "sector_id":        "String",
             "subsector_id":     "UInt16",
