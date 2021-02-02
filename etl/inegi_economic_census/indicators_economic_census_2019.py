@@ -580,7 +580,7 @@ class TransformStep(PipelineStep):
         
         df['sector_id'] = df['sector_id'].astype(str)
 
-        df['nation_id'] = df['nation_id'].replace({1: 'mex'}, inplace=True)
+        df['nation_id'].replace({1: 'mex'}, inplace=True)
         df['nation_id'] = df['nation_id'].astype(str)
 
         df.reset_index(drop=True, inplace=True)
