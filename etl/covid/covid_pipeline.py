@@ -83,6 +83,9 @@ class TransformStep(PipelineStep):
         df.loc[df['clasificacion_final'].isin([4,5,6]), 'covid_positive'] = 3
         df.loc[df['clasificacion_final'] == 7, 'covid_positive'] = 2
 
+        # n of cases
+        df['id'] = 1
+
         if values_check(df['updated_date'].max()):
             pass
         else:
