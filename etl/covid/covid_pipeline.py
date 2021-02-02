@@ -58,13 +58,14 @@ class TransformStep(PipelineStep):
 
         df['death_date'] = df['death_date'].astype(float)
 
-        df = df[['updated_date', 'origin', 'type_health_institution_attended', 'health_institution_attended_ent',
-                'sex', 'patient_origin_ent_id', 'patient_type', 'ingress_date', 'symptoms_date', 'intubated',
-                'pneumonia_diagnose', 'age', 'nationality', 'pregnancy', 'speaks_indigenous_language', 'diabetes_diagnose',
-                'COPD_diagnose', 'asthma_diagnose', 'inmunosupresion_diagnose', 'hypertension_diagnose',
-                'diagnosis_another_disease', 'cardiovascular_diagnose', 'obesity_diagnose', 'chronic_kidney_failure_diagnose',
-                'smoking_diagnose', 'contact_another_covid_case', 'covid_positive', 'migrant', 'required_ICU',
-                'patient_residence_mun_id', 'is_dead', 'clasificacion_final']].astype(int)
+        INT_LIST = ['updated_date', 'origin', 'type_health_institution_attended', 'health_institution_attended_ent',
+                    'sex', 'patient_origin_ent_id', 'patient_type', 'ingress_date', 'symptoms_date', 'intubated',
+                    'pneumonia_diagnose', 'age', 'nationality', 'pregnancy', 'speaks_indigenous_language', 'diabetes_diagnose',
+                    'COPD_diagnose', 'asthma_diagnose', 'inmunosupresion_diagnose', 'hypertension_diagnose',
+                    'diagnosis_another_disease', 'cardiovascular_diagnose', 'obesity_diagnose', 'chronic_kidney_failure_diagnose',
+                    'smoking_diagnose', 'contact_another_covid_case', 'covid_positive', 'migrant', 'required_ICU',
+                    'patient_residence_mun_id', 'is_dead']
+        df[INT_LIST] = df[INT_LIST].astype(int)
 
         df['sex'] = df['sex'].astype(str)
         df['sex'].replace({'1': 2,
