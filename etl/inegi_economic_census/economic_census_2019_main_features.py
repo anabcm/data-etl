@@ -17,7 +17,7 @@ def fill_level(df, columns):
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_excel('gennce19_13.xlsx', header=11)
+        df = pd.read_excel(prev, header=11)
 
         df.columns = CENSUS_2019_RENAME
 
