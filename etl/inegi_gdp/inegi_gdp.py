@@ -58,9 +58,9 @@ class CleanStep(PipelineStep):
 
         df.columns = ['quarter_id', 'quarter', 'sector_id', 'value']
 
-        df['quarter_id'] = df['quarter_id'].str.replace('p', '')
         for exception in ['T', 'R', 'P']:
-            df['quarter'] = df['quarter'].str.replace(exception, '')
+            df['quarter'] = df['quarter'].str.upper().str.replace(exception, '')
+            df['quarter_id'] = df['quarter_id'].str.upper().str.replace(exception, '')
 
         df['quarter_id'] = df['quarter_id'] + df['quarter']
         df['quarter_id'] = df['quarter_id'].astype(int)
@@ -101,3 +101,7 @@ class GDPPipeline(EasyPipeline):
         load_step = LoadStep('inegi_gdp', db_connector, if_exists='drop', pk=['quarter_id', 'sector_id'], dtype=dtype)
 
         return [download_step, read_step, clean_step, load_step]
+
+if __name__ == "__main__":
+    pp = GDPPipeline()
+    pp.run({})
