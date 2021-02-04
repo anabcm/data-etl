@@ -1,12 +1,9 @@
 
 import numpy as np
 import pandas as pd
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.models import EasyPipeline
+from bamboo_lib.models import EasyPipeline, PipelineStep
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import DownloadStep
-from bamboo_lib.steps import LoadStep
-from bamboo_lib.helpers import grab_connector
+from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
@@ -79,7 +76,7 @@ class GDPPipeline(EasyPipeline):
 
     @staticmethod
     def website():
-        return 'https://www.inegi.org.mx/temas/pib/default.html#Tabulados'
+        return 'https://www.inegi.org.mx/contenidos/temas/economia/pib/pibt/tabulados/ori/PIBT_5.xlsx'
 
     @staticmethod
     def steps(params):
@@ -94,7 +91,8 @@ class GDPPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector='gdp-data',
-            connector_path="conns.yaml"
+            connector_path='conns.yaml',
+            force=True
         )
 
         read_step = ReadStep()
