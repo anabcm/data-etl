@@ -114,9 +114,11 @@ class MunSec(PipelineStep):
         df = df.loc[~df['sector_id'].isna()].copy()
         df = df.loc[~df['mun_id'].isna()].copy()
 
-        df.drop(columns=['ent_id', 'subsector_id', 'rama_id', 'denominacion'], inplace=True)
-
+        df['ent_id'] = df['ent_id'].str.split(' ', expand=True)[0].str.strip().astype(int)
         df['mun_id'] = df['mun_id'].str.split(' ', expand=True)[0].str.strip().astype(int)
+        df['mun_id'] = (df['ent_id'].astype(str) + df['mun_id'].astype(str).str.zfill(3)).astype(int)
+
+        df.drop(columns=['ent_id', 'subsector_id', 'rama_id', 'denominacion'], inplace=True)
 
         df['sector_id'] = df['sector_id'].str.split(' ', expand=True)[1].str.strip()
 
