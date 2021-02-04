@@ -141,6 +141,7 @@ class JoinStep(PipelineStep):
 
         df[list(df.columns[df.columns != 'sector_id'])] = df[list(df.columns[df.columns != 'sector_id'])].astype(float)
         df['sector_id'] = df['sector_id'].astype(str)
+        df['level'] = df['level'].astype(int)
 
         df['year'] = 2019
 
@@ -185,7 +186,8 @@ class EconomicCensusPipeline(EasyPipeline):
             'produccion_bruta_total_personal_ocupado_total':                'Float64',
             'remuneracion_media_persona_remunerada':                        'Float64',
             'valor_activos_fijos_persona_ocupada':                          'Float64',
-            'year':                                                         'UInt16'
+            'year':                                                         'UInt16',
+            'level':                                                        'UInt8'
         }
 
         download_step = DownloadStep(
