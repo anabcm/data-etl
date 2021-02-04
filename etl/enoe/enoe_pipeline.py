@@ -275,29 +275,29 @@ class ENOEPipeline(EasyPipeline):
 
         # Run ETL
         dtype = {
-                    "code":                                                 "String",
-                    "population":                                           "UInt32",
-                    "population_monthly":                                   "UInt32",
-                    "mensual_wage":                                         "Float32",
-                    "quarter_id":                                           "UInt16",
-                    "has_job_or_business":                                  "UInt8",
-                    "second_activity":                                      "UInt8",
-                    "eap":                                                  "UInt8",
-                    "occ_unocc_pop":                                        "UInt8",
-                    "eap_comp":                                             "UInt8",
-                    "schooling_years":                                      "UInt8",
-                    "approved_years":                                       "UInt8",
-                    "instruction_level":                                    "UInt8",
-                    "classification_formal_informal_jobs_first_activity":   "UInt8",
-                    "age":                                                  "UInt8",
-                    "actual_job_industry_group_id":                         "String",
-                    "sex":                                                  "UInt8",
-                    "actual_job_position":                                  "UInt16",
-                    "actual_job_hrs_worked_lastweek":                       "UInt8",
-                    "actual_job_days_worked_lastweek":                      "UInt8",
-                    "workforce_is_wage":                                    "UInt32",
-                    "workforce_is_wage_monthly":                            "UInt32"
-                }
+            "code":                                                 "String",
+            "population":                                           "UInt32",
+            "population_monthly":                                   "UInt32",
+            "mensual_wage":                                         "Float32",
+            "quarter_id":                                           "UInt16",
+            "has_job_or_business":                                  "UInt8",
+            "second_activity":                                      "UInt8",
+            "eap":                                                  "UInt8",
+            "occ_unocc_pop":                                        "UInt8",
+            "eap_comp":                                             "UInt8",
+            "schooling_years":                                      "UInt8",
+            "approved_years":                                       "UInt8",
+            "instruction_level":                                    "UInt8",
+            "classification_formal_informal_jobs_first_activity":   "UInt8",
+            "age":                                                  "UInt8",
+            "actual_job_industry_group_id":                         "String",
+            "sex":                                                  "UInt8",
+            "actual_job_position":                                  "UInt16",
+            "actual_job_hrs_worked_lastweek":                       "UInt8",
+            "actual_job_days_worked_lastweek":                      "UInt8",
+            "workforce_is_wage":                                    "UInt32",
+            "workforce_is_wage_monthly":                            "UInt32"
+        }
 
         download_step = DownloadStep(
             connector=["enoe-1-data", "enoe-2-data", "social-data", "housing-data"],
