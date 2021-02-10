@@ -47,11 +47,11 @@ def query_to_df(connector_obj, query, table_name):
     return pd.DataFrame(result, columns=columns)
 
 #grouped index
-def gouped_index(df, column=None, objetive='id'):
-    df[objetive] = None
+def gouped_index(df, column=None, objective='id'):
+    df[objective] = None
     for area in df[column].str[:2].unique():
         ran = range(1, df.loc[df[column].str[:2] == area, column].shape[0] + 1)
-        df.loc[df[column].str[:2] == area, objetive] = ran
+        df.loc[df[column].str[:2] == area, objective] = ran
     return df
 
 def word_case(series, target, inplace=False):
