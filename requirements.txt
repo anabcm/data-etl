@@ -13,7 +13,7 @@ cffi==1.12.3
 chardet==3.0.4
 Click==7.0
 clickhouse-driver==0.0.19
-cryptography==3.2
+cryptography==3.3.2
 cycler==0.10.0
 data-catapult==0.0.19
 decorator==4.4.0
