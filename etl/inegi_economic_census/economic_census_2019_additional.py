@@ -190,7 +190,7 @@ class EconomicCensusPipeline(EasyPipeline):
             'sector_id':        'String',
             'subsector_id':     'UInt16',
             'rama_id':          'UInt16',
-            'UE':               'UInt32',
+            'ue':               'UInt32',
             'level':            'UInt8',
             'year':             'UInt16'
         }
