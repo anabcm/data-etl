@@ -197,7 +197,7 @@ class EconomicCensusPipeline(EasyPipeline):
         ent_sector = EntSec()
         ent_subsector = EntSubsector()
         ent_rama = EntRama()
-        mun_Sec = MunSec()
+        mun_sec = MunSec()
         join_step = JoinStep()
 
         load_step = LoadStep(
@@ -213,7 +213,7 @@ class EconomicCensusPipeline(EasyPipeline):
                 'remuneracion_media_persona_remunerada', 'valor_activos_fijos_persona_ocupada']
         )
 
-        return [download_step, read_step, ent_sector, ent_subsector, ent_rama, mun_Sec, join_step, load_step]
+        return [download_step, read_step, ent_sector, ent_subsector, ent_rama, mun_sec, join_step, load_step]
 
 if __name__ == '__main__':
     pp = EconomicCensusPipeline()
