@@ -175,6 +175,8 @@ class JoinStep(PipelineStep):
 
         df['year'] = 2019
 
+        df.columns = df.columns.str.lower()
+
         return df
 
 class EconomicCensusPipeline(EasyPipeline):
