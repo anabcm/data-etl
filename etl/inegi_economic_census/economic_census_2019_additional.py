@@ -208,7 +208,7 @@ class EconomicCensusPipeline(EasyPipeline):
         join_step = JoinStep()
 
         load_step = LoadStep(
-            'inegi_economic_census_main_features_2', db_connector, dtype=dtypes, if_exists='drop', 
+            'inegi_economic_census_additional', db_connector, dtype=dtypes, if_exists='drop', 
             pk=['ent_id', 'mun_id', 'sector_id', 'subsector_id', 'rama_id', 'level', 'year']
         )
 
