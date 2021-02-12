@@ -209,7 +209,33 @@ class EconomicCensusPipeline(EasyPipeline):
 
         load_step = LoadStep(
             'inegi_economic_census_additional', db_connector, dtype=dtypes, if_exists='drop', 
-            pk=['ent_id', 'mun_id', 'sector_id', 'subsector_id', 'rama_id', 'level', 'year']
+            pk=['ent_id', 'mun_id', 'sector_id', 'subsector_id', 'rama_id', 'level', 'year'],
+            nullable_list= ['a111a', 'a121a', 'a131a', 'a211a', 'a221a', 'a511a', 'a700a',
+                            'a800a', 'h000a', 'h000b', 'h000c', 'h000d', 'h001a', 'h001b',
+                            'h001c', 'h001d', 'h010a', 'h010b', 'h010c', 'h010d', 'h020a',
+                            'h020b', 'h020c', 'h020d', 'h101a', 'h101b', 'h101c', 'h101d',
+                            'h203a', 'h203b', 'h203c', 'h203d', 'i000a', 'i000b', 'i000c',
+                            'i000d', 'i100a', 'i100b', 'i100c', 'i100d', 'i200a', 'i200b',
+                            'i200c', 'i200d', 'j000a', 'j010a', 'j203a', 'j300a', 'j400a',
+                            'j500a', 'j600a', 'k000a', 'k010a', 'k020a', 'k030a', 'k040a',
+                            'k050a', 'k060a', 'k070a', 'k090a', 'k096a', 'k311a', 'k610a',
+                            'k620a', 'k810a', 'k820a', 'k910a', 'k950a', 'k976a', 'm000a',
+                            'm010a', 'm020a', 'm030a', 'm050a', 'm090a', 'm091a', 'm700a',
+                            'o010a', 'o020a', 'p000a', 'p000b', 'p000c', 'p030a', 'p030b',
+                            'p030c', 'p100a', 'p100b', 'q000a', 'q000b', 'q000c', 'q000d',
+                            'q010a', 'q020a', 'q030a', 'q400a', 'q900a', 'a112a', 'a113a',
+                            'a114a', 'a115a', 'a116a', 'a117a', 'a118a', 'a119a', 'a141a',
+                            'a143a', 'a144a', 'a145a', 'a146a', 'a147a', 'a148a', 'a149a',
+                            'a151a', 'a152a', 'a153a', 'a154a', 'a155a', 'a156a', 'a157a',
+                            'a158a', 'a159a', 'a171a', 'a173a', 'a174a', 'a175a', 'a176a',
+                            'a177a', 'a179a', 'a181a', 'a182a', 'a192a', 'a193a', 'a194a',
+                            'a195a', 'a197a', 'a201a', 'a202a', 'a204a', 'a206a', 'a208a',
+                            'a209a', 'a212a', 'a213a', 'a214a', 'a215a', 'a216a', 'a217a',
+                            'a218a', 'a219a', 'a222a', 'a223a', 'a224a', 'a225a', 'a226a',
+                            'a227a', 'a228a', 'a229a', 'a231a', 'a233a', 'a235a', 'a236a',
+                            'a237a', 'a238a', 'a242a', 'a243a', 'a244a', 'a245a', 'a247a',
+                            'a248a', 'a252a', 'a253a', 'a256a', 'a433a', 'a434a', 'a436a',
+                            'a529a', 'a534a', 'a747a', 'a748a', 'a752a', 'a764a']
         )
 
         return [download_step, read_step, ent_sector, ent_subsector, ent_rama, mun_sec, join_step, load_step]
