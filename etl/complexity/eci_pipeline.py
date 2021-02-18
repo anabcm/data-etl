@@ -74,7 +74,7 @@ class TransformStep(PipelineStep):
 
         for col in ["ent_id", "zm_id", "mun_id"]:
             df[col] = df[col].fillna(0).astype(int)
-        
+
         df["year"] = 0
         df["nation_id"] = 0
 
