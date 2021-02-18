@@ -74,7 +74,7 @@ class TransformStep(PipelineStep):
                 "State ID": "ent_id",
                 "Metro Area ID": "zm_id",
                 "Municipality ID": "mun_id",
-                "Time ID": "time_id",
+                "Time ID": "year",
                 "Latest": "latest",
                 "Level": "level",
                 "Industry Level": 'industry_level'
@@ -101,10 +101,10 @@ class ComplexityECIPipeline(EasyPipeline):
             "latest":       "UInt8",
             "level":        "String",
             "mun_id":       "UInt16",
-            "time_id":      "UInt32",
+            "year":         "UInt16",
         }
         load_step = LoadStep(
-            "complexity_eci_economic_census", db_connector, if_exists="drop", pk=["time_id", "level", "latest", 
+            "complexity_eci_economic_census", db_connector, if_exists="drop", pk=["year", "level", "latest", 
             "ent_id", "mun_id"], dtype=dtype
         )
         return [xform_step, load_step]
