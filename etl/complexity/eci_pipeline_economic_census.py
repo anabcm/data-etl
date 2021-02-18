@@ -8,7 +8,7 @@ from bamboo_lib.connectors.models import Connector
 class TransformStep(PipelineStep):
     def run_step(self, prev_result, params):
         params = {
-            "cube": "inegi_economic_census_additional",
+            "cube": "inegi_economic_census_main_features",
             "drilldowns": "Year",
             "measures": "Economic Unit",
             "parents": "true"
@@ -27,9 +27,9 @@ class TransformStep(PipelineStep):
         threshold_geo = 300
         threshold_industry = 300
 
-        cube = "inegi_economic_census_additional"
+        cube = "inegi_economic_census_main_features"
         level_industry = ""
-        measure = "Total Gross Production"
+        measure = "Total Gross Production Total Employed Personnel"
         df_all = pd.DataFrame()
 
         for level_industry in ["Sector", "Subsector", "Industry Group"]:
