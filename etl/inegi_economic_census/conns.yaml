@@ -1,6 +1,6 @@
 dataset:
-  driver: bamboo_lib.connectors.drivers.http.HttpDriver
-  uri: https://storage.googleapis.com/datamexico-data/inegi_economic_census/economic_census.csv
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census/economic_census.csv
 
 economic-census-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
