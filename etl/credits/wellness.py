@@ -10,6 +10,8 @@ class TransformStep(PipelineStep):
         df = prev
         # filter confidential values
         df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
+        for col in ['sex', 'age_range']:
+            df[col] = df[col].replace({'c': 0})
 
         # replace members in dimensions
         df['person_type'] = df['person_type'].str.strip().str.lower().apply(lambda x: norm(x))
@@ -35,7 +37,11 @@ class TransformStep(PipelineStep):
         df = df[['ent_id', 'mun_id', 'sex', 'person_type', 'age_range', 'count', 'level']].copy()
 
         for col in df.columns[df.columns != 'level']:
-            df[col] = df[col].astype(int)
+            try:
+                df[col] = df[col].astype(int)
+            except ValueError:
+                print('Column {} to float type'.format(col))
+                df[col] = df[col].astype(float)
 
         return df
 

@@ -10,6 +10,7 @@ COLUMNS = {
     'entidad': 'ent_id',
     'municipio': 'mun_id',
     'genero': 'sex',
+    'sexo': 'sex',
     'tipo_persona': 'person_type',
     'tamanio_patron': 'company_size',
     'rango_edad_antigüedad': 'age_range',
@@ -36,10 +37,14 @@ AGE_RANGE = {
 }
 
 COMPANY_SIZE = {
-    'De 1 a 10': 1, 
-    'De 11 a 20': 2, 
-    'De 21 a 50': 3, 
-    'Mas de 50': 4
+    'De 1 a 10': 1,
+    'De 1 a 10 empleados': 1,
+    'De 11 a 20': 2,
+    'De 11 a 20 empleados': 2,
+    'De 21 a 50': 3,
+    'De 21 a 50 empleados': 3,
+    'Mas de 50': 4,
+    'Más de 50 empleados': 4
 }
 
 PERSON_TYPE = {
@@ -82,14 +87,21 @@ def replace_geo():
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv(prev[0], encoding='latin-1')
+        try:
+            df = pd.read_csv(prev[0], encoding='latin-1')
+        except pd.errors.ParserError:
+            df = pd.read_excel(prev[0])
+
         df.columns = df.columns.str.lower()
         df.rename(columns=COLUMNS, inplace=True)
         df['mun_id'] = '0'
         df['level'] = 'State'
         df_ent = df.copy()
 
-        df = pd.read_csv(prev[1], encoding='latin-1')
+        try:
+            df = pd.read_csv(prev[1], encoding='latin-1')
+        except pd.errors.ParserError:
+            df = pd.read_excel(prev[1])
         df.columns = df.columns.str.lower()
         df.rename(columns=COLUMNS, inplace=True)
         df['level'] = 'Municipality'
