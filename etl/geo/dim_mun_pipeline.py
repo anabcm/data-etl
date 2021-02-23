@@ -46,6 +46,7 @@ class TransformStep(PipelineStep):
         zones = {"U": 1, "R": 2}
         df["zone_id"] = df["zone_id"].replace(zones)
 
+        df = df.loc[~df["cve_ent"].isin(['CD', 'CO', 'CQ', 'CT', 'CY', 'QY'])].copy()
         df["ent_id"] = df["cve_ent"].astype(int)
         df["mun_id"] = df["cve_mun_full"].astype(int)
         df["loc_id"] = df["cve_loc_full"].astype(int)
