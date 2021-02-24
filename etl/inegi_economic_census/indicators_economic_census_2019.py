@@ -166,6 +166,7 @@ class TransformStep(PipelineStep):
             data1.append(df)
                 
         df_internet_value = pd.concat(data1, sort=False)
+        df_internet_value["sector_id"] = df["sector_id"].fillna(0)
 
         data2 = []
         for df_ in [ecomnce19_03, ecomnce19_04]: 
