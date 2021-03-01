@@ -1,3 +1,23 @@
 data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/anuies/<dataset>_<year>-<year_plus>.xlsx
+
+data-2020:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/anuies/Anuario_Educacion_Superior_2019-2020.xlsx
+
+raw-career:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/anuies/dimensions/raw_to_careers.csv
+
+dim-career:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/anuies/dimensions/dim_careers.csv
+
+raw-institution:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/anuies/dimensions/raw_to_institution.csv
+
+dim-institution:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/anuies/dimensions/dim_institutions.csv
