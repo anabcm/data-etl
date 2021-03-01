@@ -131,7 +131,8 @@ class FDI9Pipeline(EasyPipeline):
 
         download_step = DownloadStep(	
             connector='fdi-data',	
-            connector_path='conns.yaml'
+            connector_path='conns.yaml',
+            force=True
         )	
 
         transform_92_step = Transform_92_Step()	
