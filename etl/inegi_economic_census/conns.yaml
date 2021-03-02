@@ -22,26 +22,126 @@ economic-census-main-features:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_economic_census_2019/main_features/gennce19_13.xlsx
 
-data-financing3:
+dim_categories:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_03.xlsx
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/categories.csv
 
-data-financing4:
+dim_indicators:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_04.xlsx
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/indicators.csv
 
-data-financing5:
+capance19_02:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_05.xlsx
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/capance19_02.xlsx
 
-data-financing6:
+contnce19_02:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/crednce19_06.xlsx
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/contnce19_02.xlsx
 
-dim-financing-uses:
+crednce19_03:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/financing_uses_ids.csv
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_03.xlsx
 
-dim-financing-source:
+crednce19_04:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/Financing/funding_source_ids.csv
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_04.xlsx
+
+crednce19_05:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_05.xlsx
+
+crednce19_06:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_06.xlsx
+
+crednce19_07:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_07.xlsx
+
+crednce19_08:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/crednce19_08.xlsx
+
+ecomnce19_03:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ecomnce19_03.xlsx
+
+ecomnce19_04:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ecomnce19_04.xlsx
+
+ecomnce19_05:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ecomnce19_05.xlsx
+
+ecomnce19_06:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ecomnce19_06.xlsx
+
+edadnce19_02:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/edadnce19_02.xlsx
+  
+edadnce19_03:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/edadnce19_03.xlsx
+
+innonce19_01:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/innonce19_01.xlsx
+
+innonce19_04:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/innonce19_04.xlsx
+
+innonce19_06:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/innonce19_06.xlsx
+
+medance19_01:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_01.xlsx
+
+medance19_03:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_03.xlsx
+
+medance19_05:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_05.xlsx
+
+medance19_07:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_07.xlsx
+
+medance19_08:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_08.xlsx
+
+medance19_09:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/medance19_09.xlsx
+
+pagonce19_02:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/pagonce19_02.xlsx
+
+probnce19_03:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/probnce19_03.xlsx
+
+ticsnce19_01:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ticsnce19_01.xlsx
+
+ticsnce19_02:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ticsnce19_02.xlsx
+
+ticsnce19_03:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ticsnce19_03.xlsx
+
+ticsnce19_04:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/ticsnce19_04.xlsx

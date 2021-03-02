@@ -6,14 +6,14 @@ backcall==0.1.0
 bamboo-lib==0.0.35
 bcrypt==3.1.6
 beautifulsoup4==4.7.1
-bleach==3.1.4
+bleach==3.3.0
 bs4==4.5.3
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
 Click==7.0
 clickhouse-driver==0.0.19
-cryptography==3.2
+cryptography==3.3.2
 cycler==0.10.0
 data-catapult==0.0.19
 decorator==4.4.0
