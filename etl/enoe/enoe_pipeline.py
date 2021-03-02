@@ -276,6 +276,7 @@ class ENOEPipeline(EasyPipeline):
         # Run ETL
         dtype = {
             "code":                                                 "String",
+            "mun_id":                                               "UInt16",
             "population":                                           "UInt32",
             "population_monthly":                                   "UInt32",
             "mensual_wage":                                         "Float32",
@@ -307,7 +308,7 @@ class ENOEPipeline(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-        "inegi_enoe", db_connector, if_exists="append", pk=["code"], dtype=dtype,
+        "inegi_enoe", db_connector, if_exists="append", pk=["code", 'mun_id', 'quarter_id'], dtype=dtype,
         nullable_list=["actual_job_hrs_worked_lastweek", "actual_job_days_worked_lastweek", "mensual_wage",
                         "has_job_or_business", "actual_job_position", "sex", "actual_job_industry_group_id",
                         "eap_comp", "occ_unocc_pop", "eap", "second_activity", "schooling_years", "population_monthly",
