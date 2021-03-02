@@ -19,7 +19,9 @@ class TransformStep(PipelineStep):
 
         df.rename(columns=FDI_COLUMNS, inplace=True)
 
-        df = df[list(COLUMNS.values())]
+        df = df[['value_between_companies', 'value_new_investments', 'value_re_investments', 
+                 'count_between_companies', 'count_new_investments', 'count_re_investments', 
+                 'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']]
 
         df = df.loc[~df['ent_id'].str.contains('Total')].copy()
 
