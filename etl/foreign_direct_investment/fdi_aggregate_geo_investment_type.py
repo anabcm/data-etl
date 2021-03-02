@@ -17,7 +17,7 @@ class TransformStep(PipelineStep):
 
         df.columns = [x.strip().lower() for x in df.columns]
 
-        df.rename(columns=COLUMNS, inplace=True)
+        df.rename(columns=FDI_COLUMNS, inplace=True)
 
         df = df[list(COLUMNS.values())]
 
