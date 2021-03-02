@@ -18,7 +18,7 @@ class TransformStep(PipelineStep):
 
         for sheet in params.get('sheets'):
             df = pd.read_excel(data, sheet_name=sheet)
-
+            df.columns = df.columns.str.strip()
             df.rename(columns=FDI_COLUMNS, inplace=True)
 
             pk_id = [x for x in df.columns if x in ['country_id', 'sector_id', 'subsector_id', 'industry_group_id']][0]
