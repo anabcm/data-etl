@@ -35,6 +35,8 @@ class TransformStep(PipelineStep):
             else:
                 df['country_id'].replace(COUNTRY_REPLACE, inplace=True)
                 df['country_id'].replace(dict(zip(dim_country['country_name_es'], dim_country['iso3'])), inplace=True)
+                # filter "Otros países"
+                df = df.loc[df['country_id'] != 'xxa'].copy()
 
             split = df[pk_id].str.split(' ', n=1, expand=True)
             df[pk_id] = split[0]
