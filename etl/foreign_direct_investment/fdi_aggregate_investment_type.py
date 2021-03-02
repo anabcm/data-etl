@@ -5,6 +5,8 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import SECTOR_REPLACE, LIMIT_C
+from static import FDI_COLUMNS
+
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -17,18 +19,7 @@ class TransformStep(PipelineStep):
         for sheet in params.get('sheets'):
             df = pd.read_excel(data, sheet_name=sheet)
 
-            df.rename(columns={
-                'Año': 'year',
-                'Entidad federativa': 'ent_id',
-                'País de Origen DEAE': 'country_id',
-                'Tipo de inversión': 'investment_type',
-                'Subsector': 'subsector_id',
-                'Sector': 'sector_id',
-                'Rama': 'industry_group_id',
-                'Monto': 'value',
-                'Recuento': 'count',
-                'Monto C': 'value_c'
-            }, inplace=True)
+            df.rename(columns=FDI_COLUMNS, inplace=True)
 
             pk_id = [x for x in df.columns if x in ['sector_id', 'subsector_id', 'industry_group_id']][0]
 
@@ -52,7 +43,7 @@ class TransformStep(PipelineStep):
                     .groupby(by=[params.get('level'), pk_id]).sum().reset_index().sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
+                temp.loc[(temp['count'] < LIMIT_C) & (temp['count'] != 0), 'value'] = 'C'
 
                 top_3_historic = top_3_historic.append(temp, sort=False)
 
@@ -61,7 +52,7 @@ class TransformStep(PipelineStep):
                 temp = temp.loc[temp['year'] == temp['year'].max()].sort_values(by=['value'], ascending=False)
 
                 # "C" values
-                temp.loc[temp['count'] < LIMIT_C, 'value'] = 'C'
+                temp.loc[(temp['count'] < LIMIT_C) & (temp['count'] != 0), 'value'] = 'C'
 
                 top_3_last_period = top_3_last_period.append(temp, sort=False)
 
@@ -91,7 +82,8 @@ class FDIaggregatePipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="fdi-data-additional-3",
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         transform_step = TransformStep()

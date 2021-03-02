@@ -78,6 +78,9 @@ class TransformStep(PipelineStep):
         df['level'] = int(custom_params['level'][2])
         df['product_level'] = int(re.findall(r"(\d){1}", custom_params['depth'])[0])
 
+        # debug
+        df['url'] = url
+
         return df
 
 class ForeignTradePipeline(EasyPipeline):
@@ -106,7 +109,8 @@ class ForeignTradePipeline(EasyPipeline):
             'firms':                         'UInt16',
             'value':                         'UInt64',
             'month_id':                      'UInt32',
-            'year':                          'UInt16'
+            'year':                          'UInt16',
+            'url':                           'String'
         }
 
         read_step = ReadStep()

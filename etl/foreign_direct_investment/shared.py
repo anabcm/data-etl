@@ -3,7 +3,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.helpers import query_to_df
 
-LIMIT_C = 3
+LIMIT_C = 4
 
 def get_dimensions():
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))

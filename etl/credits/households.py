@@ -4,16 +4,18 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
 from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm, ReadStep
+from etl.helpers import norm
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
 
         # filter confidential values
-        df = df.loc[df['count'] != 'C'].copy()
+        df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
 
         # replace members in dimensions
         df['sex'].replace(SEX, inplace=True)
+        df['person_type'] = df['person_type'].apply(lambda x: norm(x)).str.lower()
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
         df.drop(columns=['company_size'], inplace=True)

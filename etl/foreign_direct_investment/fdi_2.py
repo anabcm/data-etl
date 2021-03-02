@@ -12,6 +12,7 @@ class TransformStep(PipelineStep):
         data = prev
         df = pd.read_excel(data, sheet_name='2.4')
         df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
         df = df.loc[~df['entidad_federativa'].str.contains('Total')].copy()
 
         # get end_id dimension
@@ -70,7 +71,8 @@ class FDI2Pipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="fdi-data",
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         transform_step = TransformStep()

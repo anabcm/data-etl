@@ -14,7 +14,8 @@ class Transform_92_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.2')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'value', 'count', 'value_c']	
 
@@ -32,11 +33,12 @@ class Transform_93_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.3')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
-        df.columns = ['year', 'quarter', 'value', 'count', 'value_c']	
+        df.columns = ['year', 'quarter', 'value', 'count', 'value_c']
 
-        df = df.loc[~df['year'].str.contains('Total')].copy()	
+        df = df.loc[~df['year'].astype(str).str.contains('Total')].copy()
 
         df['quarter_id'] = df['year'].astype(str) + df['quarter'].astype(int).astype(str)	
 
@@ -45,20 +47,21 @@ class Transform_93_Step(PipelineStep):
         for col in ['count', 'quarter_id']:	
             df[col] = df[col].astype(float).astype(int)	
 
-        return df	
+        return df
 
 class Transform_94_Step(PipelineStep):	
     def run_step(self, prev, params):	
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.4')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'value_between_companies', 'value_new_investments', 'value_re_investments', 	
                     'count_between_companies', 'count_new_investments', 'count_re_investments',	
                     'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']	
 
-        df = df.loc[~df['year'].str.contains('Total')].copy()	
+        df = df.loc[~df['year'].astype(str).str.contains('Total')].copy()	
 
         df.drop(columns=['value_between_companies', 'value_new_investments', 'value_re_investments'], inplace=True)	
 
@@ -68,7 +71,7 @@ class Transform_94_Step(PipelineStep):
         base = ['year']	
         df_final = pd.DataFrame()	
         for option in ['between_companies', 'new_investments', 're_investments']:	
-            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]	
+            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]].copy()
             temp.columns = ['year', 'count', 'value_c']	
             temp.dropna(subset=['value_c'], inplace=True)	
             temp['investment_type'] = option	
@@ -84,13 +87,14 @@ class Transform_95_Step(PipelineStep):
         data = prev	
 
         df = pd.read_excel(data, sheet_name='9.5')	
-        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]	
+        df.columns = [norm(x.strip().lower().replace(' ', '_').replace('-', '_').replace('%', 'perc')) for x in df.columns]
+        print(df.columns)
 
         df.columns = ['year', 'quarter', 'value_between_companies', 'value_new_investments', 'value_re_investments', 	
                     'count_between_companies', 'count_new_investments', 'count_re_investments',	
                     'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']	
 
-        df = df.loc[~df['year'].str.contains('Total')].copy()	
+        df = df.loc[~df['year'].astype(str).str.contains('Total')].copy()	
 
         df['quarter_id'] = df['year'].astype(str) + df['quarter'].astype(int).astype(str)	
 
@@ -102,7 +106,7 @@ class Transform_95_Step(PipelineStep):
         base = ['quarter_id']	
         df_final = pd.DataFrame()	
         for option in ['between_companies', 'new_investments', 're_investments']:	
-            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]]	
+            temp = df[base + ['count_{}'.format(option), 'value_{}_c'.format(option)]].copy()
             temp.columns = ['quarter_id', 'count', 'value_c']	
             temp.dropna(subset=['value_c'], inplace=True)	
             temp['investment_type'] = option	
@@ -127,7 +131,8 @@ class FDI9Pipeline(EasyPipeline):
 
         download_step = DownloadStep(	
             connector='fdi-data',	
-            connector_path='conns.yaml'	
+            connector_path='conns.yaml',
+            force=True
         )	
 
         transform_92_step = Transform_92_Step()	
@@ -138,9 +143,9 @@ class FDI9Pipeline(EasyPipeline):
         if params.get('table') == 9.2:	
 
             load_step = LoadStep('fdi_9_year', db_connector, if_exists='drop', 	
-                    pk=['year'], dtype={'year': 'UInt16',	
-                                        'count': 'UInt16',	
-                                        'value_c': 'Float32'})	
+                    pk=['year'], dtype={'year':     'UInt16',	
+                                        'count':    'UInt16',	
+                                        'value_c':  'Float32'})	
 
             return [download_step, transform_92_step, load_step]	
 
@@ -148,15 +153,15 @@ class FDI9Pipeline(EasyPipeline):
 
             load_step = LoadStep('fdi_9_quarter', db_connector, if_exists='drop', 	
                     pk=['quarter_id'], dtype={'quarter_id': 'UInt16',	
-                                              'count': 'UInt16',	
-                                              'value_c': 'Float32'})	
+                                              'count':      'UInt16',	
+                                              'value_c':    'Float32'})	
 
             return [download_step, transform_93_step, load_step]	
 
         if params.get('table') == 9.4:	
 
             load_step = LoadStep('fdi_9_year_investment', db_connector, if_exists='drop', 	
-                    pk=['year'], dtype={'year': 'UInt16',	
+                    pk=['year'], dtype={'year':             'UInt16',	
                                         'investment_type':  'UInt8',	
                                         'count':            'UInt16',	
                                         'value_c':          'Float32'})	
@@ -166,7 +171,7 @@ class FDI9Pipeline(EasyPipeline):
         if params.get('table') == 9.5:	
 
             load_step = LoadStep('fdi_9_quarter_investment', db_connector, if_exists='drop', 	
-                    pk=['quarter_id'], dtype={'quarter_id': 'UInt16',	
+                    pk=['quarter_id'], dtype={'quarter_id':       'UInt16',	
                                               'investment_type':  'UInt8',	
                                               'count':            'UInt16',	
                                               'value_c':          'Float32'})	

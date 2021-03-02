@@ -1,16 +1,17 @@
 import os
 from google.cloud import storage
-from util import get_level, LEVELS
+from util import get_level, check_update, LEVELS
 
-storage_client = storage.Client.from_service_account_json('datamexico.json')
+storage_client = storage.Client.from_service_account_json(os.environ.get('GOOGLE_APPLICATION_CREDENTIALS'))
 bucket = storage_client.get_bucket('datamexico-data')
 blobs = bucket.list_blobs(prefix='foreign_trade')
+files = [x.name for x in blobs]
 
 mun = []
 ent = []
 nat = []
-for blob in blobs:
-	val = 'https://storage.googleapis.com/datamexico-data/' + str(blob.name)
+for file in files:
+	val = ('https://storage.googleapis.com/datamexico-data/' + str(file)).split('/foreign_trade/')[1]
 	if 'Municipal' in val and '.csv' in val:
 		mun.append(val)
 	elif 'State' in val and '.csv' in val:
@@ -21,23 +22,27 @@ for blob in blobs:
 print('nat files: {}, mun files: {}, ent files: {}'.format(len(nat), len(mun), len(ent)))
 
 for table in ['economy_foreign_trade_', 'economy_foreign_trade_unanonymized_']:
-	for url in nat:
+	nat_ = check_update(nat, table)
+	for url in nat_:
 		type_, name_, level_name_ = get_level(url, LEVELS)
-		url = url.split('/foreign_trade/')[1]
-		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
-	for url in ent:
-		type_, name_, level_name_ = get_level(url, LEVELS)
-		url = url.split('/foreign_trade/')[1]
-		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
-	for url in mun:
-		type_, name_, level_name_ = get_level(url, LEVELS)
-		url = url.split('/foreign_trade/')[1]
 		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
 
+	ent_ = check_update(ent, table)
+	for url in ent_:
+		type_, name_, level_name_ = get_level(url, LEVELS)
+		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
+
+	mun_ = check_update(mun, table)
+	for url in mun_:
+		type_, name_, level_name_ = get_level(url, LEVELS)
+		os.system('bamboo-cli --folder . --entry foreign_trade_pipeline --url={} --type={} --name={} --table={}'.format(url, type_, name_, table))
+
+"""
 # countries
-#os.system('bamboo-cli --folder . --entry countries_ingest')
+os.system('bamboo-cli --folder . --entry countries_ingest')
 
 # hs6 codes
 os.system('bamboo-cli --folder . --entry hs12_2digit')
 os.system('bamboo-cli --folder . --entry hs12_4digit')
 os.system('bamboo-cli --folder . --entry hs12_6digit')
+"""

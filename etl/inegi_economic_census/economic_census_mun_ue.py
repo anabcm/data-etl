@@ -68,7 +68,7 @@ class EconomicCensusPipeline(EasyPipeline):
 
         download_step = WildcardDownloadStep(
             connector='economic-census-mun',
-            connector_path="conns.yaml"
+            connector_path='conns.yaml'
         )
 
         transform_step = TransformStep()

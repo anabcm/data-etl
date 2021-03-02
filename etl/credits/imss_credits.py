@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
@@ -10,10 +11,13 @@ class TransformStep(PipelineStep):
         df = prev
 
         # filter confidential values
-        df = df.loc[df['count'] != 'C'].copy()
+        df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
+        for col in ['sex', 'age_range']:
+            df[col] = df[col].astype(str).str.strip().replace({'c': 0})
 
         # replace members in dimensions
         df['sex'].replace(SEX, inplace=True)
+        df['person_type'] = df['person_type'].apply(lambda x: norm(x)).str.lower()
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['company_size'].replace(COMPANY_SIZE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
@@ -39,7 +43,11 @@ class TransformStep(PipelineStep):
         df = df[['ent_id', 'mun_id', 'level', 'sex', 'person_type', 'company_size', 'age_range', 'count']].copy()
 
         for col in df.columns[df.columns != 'level']:
-            df[col] = df[col].astype(int)
+            try:
+                df[col] = df[col].astype(int)
+            except ValueError:
+                print('Column {} to float type'.format(col))
+                df[col] = df[col].astype(float)
 
         return df
 

@@ -5,24 +5,16 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 from helpers import norm
 from shared import get_dimensions, SECTOR_REPLACE, COUNTRY_REPLACE, INVESTMENT_TYPE
 from util import validate_category
+from static import FDI_COLUMNS
+
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         print(params)
         df = pd.read_excel(prev, sheet_name=params.get('sheet_name'))
-        df.rename(columns={
-            'Año': 'year',
-            'Trimestre': 'quarter_id',
-            'Tipo de inversión': 'investment_type',
-            'Sector': 'sector_id',
-            'Subsector': 'subsector_id',
-            'Rama': 'industry_group_id',
-            'País de Origen DEAE': 'country_id',
-            'Entidad federativa': 'ent_id',
-            'Monto': 'value',
-            'Recuento': 'count',
-            'Monto C': 'value_c'
-        }, inplace=True)
+        df.columns = df.columns.str.strip()
+        print(df.columns)
+        df.rename(columns=FDI_COLUMNS, inplace=True)
 
         return df
 
@@ -71,6 +63,7 @@ class TransformCountryStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
         print('Country STEP: fdi_year_industry_country')
+        print(df.head())
         pk_id = [x for x in df.columns if ('id' in x) & ('country' not in x)][0]
 
         df = df.loc[~df[pk_id].isna()].copy()
@@ -289,7 +282,8 @@ class Pipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=params.get('db-source'),
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         read_step = ReadStep()
