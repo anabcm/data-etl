@@ -1,8 +1,10 @@
 
 FDI_COLUMNS = {
     'Año': 'year',
+    'año': 'year',
     'Año de materialización': 'year',
     'Trimestre': 'quarter_id',
+    'trimestre': 'quarter_id',
     'Trimestre de materialización':  'quarter_id',
     'Tipo de inversión': 'investment_type',
     'Inversión': 'investment_type',
@@ -14,6 +16,7 @@ FDI_COLUMNS = {
     'País de Origen_otros': 'country_id',
     'País': 'country_id',
     'Entidad federativa': 'ent_id',
+    'entidad federativa': 'ent_id', 
     'Monto': 'value',
     'Suma de Monto en millones': 'value',
     'Recuento': 'count',
