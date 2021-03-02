@@ -5,21 +5,8 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep
 from shared import get_dimensions, LIMIT_C, INVESTMENT_TYPE
+from static import FDI_COLUMNS
 
-COLUMNS = {
-    'Entidad federativa': 'ent_id',
-    'Año': 'year',
-    'Trimestre': 'quarter_id',
-    'Monto cuentas entre compañías': 'value_between_companies',
-    'Monto nuevas inversiones': 'value_new_investments',
-    'Monto reinversión de utilidades': 'value_re_investments',
-    'Recuento cuentas entre compañías': 'count_between_companies',
-    'Recuento nuevas inversiones': 'count_new_investments',
-    'Recuento reinversión de utilidades': 'count_re_investments',
-    'Monto C cuentas entre compañías': 'value_between_companies_c',
-    'Monto C nuevas inversiones': 'value_new_investments_c',
-    'Monto C reinversión de utilidades': 'value_re_investments_c'
-}
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -28,7 +15,7 @@ class TransformStep(PipelineStep):
 
         pk_id = 'ent_id'
 
-        df.columns = [x.strip() for x in df.columns]
+        df.columns = [x.strip().lower() for x in df.columns]
 
         df.rename(columns=COLUMNS, inplace=True)
 
