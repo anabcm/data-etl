@@ -18,7 +18,7 @@ FDI_COLUMNS = {
     'Suma de Monto en millones': 'value',
     'Recuento': 'count',
     'Recuento distinto de Expediente': 'count',
-    'Monto C': 'value_c'
+    'Monto C': 'value_c',
     'monto cuentas entre compañías': 'value_between_companies',
     'monto nuevas inversiones': 'value_new_investments',
     'monto reinversión de utilidades': 'value_re_investments',
