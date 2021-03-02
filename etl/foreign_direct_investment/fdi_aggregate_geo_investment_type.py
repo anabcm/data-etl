@@ -19,7 +19,8 @@ class TransformStep(PipelineStep):
 
         df.rename(columns=FDI_COLUMNS, inplace=True)
 
-        df = df[['value_between_companies', 'value_new_investments', 'value_re_investments', 
+        df = df[['ent_id', 'year', 'quarter_id',
+                 'value_between_companies', 'value_new_investments', 'value_re_investments', 
                  'count_between_companies', 'count_new_investments', 'count_re_investments', 
                  'value_between_companies_c', 'value_new_investments_c', 'value_re_investments_c']]
 
