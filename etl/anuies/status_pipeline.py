@@ -171,14 +171,14 @@ class StatusPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = StatusPipeline()
-    """for year in range(2016, 2019):
+    for year in range(2016, 2019):
         for dataset in ['licenciatura', 'posgrado']: 
             pp.run({
                 'dataset': dataset,
                 'year': str(year),
                 'year_plus': str(year+1),
                 'custom': False
-            })"""
+            })
 
     # 2020 version is one file only
     pp.run({
