@@ -20,16 +20,7 @@ class CleanStep(PipelineStep):
 
 class GDPNamesPipeline(EasyPipeline):
     @staticmethod
-    def description():
-        return 'ETL script for GDP, México'
-
-    @staticmethod
-    def website():
-        return 'https://www.inegi.org.mx/app/indicadores/?tm=0&t=10200034#D10200034'
-
-    @staticmethod
     def steps(params):
-        # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
         dtype = {
             'sector_id':            'String',
@@ -43,3 +34,7 @@ class GDPNamesPipeline(EasyPipeline):
         load_step = LoadStep('inegi_gdp_names', db_connector, if_exists='drop', pk=['sector_id'], dtype=dtype)
 
         return [read_step, clean_step, load_step]
+
+if __name__ == "__main__":
+    pp = GDPNamesPipeline()
+    pp.run({})

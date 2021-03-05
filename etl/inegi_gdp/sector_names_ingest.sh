@@ -1,1 +1,0 @@
-bamboo-cli --folder . --entry sector_names
