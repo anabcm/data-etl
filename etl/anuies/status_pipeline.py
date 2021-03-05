@@ -76,7 +76,7 @@ class TransformStep(PipelineStep):
         df.type.replace(TYPES, inplace=True)
 
         # 2020 version status fix
-        df.loc[(df['type'].isin([12, 13, 14])) & (df['stat'] == 't'), 'stat'] = 'g'
+        df.loc[(df['type'].isin([12, 13, 14])) & (df['stat'] == 't'), 'stat'] = 2
 
         # stopwords es
         nltk.download('stopwords')
