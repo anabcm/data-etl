@@ -76,7 +76,7 @@ class TransformStep(PipelineStep):
         df.type.replace(TYPES, inplace=True)
 
         # 2020 version status fix
-        df.loc[(df['type'].isin([12, 13, 14])) & (df['stat'] == 't'), 'stat'] = 2
+        df.loc[(df['type'].isin([12, 13, 14])) & (df['stat'] == 3), 'stat'] = 2
 
         # stopwords es
         nltk.download('stopwords')
@@ -171,14 +171,14 @@ class StatusPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = StatusPipeline()
-    for year in range(2016, 2019):
+    """for year in range(2016, 2019):
         for dataset in ['licenciatura', 'posgrado']: 
             pp.run({
                 'dataset': dataset,
                 'year': str(year),
                 'year_plus': str(year+1),
                 'custom': False
-            })
+            })"""
 
     # 2020 version is one file only
     pp.run({
