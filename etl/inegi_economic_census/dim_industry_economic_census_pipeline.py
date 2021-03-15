@@ -1,8 +1,7 @@
 
 import nltk
 import pandas as pd
-from bamboo_lib.models import PipelineStep
-from bamboo_lib.models import EasyPipeline
+from bamboo_lib.models import Parameter, PipelineStep, EasyPipeline
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep
 from bamboo_lib.helpers import query_to_df
@@ -43,9 +42,18 @@ class ReadStep(PipelineStep):
         print('Total ids (data):', df.loc[df['national_industry_id'].isin(query_result)].shape[0])
         df = df.loc[df['national_industry_id'].isin(query_result)].copy()
 
+        if params.get('is_dim'):
+            df.drop_duplicates(subset=['national_industry_es'], inplace=True)
+
         return df
 
 class IndustryPipeline(EasyPipeline):
+    @staticmethod
+    def parameter_list():
+        return [
+            Parameter(name='is_dim', dtype=bool, source=Connector)
+        ]
+
     @staticmethod
     def steps(params, **kwargs):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
@@ -61,9 +69,5 @@ class IndustryPipeline(EasyPipeline):
         read_step = ReadStep(connector=db_connector)
         load_step = LoadStep('dim_shared_industry_economic_census', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['sector_id', 'subsector_id', 'industry_group_id', 'naics_industry_id', 'national_industry_id'])
-        
-        return [read_step, load_step]
 
-if __name__ == '__main__':
-    pp = IndustryPipeline()
-    pp.run({})
+        return [read_step, load_step]
