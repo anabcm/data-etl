@@ -37,7 +37,10 @@ class TransformStep(PipelineStep):
             df[col] = df[col].str.replace('-', '').astype(int)
 
         df.rename(columns=rename_columns, inplace=True)
-        df['death_date'].replace(99999999, np.nan, inplace=True)
+
+        # fix max death date
+        max_current_date = df['updated_date'].max()
+        df['death_date'] = df.loc[df['death_date'] > max_current_date, 'death_date'] = np.nan
         df['is_dead'] = 1
         df.loc[df['death_date'].isna(), 'is_dead'] = 0
 
@@ -74,7 +77,7 @@ class TransformStep(PipelineStep):
         # replace unknown municipalities
         df.loc[df['patient_residence_mun_id'].isin([97997, 98998, 99999]), 'patient_residence_mun_id'] = 33000
 
-        # temp fix
+        # time.latest util
         df['time_id'] = df['updated_date']
 
         # ids refactor
