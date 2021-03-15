@@ -38,6 +38,9 @@ class ReadStep(PipelineStep):
         query = 'SELECT distinct(national_industry_id) FROM inegi_economic_census'
         query_result = query_to_df(self.connector, raw_query=query)
         query_result = list(query_result['national_industry_id'])
+        print('Total ids (dimension):', df.shape[0])
+        print('Ids in dimension but not in data:', df.loc[~df['national_industry_id'].isin(query_result)].shape[0])
+        print('Total ids (data):', df.loc[df['national_industry_id'].isin(query_result)].shape[0])
         df = df.loc[df['national_industry_id'].isin(query_result)].copy()
 
         return df
