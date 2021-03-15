@@ -40,7 +40,7 @@ class TransformStep(PipelineStep):
 
         # fix max death date
         max_current_date = df['updated_date'].max()
-        df['death_date'] = df.loc[df['death_date'] > max_current_date, 'death_date'] = np.nan
+        df.loc[df['death_date'] > max_current_date, 'death_date'] = np.nan
         df['is_dead'] = 1
         df.loc[df['death_date'].isna(), 'is_dead'] = 0
 
