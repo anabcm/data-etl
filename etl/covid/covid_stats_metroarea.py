@@ -15,8 +15,9 @@ from datetime import datetime
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
+        BASE_URL = os.environ.get('BASE_URL')
         #Create dictionary for population metroarea
-        r = requests.get("https://api.datamexico.org/tesseract/data?Year=2020&cube=population_projection&drilldowns=Metro+Area&measures=Projected+Population")
+        r = requests.get("{}/data?Year=2020&cube=population_projection&drilldowns=Metro+Area&measures=Projected+Population".format(BASE_URL))
         data_json = r.json()
         mz_population = pd.DataFrame(data_json["data"])
         dicto_mz_population = dict(zip(mz_population["Metro Area ID"], mz_population["Projected Population"]))
