@@ -36,6 +36,7 @@ class ReadStep(PipelineStep):
         # when creating the industry dimension, the cms ask for members, so 'ghost' profiles are created
         # they also appear at the search bar which the canon-cms-warmup also gets
         query = 'SELECT distinct(national_industry_id) FROM inegi_economic_census'
+        query_result = query_to_df(db_connector, raw_query=query)
         query_result = list(query_result['national_industry_id'])
         df = df.loc[df['national_industry_id'].isin(query_result)].copy()
 
