@@ -128,6 +128,9 @@ class TransformStep(PipelineStep):
         df1_["mun_id"] = df1_["mun_id"].fillna(method="ffill")
 
         #Deaths
+        # fix max death date
+        max_current_date = df['fecha_ingreso'].max()
+        df.loc[df['fecha_def'] > max_current_date, 'fecha_def'] = "9999-99-99"
         df2 = df[["mun_id", "fecha_ingreso", "fecha_def", "resultado_lab"]]
 
         df2 = df2.rename(columns={"fecha_ingreso": "ingress_date", 

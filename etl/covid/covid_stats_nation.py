@@ -93,6 +93,9 @@ class TransformStep(PipelineStep):
         df1_ = pd.merge(df_temp, df1, how="outer", on="time_id")
 
         # Deaths
+        # fix max death date
+        max_current_date = df['fecha_ingreso'].max()
+        df.loc[df['fecha_def'] > max_current_date, 'fecha_def'] = "9999-99-99"
         df2 = df[["fecha_ingreso", "fecha_def", "resultado_lab"]]
 
         df2 = df2.rename(columns={"fecha_ingreso":"ingress_date", "fecha_def":"death_date", "resultado_lab":"daily_deaths"})
