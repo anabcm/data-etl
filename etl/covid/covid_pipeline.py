@@ -3,25 +3,31 @@ import os
 import glob
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from bamboo_lib.helpers import grab_parent_dir
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, RENAME_COUNTRIES, values_check, NoUpdateException
+from bamboo_lib.helpers import query_to_df
 from etl.helpers import norm
 
+def clean_tables(table_name: str):
+    db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+
+    try:
+        query_to_df(db_connector, raw_query=f"DROP TABLE {table_name}")
+        print(f"Drop Table {table_name} Success!!")
+    except:
+        print(f"Table {table_name} does not exist.")
+        pass
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        data = sorted(glob.glob('*.csv'))
-
         COLS_SUBSET = list(rename_columns.keys()) + ['municipio_res', 'entidad_res', 'id_registro', 'clasificacion_final']
 
-        if params.get('file_path'):
-            df = pd.read_csv(params.get('file_path'), encoding='latin-1')
-        else:
-            df = pd.read_csv(data[-1], encoding='latin-1')
+        df = params.get('chunk')
 
         df.columns = [x.strip().lower().replace(' ', '_') for x in df.columns]
 
@@ -44,11 +50,11 @@ class TransformStep(PipelineStep):
         df['is_dead'] = 1
         df.loc[df['death_date'].isna(), 'is_dead'] = 0
 
-        df['country_nationality_old'] = df['country_nationality']
-        df['country_origin_old'] = df['country_origin']
+        df['country_nationality_old'] = df['country_nationality'].astype(str)
+        df['country_origin_old'] = df['country_origin'].astype(str)
 
         for col in ['country_origin', 'country_nationality']:
-            df[col] = df[col].fillna('xxa')
+            df[col] = df[col].fillna('xxa').astype(str)
             df[col] = df[col].str.strip().str.lower()
             df[col] = df[col].apply(lambda x: norm(x))
 
@@ -89,20 +95,9 @@ class TransformStep(PipelineStep):
         # n of cases
         df['id'] = 1
 
-        if values_check(df['updated_date'].max()):
-            pass
-        else:
-            raise NoUpdateException
-
         return df
 
 class CovidPipeline(EasyPipeline):
-    @staticmethod
-    def parameter_list():
-        return [
-            Parameter(label='file_path', name='file_path', dtype=str)
-        ]
-
     @staticmethod
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
@@ -145,14 +140,6 @@ class CovidPipeline(EasyPipeline):
             'patient_residence_mun_id':         'UInt16'
         }
 
-        download_step = DownloadStep(
-            connector='covid-data-mx',
-            connector_path='conns.yaml',
-            force=True
-        )
-
-        path = grab_parent_dir('.') + '/covid/'
-        unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
         xform_step = TransformStep(connector=db_connector)
         load_step = LoadStep(
             'gobmx_covid', db_connector, if_exists='append', pk=['updated_date', 'time_id', 'symptoms_date', 'ingress_date', 
@@ -160,11 +147,36 @@ class CovidPipeline(EasyPipeline):
                             nullable_list=['death_date', 'country_nationality', 'country_origin'], dtype=dtypes
         )
 
-        if params.get('file_path'):
-            return [xform_step, load_step]
-        else:
-            return [download_step, unzip_step, xform_step, load_step]
+        return [xform_step, load_step]
+
+class CovidDownload(EasyPipeline):
+    @staticmethod
+    def steps(params):
+        download_step = DownloadStep(
+            connector='covid-data-mx',
+            connector_path='conns.yaml',
+            force=True
+        )
+        path = grab_parent_dir('.') + '/covid/'
+        unzip_step = UnzipToFolderStep(compression='zip', target_folder_path=path)
+
+        return [download_step, unzip_step]
 
 if __name__ == '__main__':
-    pp = CovidPipeline()
+    start_time = datetime.now()
+
+    # drop table
+    clean_tables('gobmx_covid')
+
+    # download latest data
+    pp = CovidDownload()
     pp.run({})
+
+    # ingest data
+    pp = CovidPipeline()
+    data = sorted(glob.glob('*.csv'))
+    for chunk in pd.read_csv(data[-1], encoding='latin-1', iterator=True, chunksize=10**5):
+        pp.run({
+            'chunk': chunk
+        })
+    print('Duration: {}'.format(datetime.now() - start_time))
