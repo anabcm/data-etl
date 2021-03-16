@@ -13,3 +13,11 @@ etoe-social-data:
 etoe-housing-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/etoe/vivt<month><year>.dbf
+
+income-dim:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/income_shared_dim.xlsx
+
+enoe-labels:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enoe/dimensions/enoe_es_en.xlsx

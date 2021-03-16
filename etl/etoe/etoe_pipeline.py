@@ -11,8 +11,7 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg-NM8Jt_vHnuIcJ3fjHMxcae_IkK7sresHvhUs_G7NSM5CN5NGYiCf-BP_GMPw3jwmm791CXPLpqJ/pub?output=xlsx"
-        df_labels = pd.ExcelFile(excel_url)
+        df_labels = pd.ExcelFile(prev[5])
 
         # ETOE CE1T
         cols = ["ent", "cd_a", "con", "v_sel", "n_hog", "h_mud", "n_ren", "eda", "p1b", "p2_1", "p2_2", "p2_3", "p2_4", "p2_9", "p2a_anio", "p2b", "p3", "p4a", "p5b_thrs", "p5b_tdia", "fac"]
@@ -129,8 +128,7 @@ class TransformStep(PipelineStep):
         df = df.groupby(grouped).sum().reset_index(col_fill="ffill")
 
         # Loading income values from spreedsheet and income_id column
-        url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTieVnRovfP7AOMtqxIJcrFl8Tayz6Irz-Bc1en1NSIKtjjPtGaBRaCaSeePRrpQMmHMzSt2VO93Wav/pub?output=xlsx"
-        pivote = pd.read_excel(url, sheet_name="Sheet1", encoding="latin-1", dtype={"interval_upper": "int64", "interval_lower": "int64"})
+        pivote = pd.read_excel(prev[4], sheet_name="Sheet1", encoding="latin-1", dtype={"interval_upper": "int64", "interval_lower": "int64"})
         df["income_id"] = df["actual_amount_pesos"].astype(int)
 
         # Transforming income_id values to actual IDs 
@@ -234,7 +232,7 @@ class ETOEPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["etoe-1-data", "etoe-2-data", "etoe-social-data", "etoe-housing-data"],
+            connector=["etoe-1-data", "etoe-2-data", "etoe-social-data", "etoe-housing-data", "income-dim", "enoe-labels"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
