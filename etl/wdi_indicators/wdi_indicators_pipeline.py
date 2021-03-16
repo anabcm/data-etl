@@ -27,7 +27,7 @@ EXCLUSIONS = [
 
 class ExtractStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv(prev)
+        df = pd.read_csv(prev[0])
 
         df.rename(columns={'Country Code': 'geo_id', 'Indicator Code': 'indicator_id'}, inplace=True)
 
@@ -52,7 +52,7 @@ class ExtractStep(PipelineStep):
         df['year'] = df['year'].astype(int)
 
         # Add extra indicators from spreadsheet
-        extra_df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vTr5bqBAc3oAmp81vzq7sbNl_jEpK6Cr27oZ4gAnguA5mtOz7ffMhVauqZ3u3FZWckh1_4GdWp0J2Eq/pub?gid=0&single=true&output=csv')
+        extra_df = pd.read_csv(prev[1])
         extra_data = []
 
         for i, row in extra_df.iterrows():
@@ -98,7 +98,7 @@ class WDIAnnualIndicatorsPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="wdi-data",
+            connector=["wdi-data", "wdi-extra-indicators"],
             connector_path="conns.yaml"
         )
         extract_step = ExtractStep(connector=db_connector)

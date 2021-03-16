@@ -5,3 +5,7 @@ wdi-data:
 wdi-series:
   driver: bamboo_lib.connectors.drivers.http.HttpDriver
   uri: https://storage.googleapis.com/oec-raw-data/wdi/WDISeries.csv
+
+wdi-extra-indicators:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/wdi/extra_indicators.csv
