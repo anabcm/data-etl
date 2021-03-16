@@ -41,7 +41,7 @@ class CONEVALGiniPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["gini-ent-data", "federal-entities"]
+            connector=["gini-ent-data", "federal-entities"],
             connector_path="conns.yaml"
         )
 
