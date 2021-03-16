@@ -16,7 +16,7 @@ class TransformStep(PipelineStep):
 
         # read file
         household_cols = ['folioviv', 'ubica_geo', 'factor', 'tot_integ', 'trabajo']
-        df = pd.read_csv(prev, index_col=None, header=0, encoding='latin-1', usecols = household_cols)
+        df = pd.read_csv(prev[0], index_col=None, header=0, encoding='latin-1', usecols = household_cols)
 
         # Turning Factor to int value
         df['factor'] = df['factor'].astype(int)
@@ -42,8 +42,7 @@ class TransformStep(PipelineStep):
             return df
 
         # income values format
-        url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTieVnRovfP7AOMtqxIJcrFl8Tayz6Irz-Bc1en1NSIKtjjPtGaBRaCaSeePRrpQMmHMzSt2VO93Wav/pub?output=xlsx"
-        income = pd.read_excel(url, encoding='latin-1')
+        income = pd.read_excel(prev[1], encoding='latin-1')
         income = income.set_index('id')[['interval_lower', 'interval_upper']].to_dict('index')
 
         df = to_interval(df, 'monthly_wage', income)
@@ -73,7 +72,7 @@ class EnighIncomeHousePipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector='enigh-household',
+            connector=['enigh-household', 'income-dim'],
             connector_path='conns.yaml'
         )
         transform_step = TransformStep()

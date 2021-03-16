@@ -8,9 +8,6 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        # Loading labels from spredsheet
-        df_labels = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLU-DPkD07hFCX1xSavFZUgXDZvOQclDplsRvE14_hOR6XZmXAyiiii5Q3CEI_w59a58aElemloSO_/pub?output=xlsx"
-
         # Loading population file
         dt_1 = pd.read_csv(prev[0], index_col=None, header=0, encoding="latin-1", dtype=str,
                                     usecols = ["folioviv", "foliohog","numren", "id_trabajo", "trapais",
@@ -49,7 +46,8 @@ class TransformStep(PipelineStep):
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
         for sheet in filling:
-            df_l = pd.read_excel(df_labels, sheet)
+            # Loading labels from spredsheet
+            df_l = pd.read_excel(prev[3], sheet)
             df[sheet] = df[sheet].astype(float)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
 
@@ -143,7 +141,7 @@ class EnighJobsPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["enigh-job", "enigh-housing", "enigh-population"],
+            connector=["enigh-job", "enigh-housing", "enigh-population", "enigh-jobs-expenses"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

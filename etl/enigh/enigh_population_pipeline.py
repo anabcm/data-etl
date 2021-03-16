@@ -9,8 +9,7 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
         # Loading labels from spredsheet
-        excel_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBERMw0WN6G1w1keYXtu6mF22nbR2VnqIi91PieJCgJcyu6WCkqD-mLSpYxpueWAx0145SDhYbmUII/pub?output=xlsx"
-        df_labels = pd.ExcelFile(excel_url)
+        df_labels = pd.ExcelFile(prev[2])
 
         # List to columns to bring from population file
         list_cols = ["folioviv", "foliohog", "sexo", "edad", "hablaind", "etnia", "nivelaprob", "residencia", "segsoc", "ss_aa", "ss_mm",
@@ -185,7 +184,7 @@ class EnighPopulationPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["enigh-population", "enigh-household"],
+            connector=["enigh-population", "enigh-household", "enigh-poppulation-expenses"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

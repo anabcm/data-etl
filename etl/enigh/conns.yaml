@@ -25,3 +25,15 @@ enigh-household:
 enigh-household-income:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/enigh/household_income/income_<year>.xlsx
+
+income-dim:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/income_shared_dim.xlsx
+
+enigh-poppulation-expenses:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enigh/dimensions/enigh_population_expenses.xlsx
+
+enigh-jobs-expenses:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/enigh/dimensions/enigh_jobs_expenses.xlsx
