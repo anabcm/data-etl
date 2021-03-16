@@ -10,8 +10,7 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df_labels = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6a5TEhnjteU3aa96H7iG4OoNAMkCgsQJ52HPbycoStRBIer66JnfsSbS5tbmlkdQ6jwn2dp8xBb0U/pub?output=xlsx"
-        df = pd.read_csv(prev, encoding="latin-1")
+        df = pd.read_csv(prev[0], encoding="latin-1")
 
         list_drop = ["Clave_Ent", "Entidad", "Municipio", "Bien jurídico afectado", "Tipo de delito"]
         df.drop(list_drop, axis=1, inplace=True)
@@ -46,10 +45,10 @@ class TransformStep(PipelineStep):
 
         df.drop(["variable", "year"], axis=1, inplace=True)
 
-        df_l = pd.read_excel(df_labels, "crime_subtype")
+        df_l = pd.read_excel(prev[1], "crime_subtype")
         df["crime_subtype"] = df["crime_subtype"].replace(dict(zip(df_l.crime_subtype_es, df_l.crime_subtype_id)))
 
-        df_l = pd.read_excel(df_labels, "crime_modality")
+        df_l = pd.read_excel(prev[1], "crime_modality")
         df["crime_modality"] = df["crime_modality"].replace(dict(zip(df_l.crime_modality_es, df_l.crime_modality_id)))
 
         df.rename(index=str, columns={"crime_subtype": "crime_subtype_id",
@@ -85,7 +84,7 @@ class CrimesPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="crimes-data",
+            connector=["crimes-data", "crimes-ids"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()
