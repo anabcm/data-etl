@@ -13,3 +13,7 @@ gini-ent-data:
 gini-mun-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/coneval/GINI_Mun.xlsx
+
+federal-entities:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/coneval/countries-EF-codes.xlsx

@@ -20,7 +20,6 @@ class TransformStep(PipelineStep):
             df_temp.columns = cols
             df_temp = df_temp.melt(id_vars='ent_id', var_name='year', value_name='gini').copy()
             df_temp = df_temp.loc[df_temp['ent_id'] == 'Estados Unidos Mexicanos'].copy()
-            url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSDaqIIMI56NCwzU1fJxz6erC474xtqJBytaBaqVJS6b5Op7nr1p_sE1Fq4XKVaNdDjoz-yOzX1rRj6/pub?output=xlsx'
             df_temp['ent_id'].replace({'Estados Unidos Mexicanos': 0}, inplace=True)
             df = df.append(df_temp)
 

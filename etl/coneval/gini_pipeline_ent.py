@@ -6,7 +6,7 @@ from bamboo_lib.steps import DownloadStep, LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        excel = pd.ExcelFile(prev)
+        excel = pd.ExcelFile(prev[0])
 
         sheets = {'Coeficiente de Gini 2008-2014': ['ent_id', '2008', '2010', '2012', '2014'],
                 'Coeficiente de Gini 2016-2018': ['ent_id', '2016', '2018']}
@@ -20,8 +20,7 @@ class TransformStep(PipelineStep):
             df_temp.columns = cols
             df_temp = df_temp.melt(id_vars='ent_id', var_name='year', value_name='gini').copy()
             df_temp = df_temp.loc[df_temp['ent_id'] != 'Estados Unidos Mexicanos'].copy()
-            url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSDaqIIMI56NCwzU1fJxz6erC474xtqJBytaBaqVJS6b5Op7nr1p_sE1Fq4XKVaNdDjoz-yOzX1rRj6/pub?output=xlsx'
-            ent_codes = pd.read_excel(url, sheet_name='federal_entities')
+            ent_codes = pd.read_excel(prev[1], sheet_name='federal_entities')
             df_temp['ent_id'].replace(dict(zip(ent_codes['name'], ent_codes['code'])), inplace=True)
             df = df.append(df_temp)
         
@@ -42,7 +41,7 @@ class CONEVALGiniPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="gini-ent-data",
+            connector=["gini-ent-data", "federal-entities"]
             connector_path="conns.yaml"
         )
 
