@@ -1,3 +1,11 @@
 shared-age:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/age_range.xlsx
+
+naics-scian-codes:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/NAICS_SCIAN_codes.csv
+
+missing-dim:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/NAICS_SCIAN_temp_dimension_fix.csv

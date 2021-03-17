@@ -3,7 +3,7 @@ import nltk
 import pandas as pd
 from bamboo_lib.models import Parameter, PipelineStep, EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 from bamboo_lib.helpers import query_to_df
 from sklearn.feature_extraction import stop_words
 from util import format_text
@@ -11,7 +11,7 @@ from util import format_text
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vRf6ecVlEDTaBNfp2VSd7Ti-AnAQDyQlMjF7uek-cQHQ49ihWv4zeSXgN8z0gJV72ogir3hYvYTu8iX/pub?output=csv')
+        df = pd.read_csv(prev)
 
         for locale in ['es', 'en']:
             for level in ['sector', 'subsector', 'industry_group', 'naics_industry', 'national_industry']:
@@ -65,9 +65,12 @@ class IndustryPipeline(EasyPipeline):
             'naics_industry_id':              'String',
             'national_industry_id':           'String'
         }
-
+        download_step = DownloadStep(
+            connector='naics-scian-codes',
+            connector_path="conns.yaml"
+        )
         read_step = ReadStep(connector=db_connector)
         load_step = LoadStep('dim_shared_industry_economic_census', db_connector, dtype=dtypes,
                 if_exists='drop', pk=['sector_id', 'subsector_id', 'industry_group_id', 'naics_industry_id', 'national_industry_id'])
 
-        return [read_step, load_step]
+        return [download_step, read_step, load_step]
