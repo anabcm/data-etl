@@ -5,9 +5,10 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
-    def run(prev, self, params):
+    def run(self, prev, params):
         df = pd.read_csv(prev)
         df.columns = df.columns.str.lower()
+        print(df)
         return df
 
 class TransformStep(PipelineStep):
@@ -23,24 +24,26 @@ class HousingPipeline(EasyPipeline):
         ]
 
     @staticmethod
-    def steps(params, **kwargs):
+    def steps(params):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {}
 
         dl_step = DownloadStep(
-            connector='housing-data',
+            connector='housing-data-2020',
             connector_path='conns.yaml'
         )
 
         read_step = ReadStep()
         transform_step = TransformStep()
-        load_step = LoadStep()
         
         return [dl_step, read_step]
 
-if __name__ = __"main"__:
+if __name__ == "__main__":
     pp = HousingPipeline()
-    pp.run({"index": index})
+    for index in range(1, 1 + 1):
+        pp.run({
+            "index": str(index).zfill(2)
+            })
         
