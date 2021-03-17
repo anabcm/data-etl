@@ -20,7 +20,7 @@ fdi-data-legacy:
 
 fdi-scian:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/shared/scian_2013.xlsx
+  uri: gs://datamexico-data/shared/scian_2013.csv
 
 fdi-countries:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
