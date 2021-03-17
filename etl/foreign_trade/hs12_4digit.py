@@ -3,18 +3,17 @@ import nltk
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 from sklearn.feature_extraction import stop_words
 from helpers import format_text, fill_values
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT0959aScOQnJcoxJTgvPqwma0jxsdyGZGswl4z8yl9KqiPeZleckFHoFyA2KHCMP3HrE8n7EwLyQAR/pub?output=xlsx'
-        hs2 = pd.read_excel(url, sheet_name='hs2')
-        hs4 = pd.read_excel(url, sheet_name='hs4')
-        hs6 = pd.read_excel(url, sheet_name='hs6')
-        chapter = pd.read_excel(url, sheet_name='chapter')
+        hs2 = pd.read_excel(prev, sheet_name='hs2')
+        hs4 = pd.read_excel(prev, sheet_name='hs4')
+        hs6 = pd.read_excel(prev, sheet_name='hs6')
+        chapter = pd.read_excel(prev, sheet_name='chapter')
 
         ran = {'hs2': 4, 
                'hs4': 6, 
@@ -96,8 +95,11 @@ class HSCodesPipeline(EasyPipeline):
             'hs4_es_short':     'String',
             'hs4_en_short':     'String'
         }
-        
+        download_step = DownloadStep(
+            connector='hs6-2012',
+            connector_path='conns.yaml'
+        )
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_hs12_4digit', db_connector, if_exists='drop', pk=['hs4_id', 'hs2_id', 'chapter'], dtype=dtype)
 
-        return [transform_step, load_step]
+        return [download_step, transform_step, load_step]
