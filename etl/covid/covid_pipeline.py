@@ -8,20 +8,10 @@ from bamboo_lib.helpers import grab_parent_dir
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
 from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
-from shared import rename_columns, RENAME_COUNTRIES, values_check, NoUpdateException
+from shared import rename_columns, RENAME_COUNTRIES, clean_tables
 from bamboo_lib.helpers import query_to_df
 from dim_time_date import DimTimeDatePipeline
 from etl.helpers import norm
-
-def clean_tables(table_name: str):
-    db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
-
-    try:
-        query_to_df(db_connector, raw_query=f"DROP TABLE {table_name}")
-        print(f"Drop Table {table_name} Success!!")
-    except:
-        print(f"Table {table_name} does not exist.")
-        pass
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
