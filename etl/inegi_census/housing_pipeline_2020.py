@@ -146,6 +146,8 @@ class TransformStep(PipelineStep):
         df['government_financial_aid'] = pd.np.nan
         df['foreign_financial_aid'] = pd.np.nan
 
+        df.to_csv('inegi_census_2020.csv')
+
         return df
 
 class HousingPipeline(EasyPipeline):
@@ -194,19 +196,19 @@ class HousingPipeline(EasyPipeline):
             'mobile_phone':             'UInt8',
             'internet':                 'UInt8',
             'year':                     'UInt16',
-            'bomba_agua':                    '',
-            'calentador_solar':              '',
-            'aire_acon':                     '',
-            'panel_solar':                   '',
-            'separacion1':                   '',
-            'horno':                         '',
-            'motocicleta':                   '',
-            'bicicleta':                     '',
-            'serv_tv_paga':                  '',
-            'serv_pel_paga':                 '',
-            'con_vjuegos':                   '',
-            'escrituras':                    '',
-            'deuda':                         ''
+            'bomba_agua':               'UInt8',
+            'calentador_solar':         'UInt8',
+            'aire_acon':                'UInt8',
+            'panel_solar':              'UInt8',
+            'separacion1':              'UInt8',
+            'horno':                    'UInt8',
+            'motocicleta':              'UInt8',
+            'bicicleta':                'UInt8',
+            'serv_tv_paga':             'UInt8',
+            'serv_pel_paga':            'UInt8',
+            'con_vjuegos':              'UInt8',
+            'escrituras':               'UInt8',
+            'deuda':                    'UInt8'
         }
 
         download_step = DownloadStep(
@@ -220,10 +222,14 @@ class HousingPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             'inegi_housing_2020', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
-            nullable_list=[]
+            nullable_list=['acquisition', 'wall', 'roof', 'floor', 'bedrooms', 'total_rooms', 'income',
+            'fridge', 'washing_machine', 'vehicle', 'tv', 'internet', 'computer', 'mobile_phone', 
+            'water_pump', 'solar_heater', 'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 
+            'motorcycle', 'bicycle', 'tv_service', 'movie_service', 'video_game_console', 'title_deed', 
+            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid']
         )
         
-        return [download_step, read_step, clean_step, transform_step]
+        return [download_step, read_step, clean_step, transform_step, load_step]
 
 if __name__ == "__main__":
     pp = HousingPipeline()
