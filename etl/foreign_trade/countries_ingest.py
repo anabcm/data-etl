@@ -1,7 +1,7 @@
 import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import EasyPipeline, PipelineStep, Parameter
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 
 from helpers import COUNTRIES
 
@@ -9,15 +9,14 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         # read data
         # translations
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRTAtN97MAri4ZgYyYQcWR_OO8iFbfopAwQhCtdqfb1yxnvo0y_yVc4qLCA0Z-0heKzX-7nWUuT24FV/pub?output=xlsx'
-        df = pd.read_excel(url, sheet_name='translations')
+        df = pd.read_excel(prev, sheet_name='translations')
 
         df = df.loc[(df.lang == 'es'), ['origin_id', 'lang', 'name']].copy()
         translations = df.copy()
 
         # countries
-        df = pd.read_excel(url, sheet_name='Country Groupings')
-        countries = pd.read_excel(url, sheet_name='countries')
+        df = pd.read_excel(prev, sheet_name='Country Groupings')
+        countries = pd.read_excel(prev, sheet_name='countries')
 
         df.columns = df.columns.str.lower()
 
@@ -82,13 +81,18 @@ class CountryPipeline(EasyPipeline):
             'continent_es':    'String',
             'oecd':            'UInt8'
         }
-        
+
+        download_step = DownloadStep(
+            connector='countries',
+            connector_path='conns.yaml'
+        )
+
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_country', db_connector, if_exists='drop', pk=['iso3', 'continent_id'], 
                             dtype=dtype, engine='ReplacingMergeTree', 
                             nullable_list=['iso2', 'id_num', 'continent', 'continent_es'])
 
-        return [transform_step, load_step]
+        return [download_step, transform_step, load_step]
 
 if __name__ == '__main__':
     pp = CountryPipeline()

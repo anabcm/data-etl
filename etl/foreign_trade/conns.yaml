@@ -5,3 +5,7 @@ foreign-trade:
 hs6-2012:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/hs6_2012.xlsx
+
+countries:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/Country_Metadata.xlsx
