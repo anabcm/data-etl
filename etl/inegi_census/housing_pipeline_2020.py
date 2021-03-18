@@ -98,12 +98,65 @@ class TransformStep(PipelineStep):
         # ids replace
         for col in data.keys():
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'].astype('int'))))
+        
+        # groupby data
+        df.fillna('temp', inplace=True)
+        df = df.groupby(['loc_id'] + labels + extra_labels).sum().reset_index(col_fill='ffill')
+        df = df.rename(columns={'factor': 'households', 
+                                'clavivp': 'home_type',
+                                'fadqui': 'acquisition',
+                                'paredes': 'wall', 
+                                'techos': 'roof',
+                                'pisos': 'floor',
+                                'cuadorm': 'bedrooms',
+                                'totcuart': 'total_rooms',
+                                'numpers': 'n_inhabitants',
+                                'ingtrhog': 'income', 
+                                'refrig': 'fridge', 
+                                'lavadora': 'washing_machine', 
+                                'autoprop': 'vehicle', 
+                                'televi': 'tv', 
+                                'compu': 'computer', 
+                                'celular': 'mobile_phone',
+                                'bomba_agua': 'water_pump',
+                                'calentador_solar': 'solar_heater',
+                                'aire_acon': 'air_conditioner',
+                                'panel_solar': 'solar_panel',
+                                'separacion1': 'organic_trash',
+                                'horno': 'oven',
+                                'motocicleta': 'motorcycle',
+                                'bicicleta': 'bicycle',
+                                'serv_tv_paga': 'tv_service',
+                                'serv_pel_paga': 'movie_service',
+                                'con_vjuegos': 'video_game_console',
+                                'escrituras': 'title_deed',
+                                'deuda': 'debt'})
+
+        df.replace('temp', pd.np.nan, inplace=True)
+        
+        # data type conversion
+        for col in df.columns:
+            df[col] = df[col].astype('float')
+        
+        df['year'] = 2020
+        df['coverage'] = pd.np.nan
+        df['funding'] = pd.np.nan
+        df['government_financial_aid'] = pd.np.nan
+        df['foreign_financial_aid'] = pd.np.nan
 
         print(df)
         print(df.columns)
         return df
 
 class HousingPipeline(EasyPipeline):
+    @staticmethod
+    def description():
+        return 'ETL script for Intercensal Housing Census 2020, México'
+
+    @staticmethod
+    def website():
+        return 'http://datawheel.us'
+
     @staticmethod
     def parameter_list():
         return [
