@@ -2,14 +2,14 @@ import nltk
 import pandas as pd
 from bamboo_lib.models import PipelineStep, EasyPipeline, Parameter
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import DownloadStep, LoadStep
 from sklearn.feature_extraction import stop_words
 from util import format_text
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vR-HsTDZahZqYgxAxg-v-MDVXbGa3UXIz3xkhdpqn-mX82PraGO9slBikTzzfeHrF_1-A3dGj3HI_qa/pub?output=csv')
+        df = pd.read_csv(prev)
 
         for locale in ['es', 'en']:
             for level in ['sector', 'subsector', 'industry_group']:
@@ -59,11 +59,17 @@ class FDIIndustryPipeline(EasyPipeline):
             'industry_group_id':   'UInt16'
         }
 
+        download_step = DownloadStep(
+            connector='fdi-scian',
+            connector_path='conns.yaml',
+            force=True
+        )
+
         read_step = ReadStep()
         load_step = LoadStep(params.get('table'), db_connector, dtype=dtypes,
                 if_exists='drop', pk=['sector_id', 'subsector_id', 'industry_group_id'])
         
-        return [read_step, load_step]
+        return [download_step, read_step, load_step]
 
 if __name__ == '__main__':
     pp = FDIIndustryPipeline()

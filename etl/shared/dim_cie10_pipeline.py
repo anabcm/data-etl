@@ -3,14 +3,13 @@ import nltk
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 # English stopwords
 from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTwozEBjzQqAw1bE5t0jHVGN2EbbhUtPtnLZV-MTJE_uisENb74g5GlFCbNEJrmf-UEm4BZx9A8KbiK/pub?output=csv'
-        df = pd.read_csv(url, dtype='str')
+        df = pd.read_csv(prev, dtype='str')
         return df
 
 class CleanStep(PipelineStep):
@@ -38,11 +37,7 @@ class CleanStep(PipelineStep):
 
         return df
 
-class CoveragePipeline(EasyPipeline):
-    @staticmethod
-    def description():
-        return 'Processes IDC codes from Mexico'
-
+class CIE10Pipeline(EasyPipeline):
     @staticmethod
     def website():
         return 'http://datawheel.us'
@@ -64,10 +59,14 @@ class CoveragePipeline(EasyPipeline):
         }
 
         # Definition of each step
+        download_step = DownloadStep(
+            connector="cie10",
+            connector_path="conns.yaml"
+        )
         read_step = ReadStep()
         clean_step = CleanStep()
         load_step = LoadStep(
             'dim_shared_cie10', db_connector, if_exists='drop', pk=['chapter_id', 'cie10_3digit', 'cie10_4digit'], dtype=dtype
         )
         
-        return [read_step, clean_step, load_step]
+        return [download_step, read_step, clean_step, load_step]

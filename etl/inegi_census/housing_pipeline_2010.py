@@ -8,16 +8,15 @@ from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        # foreign trade data
-        dbf = Dbf5(prev, codec='latin-1')
+        dbf = Dbf5(prev[0], codec='latin-1')
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
 
-        return df
+        return df, prev[1]
 
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, dimension = prev
         labels = ['clavivp', 'fadqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
                 'totcuart', 'numpers', 'ingtrhog', 'refrig', 'lavadora', 
                 'autoprop', 'televi', 'internet', 'compu', 'celular']
@@ -52,17 +51,16 @@ class CleanStep(PipelineStep):
                 continue
             except:
                 df.loc[:, key] = df[key].astype('float')
-        return df, labels
+        return df, labels, dimension
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df, labels = prev[0], prev[1]
+        df, labels, dimension = prev
         
         # data to replace
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
         for col in ['clavivp_2010', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
-            data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
+            data[col] = pd.read_excel(dimension, sheet_name=col, encoding='latin-1', dtype='object')
         data['clavivp'] = data.pop('clavivp_2010')
         data['refrig'] = data.pop('refrigerador')
         data['televi'] = data.pop('televisor')
@@ -74,8 +72,7 @@ class TransformStep(PipelineStep):
         df.ingtrhog = df.ingtrhog.fillna(-5).round(0).astype('int64')
         
         # income interval replace
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
-        income = pd.read_excel(url, sheet_name='income', encoding='latin-1')
+        income = pd.read_excel(dimension, sheet_name='income', encoding='latin-1')
         for ing in df.ingtrhog.unique():
             for level in range(income.shape[0]):
                 if (ing >= income.interval_lower[level]) & (ing < income.interval_upper[level]):
@@ -174,7 +171,7 @@ class HousingPipeline(EasyPipeline):
         }
 
         http_dl_step = DownloadStep(
-            connector='housing-data',
+            connector=['housing-data', 'labels'],
             connector_path='conns.yaml'
         )
 

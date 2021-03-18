@@ -222,18 +222,12 @@ RENAME_COUNTRIES = {
     'campuchea democratica': 'khm'
 }
 
-class NoUpdateException(Exception):
-    pass
-
-def values_check(date_id):
+def clean_tables(table_name: str):
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
+
     try:
-        max_query = 'SELECT max(updated_date) FROM gobmx_covid'
-        max_value = max(query_to_df(db_connector, raw_query=max_query).iloc[0].to_list())
-        if max_value >= date_id:
-            return False
-        else:
-            return True
-    # need to catch clickhouse_driver.errors.ServerException
+        query_to_df(db_connector, raw_query=f"DROP TABLE {table_name}")
+        print(f"Drop Table {table_name} Success!!")
     except:
-        return True
+        print(f"Table {table_name} does not exist.")
+        pass
