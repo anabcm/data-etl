@@ -13,3 +13,7 @@ missing-dim:
 social-security-academic-degree:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/social_security_academic_degree.xlsx
+
+ensu-shared-cities:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/ensu/dimensions/ensu.xlsx
