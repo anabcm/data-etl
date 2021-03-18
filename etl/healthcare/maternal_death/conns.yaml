@@ -1,3 +1,7 @@
 pregnancy-mortality-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/dgis/maternal_death/mortalidad_materna.csv
+
+dim-pregnancy-mortality:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/dgis/dimensions/maternal_es_en.xlsx
