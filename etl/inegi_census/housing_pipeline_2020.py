@@ -231,7 +231,7 @@ class HousingPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = HousingPipeline()
-    for index in range(1, 1 + 1):
+    for index in range(1, 1 + 32):
         pp.run({
             "index": str(index).zfill(2)
             })
