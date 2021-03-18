@@ -194,19 +194,19 @@ class HousingPipeline(EasyPipeline):
             'mobile_phone':             'UInt8',
             'internet':                 'UInt8',
             'year':                     'UInt16',
-            'bomba_agua':               'UInt8',
-            'calentador_solar':         'UInt8',
-            'aire_acon':                'UInt8',
-            'panel_solar':              'UInt8',
-            'separacion1':              'UInt8',
-            'horno':                    'UInt8',
-            'motocicleta':              'UInt8',
-            'bicicleta':                'UInt8',
-            'serv_tv_paga':             'UInt8',
-            'serv_pel_paga':            'UInt8',
-            'con_vjuegos':              'UInt8',
-            'escrituras':               'UInt8',
-            'deuda':                    'UInt8'
+            'water_pump':               'UInt8',
+            'solar_heater':         'UInt8',
+            'air_conditioner':                'UInt8',
+            'solar_panel':              'UInt8',
+            'organic_trash':              'UInt8',
+            'oven':                    'UInt8',
+            'motorcycle':              'UInt8',
+            'bicycle':                'UInt8',
+            'tv_service':             'UInt8',
+            'movie_service':            'UInt8',
+            'video_game_console':              'UInt8',
+            'title_deed':               'UInt8',
+            'debt':                    'UInt8'
         }
 
         download_step = DownloadStep(
@@ -231,7 +231,7 @@ class HousingPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = HousingPipeline()
-    for index in range(1, 32 + 1):
+    for index in range(1, 1 + 1):
         pp.run({
             "index": str(index).zfill(2)
             })
