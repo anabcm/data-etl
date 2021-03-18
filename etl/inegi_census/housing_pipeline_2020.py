@@ -3,8 +3,6 @@ from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep, DownloadStep
 
-# to run: bamboo-cli --folder . --entry housing_pipeline_2020 --index="01" --force=True
-
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         df = pd.read_csv(prev[0])
