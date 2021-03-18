@@ -21,3 +21,7 @@ ensu-shared-cities:
 sinco:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/sinco_es_en_enoe.csv
+
+dim-income:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/income_shared_dim.xlsx
