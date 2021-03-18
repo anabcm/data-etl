@@ -5,13 +5,13 @@ from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv(prev)
+        df = pd.read_csv(prev[0])
         df.columns = df.columns.str.lower()
-        return df
+        return df, prev[1]
 
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, dimension = prev
         
         labels = ['clavivp', 'forma_adqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
                 'totcuart', 'numpers', 'ingtrhog', 'refrigerador', 'lavadora', 
@@ -66,11 +66,38 @@ class CleanStep(PipelineStep):
             except:
                 df.loc[:, key] = df[key].astype('float')
 
-        return df, labels, extra_labels
+        return df, labels, extra_labels, dimension
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev[0]
+        df, labels, extra_labels, dimension = prev
+
+        # data to replace
+        data = {}
+        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda']:
+            data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
+
+        # location id
+        df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
+        df.drop(columns=['ent', 'mun', 'loc50k'], inplace=True)
+        df.ingtrhog = df.ingtrhog.fillna(-5).round(0).astype('int64')
+
+        # income interval replace
+        income = pd.read_excel(dimension, sheet_name='income')
+        for ing in df.ingtrhog.unique():
+            for level in range(income.shape[0]):
+                if (ing >= income.interval_lower[level]) & (ing < income.interval_upper[level]):
+                    df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[level]))
+                    break
+                if ing >= income.interval_upper[income.shape[0]-1]:
+                    df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[income.shape[0]-1]))
+                    break
+        df.ingtrhog = df.ingtrhog.astype('int')
+        df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
+
+        # ids replace
+        for col in data.keys():
+            df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'].astype('int'))))
 
         print(df)
         print(df.columns)
@@ -89,7 +116,7 @@ class HousingPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         download_step = DownloadStep(
-            connector="housing-data-2020",
+            connector=["housing-data-2020", "labels"],
             connector_path="conns.yaml"
         )
 
