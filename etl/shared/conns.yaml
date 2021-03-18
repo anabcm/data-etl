@@ -9,3 +9,7 @@ naics-scian-codes:
 missing-dim:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/NAICS_SCIAN_temp_dimension_fix.csv
+
+social-security-academic-degree:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/social_security_academic_degree.xlsx
