@@ -9,7 +9,7 @@ class ReadStep(PipelineStep):
         df.columns = df.columns.str.lower()
         return df
 
-class TransformStep(PipelineStep):
+class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
         
@@ -23,9 +23,57 @@ class TransformStep(PipelineStep):
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
 
+        dtypes = {
+            'ent': 'str',
+            'mun': 'str',
+            'loc50k': 'str',
+            'clavivp': 'int',
+            'forma_adqui': 'int',
+            'paredes': 'int',
+            'techos': 'int',
+            'pisos': 'int',
+            'cuadorm': 'int',
+            'totcuart': 'int',
+            'numpers': 'int',
+            'ingtrhog': 'float',
+            'factor': 'int',
+            'refrigerador': 'int',
+            'lavadora': 'int', 
+            'autoprop': 'int', 
+            'televisor': 'int', 
+            'internet': 'int', 
+            'computadora': 'int', 
+            'celular': 'int',
+            'bomba_agua': 'int',
+            'calentador_solar': 'int',
+            'aire_acon': 'int',
+            'panel_solar': 'int',
+            'separacion1': 'int',
+            'horno': 'int',
+            'motocicleta': 'int',
+            'bicicleta': 'int',
+            'serv_tv_paga': 'int',
+            'serv_pel_paga': 'int',
+            'con_vjuegos': 'int',
+            'escrituras': 'int',
+            'deuda': 'int'
+        }
+
+        for key, val in dtypes.items():
+            try:
+                df.loc[:, key] = df[key].astype(val)
+                continue
+            except:
+                df.loc[:, key] = df[key].astype('float')
+
+        return df, labels, extra_labels
+
+class TransformStep(PipelineStep):
+    def run_step(self, prev, params):
+        df = prev[0]
+
         print(df)
         print(df.columns)
-
         return df
 
 class HousingPipeline(EasyPipeline):
@@ -46,9 +94,10 @@ class HousingPipeline(EasyPipeline):
         )
 
         read_step = ReadStep()
+        clean_step = CleanStep()
         transform_step = TransformStep()
         
-        return [download_step, read_step, transform_step]
+        return [download_step, read_step, clean_step, transform_step]
 
 if __name__ == "__main__":
     pp = HousingPipeline()
