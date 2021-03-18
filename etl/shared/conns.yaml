@@ -17,3 +17,7 @@ social-security-academic-degree:
 ensu-shared-cities:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/ensu/dimensions/ensu.xlsx
+
+sinco:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/sinco_es_en_enoe.csv
