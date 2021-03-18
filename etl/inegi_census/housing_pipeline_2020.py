@@ -3,6 +3,8 @@ from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep, DownloadStep
 
+# to run: bamboo-cli --folder . --entry housing_pipeline_2020 --index="01" --force=True
+
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         df = pd.read_csv(prev[0])
@@ -104,7 +106,7 @@ class TransformStep(PipelineStep):
         df = df.groupby(['loc_id'] + labels + extra_labels).sum().reset_index(col_fill='ffill')
         df = df.rename(columns={'factor': 'households', 
                                 'clavivp': 'home_type',
-                                'fadqui': 'acquisition',
+                                'forma_adqui': 'acquisition',
                                 'paredes': 'wall', 
                                 'techos': 'roof',
                                 'pisos': 'floor',
@@ -112,11 +114,11 @@ class TransformStep(PipelineStep):
                                 'totcuart': 'total_rooms',
                                 'numpers': 'n_inhabitants',
                                 'ingtrhog': 'income', 
-                                'refrig': 'fridge', 
+                                'refrigerador': 'fridge', 
                                 'lavadora': 'washing_machine', 
                                 'autoprop': 'vehicle', 
-                                'televi': 'tv', 
-                                'compu': 'computer', 
+                                'televisor': 'tv', 
+                                'computadora': 'computer', 
                                 'celular': 'mobile_phone',
                                 'bomba_agua': 'water_pump',
                                 'calentador_solar': 'solar_heater',
@@ -144,8 +146,6 @@ class TransformStep(PipelineStep):
         df['government_financial_aid'] = pd.np.nan
         df['foreign_financial_aid'] = pd.np.nan
 
-        print(df)
-        print(df.columns)
         return df
 
 class HousingPipeline(EasyPipeline):
@@ -160,7 +160,8 @@ class HousingPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Index", name="index", dtype=str)
+            Parameter(label="Index", name="index", dtype=str),
+            Parameter("force", dtype=bool),
         ]
 
     @staticmethod
@@ -168,14 +169,59 @@ class HousingPipeline(EasyPipeline):
         # Use of connectors specified in the conns.yaml file
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
+        dtype = {
+            'loc_id':                   'UInt32',
+            'households':               'UInt16',
+            'floor':                    'UInt8',
+            'wall':                     'UInt8',
+            'roof':                     'UInt8',
+            'acquisition':              'UInt8',
+            'debt':                     'UInt8',
+            'income':                   'UInt8',
+            'coverage':                 'UInt8',
+            'home_type':                'UInt8',
+            'funding':                  'UInt8',
+            'government_financial_aid': 'UInt8',
+            'foreign_financial_aid':    'UInt8',
+            'n_inhabitants':            'UInt8',
+            'total_rooms':              'UInt8',
+            'bedrooms':                 'UInt8',
+            'fridge':                   'UInt8',
+            'washing_machine':          'UInt8',
+            'vehicle':                  'UInt8',
+            'tv':                       'UInt8',
+            'computer':                 'UInt8',
+            'mobile_phone':             'UInt8',
+            'internet':                 'UInt8',
+            'year':                     'UInt16',
+            'bomba_agua':                    '',
+            'calentador_solar':              '',
+            'aire_acon':                     '',
+            'panel_solar':                   '',
+            'separacion1':                   '',
+            'horno':                         '',
+            'motocicleta':                   '',
+            'bicicleta':                     '',
+            'serv_tv_paga':                  '',
+            'serv_pel_paga':                 '',
+            'con_vjuegos':                   '',
+            'escrituras':                    '',
+            'deuda':                         ''
+        }
+
         download_step = DownloadStep(
             connector=["housing-data-2020", "labels"],
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=params.get("force", True)
         )
 
         read_step = ReadStep()
         clean_step = CleanStep()
         transform_step = TransformStep()
+        load_step = LoadStep(
+            'inegi_housing_2020', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
+            nullable_list=[]
+        )
         
         return [download_step, read_step, clean_step, transform_step]
 
