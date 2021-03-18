@@ -25,3 +25,7 @@ sinco:
 dim-income:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/income_shared_dim.xlsx
+
+cie10:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/cie10.csv
