@@ -29,3 +29,7 @@ dim-income:
 cie10:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/cie10.csv
+
+dim-crime:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/crime/crimes_ids.xlsx

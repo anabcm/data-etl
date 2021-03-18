@@ -3,14 +3,13 @@ import pandas as pd
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 # English stopwords
 from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6a5TEhnjteU3aa96H7iG4OoNAMkCgsQJ52HPbycoStRBIer66JnfsSbS5tbmlkdQ6jwn2dp8xBb0U/pub?output=xlsx"
-        df = pd.read_excel(url, sheet_name="crime_modality", dtype="str")
+        df = pd.read_excel(prev, sheet_name="crime_modality", dtype="str")
         return df
 
 class CleanStep(PipelineStep):
@@ -57,8 +56,12 @@ class CrimesModalityPipeline(EasyPipeline):
         }
 
         # Definition of each step
+        download_step = DownloadStep(
+            connector="dim-crime",
+            connector_path="conns.yaml"
+        )
         read_step = ReadStep()
         clean_step = CleanStep()
         load_step = LoadStep("dim_shared_crimes_modality", db_connector, if_exists="drop", pk=["crime_modality_id"], dtype=dtype)
 
-        return [read_step, clean_step, load_step]
+        return [download_step, read_step, clean_step, load_step]
