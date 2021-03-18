@@ -33,14 +33,14 @@ from bamboo_lib.steps import LoadStep, DownloadStep
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # foreign trade data
-        dbf = Dbf5(prev, codec='latin-1')
+        dbf = Dbf5(prev[0], codec='latin-1')
         df = dbf.to_dataframe()
         df.columns = df.columns.str.lower()
-        return df
+        return df, prev[1]
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = prev
+        df, income_dim = prev
         
         df = df[list(columns.keys())].copy()
         
@@ -55,8 +55,7 @@ class TransformStep(PipelineStep):
             df[col] = df[col].astype('float')
 
         # income interval replace
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
-        income = pd.read_excel(url, sheet_name='income', encoding='latin-1')
+        income = pd.read_excel(income_dim, sheet_name='income', encoding='latin-1')
         col = 'expenses_in_protection_against_crime'
         for ing in df[col].unique():
             for level in range(income.shape[0]):
@@ -133,7 +132,7 @@ class ENVIPEPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector='envipe-data',
+            connector=['envipe-data', 'income-dim'],
             connector_path='conns.yaml'
         )
         

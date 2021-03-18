@@ -10,7 +10,7 @@ from util import format_text
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vRf6ecVlEDTaBNfp2VSd7Ti-AnAQDyQlMjF7uek-cQHQ49ihWv4zeSXgN8z0gJV72ogir3hYvYTu8iX/pub?output=csv')
+        df = pd.read_csv(prev[0])
 
         for locale in ['es', 'en']:
             for level in ['sector', 'subsector', 'industry_group']:
@@ -31,7 +31,7 @@ class TransformStep(PipelineStep):
 
         df.drop_duplicates(subset=['industry_group_id'], inplace=True)
 
-        MISSING_DIMENSION = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vT2LrUrF7dnohQgzpDqDaRk4DEKRJY1UaNbfogx_6LV_5zjMwI-bTe7xI1zDZ7hjo0f4u-shF5wuy7i/pub?gid=1602219578&single=true&output=csv')
+        MISSING_DIMENSION = pd.read_csv(prev[1])
 
         df = df.append(MISSING_DIMENSION)
 
@@ -52,8 +52,11 @@ class ENOEIndustryPipeline(EasyPipeline):
     @staticmethod
     def steps(params, **kwargs):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
-
+        download_step = DownloadStep(
+            connector=['naics-scian-codes', 'missing-dim'],
+            connector_path="conns.yaml"
+        )
         transform_step = TransformStep()
         load_step = LoadStep('dim_shared_industry_enoe', db_connector, if_exists='drop', pk=['industry_group_id', 'subsector_id', 'sector_id'])
         
-        return [transform_step, load_step]
+        return [download_step, transform_step, load_step]

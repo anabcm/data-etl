@@ -10,17 +10,16 @@ from bamboo_lib.helpers import grab_connector
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         # intercensal census data
-        df = pd.read_csv(prev, encoding='latin-1', dtype={'ENT': 'str', 'MUN': 'str', 'LOC50K': 'str'})
+        df = pd.read_csv(prev[0], encoding='latin-1', dtype={'ENT': 'str', 'MUN': 'str', 'LOC50K': 'str'})
         # data to replace
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
         data = {}
         for col in ['pisos', 'techos', 'paredes', 'cobertura', 'financiamiento', 'clavivp', 'totcuart', 'cuadorm', 'ingr_ayugob', 'ingr_perotropais', 'deuda', 'forma_adqui', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
-            data[col] = pd.read_excel(url, sheet_name=col, encoding='latin-1', dtype='object')
-        return df, data
+            data[col] = pd.read_excel(prev[1], sheet_name=col, encoding='latin-1', dtype='object')
+        return df, data, prev[1]
 
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
-        df, data = prev[0], prev[1]
+        df, data, dim_income = prev
         # preformat
         df.columns = df.columns.str.lower()
         # location level
@@ -31,18 +30,17 @@ class CleanStep(PipelineStep):
         # nan management
         for col in ['refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular']:
             df[col].fillna(0, inplace=True)
-        return df, data
+        return df, data, dim_income
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df, data = prev[0], prev[1]
+        df, data, dim_income = prev
         # replace, select and group data
         for col in data.keys():
             df[col] = df[col].replace(dict(zip(data[col]['prev_id'], data[col]['id'].astype('int'))))
 
         # income interval replace
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR08Js9Sh4nNTMe5uBcsDUFedG5MOjIf90p6EHAr1_sWY5kpnI3xUvyPHzQpTEUrXz1pskaoc0uyea6/pub?output=xlsx'
-        income = pd.read_excel(url, sheet_name='income', encoding='latin-1')
+        income = pd.read_excel(dim_income, sheet_name='income', encoding='latin-1')
         for ing in df.ingtrhog.unique():
             for level in range(income.shape[0]):
                 if (ing >= income.interval_lower[level]) & (ing < income.interval_upper[level]):
@@ -124,7 +122,7 @@ class HousingPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector='housing-data',
+            connector=['housing-data', 'labels']
             connector_path='conns.yaml'
         )
 

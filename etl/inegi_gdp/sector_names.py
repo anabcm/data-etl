@@ -8,14 +8,14 @@ from bamboo_lib.helpers import grab_connector
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRf6ecVlEDTaBNfp2VSd7Ti-AnAQDyQlMjF7uek-cQHQ49ihWv4zeSXgN8z0gJV72ogir3hYvYTu8iX/pub?output=xlsx'
-        df = pd.read_excel(url, dtype='str')
+        df = pd.read_csv(prev, dtype='str')
         return df
 
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
         df = df.loc[:, ['sector_id', 'sector_es', 'sector_en']].drop_duplicates().copy()
+        print(df.head())
         return df
 
 class GDPNamesPipeline(EasyPipeline):
@@ -28,12 +28,17 @@ class GDPNamesPipeline(EasyPipeline):
             'sector_en':            'String',
         }
 
+        download_step = DownloadStep(
+            connector='naics-scian-codes',
+            connector_path='conns.yaml'
+        )
+
         read_step = ReadStep()
         clean_step = CleanStep()
 
         load_step = LoadStep('inegi_gdp_names', db_connector, if_exists='drop', pk=['sector_id'], dtype=dtype)
 
-        return [read_step, clean_step, load_step]
+        return [download_step, read_step, clean_step, load_step]
 
 if __name__ == "__main__":
     pp = GDPNamesPipeline()

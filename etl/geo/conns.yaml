@@ -1,3 +1,7 @@
 geo-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/geo/AGEEML_20207131518807.csv
+
+countries:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/Country_List.csv

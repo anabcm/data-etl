@@ -4,14 +4,13 @@ import pandas as pd
 from bamboo_lib.models import PipelineStep
 from bamboo_lib.models import EasyPipeline
 from bamboo_lib.connectors.models import Connector
-from bamboo_lib.steps import LoadStep
+from bamboo_lib.steps import LoadStep, DownloadStep
 
 from sklearn.feature_extraction import stop_words
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrE0FLlqhAVe4ru27EUzXM2pgXi02NmFz7rv_X9pNHrt52E37tbEdCIlogN4YcKWDIAR6Ibokxjm_c/pub?output=csv'
-        df = pd.read_csv(url, dtype='str')
+        df = pd.read_csv(prev, dtype='str')
         return df
 
 class CleanStep(PipelineStep):
@@ -68,9 +67,13 @@ class CoveragePipeline(EasyPipeline):
         }
 
         # Definition of each step
+        download_step = DownloadStep(
+            connector="sinco",
+            connector_path="conns.yaml"
+        )
         read_step = ReadStep()
         clean_step = CleanStep()
         load_step = LoadStep('dim_shared_occupations_enoe', db_connector, if_exists='drop', pk=['occupation_id', 'subgroup_id', 'group_id', 'category_id'], dtype=dtype)
         
-        return [read_step, clean_step, load_step]
+        return [download_step, read_step, clean_step, load_step]
 
