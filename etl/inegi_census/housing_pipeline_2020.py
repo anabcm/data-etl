@@ -146,8 +146,6 @@ class TransformStep(PipelineStep):
         df['government_financial_aid'] = pd.np.nan
         df['foreign_financial_aid'] = pd.np.nan
 
-        df.to_csv('inegi_census_2020.csv')
-
         return df
 
 class HousingPipeline(EasyPipeline):
@@ -233,7 +231,7 @@ class HousingPipeline(EasyPipeline):
 
 if __name__ == "__main__":
     pp = HousingPipeline()
-    for index in range(1, 1 + 1):
+    for index in range(1, 32 + 1):
         pp.run({
             "index": str(index).zfill(2)
             })
