@@ -10,9 +10,9 @@ from bamboo_lib.steps import LoadStep
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
-        df_labels = pd.ExcelFile("https://docs.google.com/spreadsheets/d/e/2PACX-1vSYxBmHW5xXkzhVL3X5N21EWWVJKzOkaCfEERaG5lWpmgdx6-Sjcxf7FA7uV1j-_EJIeWZmGbMMDeJh/pub?output=xlsx")
+        df_labels = pd.ExcelFile(prev[1])
 
-        df = pd.read_csv(prev, dtype=str, index_col=None, header=0, encoding="latin-1")
+        df = pd.read_csv(prev[0], dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
 
         # Adding IDs columns
@@ -123,7 +123,7 @@ class PopulationPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector="population-data",
+            connector=["population-data", "labels-2"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

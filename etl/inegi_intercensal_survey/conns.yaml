@@ -9,3 +9,7 @@ housing-data:
 labels:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/Intercensal Census IDs.xlsx
+
+labels-2:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/Population Intercensal Census ID.xlsx
