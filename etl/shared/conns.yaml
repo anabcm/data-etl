@@ -2,6 +2,10 @@ shared-age:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/age_range.xlsx
 
+shared-age-10:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/shared/age_range_10.csv
+
 naics-scian-codes:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/NAICS_SCIAN_codes.csv
