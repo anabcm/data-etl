@@ -4,7 +4,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep, DownloadStep
 
 class ReadStep(PipelineStep):
-    def run(self, prev, params):
+    def run_step(self, prev, params):
         df = pd.read_csv(prev)
         df.columns = df.columns.str.lower()
         return df
@@ -12,7 +12,19 @@ class ReadStep(PipelineStep):
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
+        
+        labels = ['clavivp', 'forma_adqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
+                'totcuart', 'numpers', 'ingtrhog', 'refrigerador', 'lavadora', 
+                'autoprop', 'televisor', 'internet', 'computadora', 'celular']
+
+        extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
+        'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
+        'con_vjuegos', 'escrituras', 'deuda']      
+
+        df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
+
         print(df)
+        print(df.columns)
 
         return df
 
