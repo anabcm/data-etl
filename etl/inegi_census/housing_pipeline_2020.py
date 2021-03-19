@@ -21,7 +21,8 @@ class CleanStep(PipelineStep):
 
         extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
         'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
-        'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']      
+        'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad', 'ingr_perdentpais',
+        'ingr_jubpen']      
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
 
@@ -66,7 +67,9 @@ class CleanStep(PipelineStep):
             'cobertura': 'int', 
             'financiamiento': 'int', 
             'ingr_ayugob': 'int', 
-            'ingr_perotropais': 'int'
+            'ingr_perotropais': 'int',
+            'ingr_perdentpais': 'int',
+            'ingr_jubpen': 'int'
         }
 
         for key, val in dtypes.items():
@@ -84,7 +87,7 @@ class TransformStep(PipelineStep):
 
         # data to replace
         data = {}
-        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais']:
+        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais', 'ingr_perdentpais', 'ingr_jubpen']:
             data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
             data['financiamiento'] = data.pop('financiamiento_2020')
 
@@ -147,7 +150,9 @@ class TransformStep(PipelineStep):
                                 'cobertura': 'coverage',
                                 'financiamiento': 'funding',
                                 'ingr_ayugob': 'government_financial_aid', 
-                                'ingr_perotropais': 'foreign_financial_aid'})
+                                'ingr_perotropais': 'foreign_financial_aid',
+                                'ingr_perdentpais': 'national_financial_aid', 
+                                'ingr_jubpen': 'retirement_financial_aid'})
 
         df.replace('temp', np.nan, inplace=True)
         
@@ -217,7 +222,9 @@ class HousingPipeline(EasyPipeline):
             'video_game_console':       'UInt8',
             'title_deed':               'UInt8',
             'sex':                      'UInt8',
-            'age':                      'UInt8'
+            'age':                      'UInt8',
+            'national_financial_aid':   'UInt8',
+            'retirement_financial_aid': 'UInt8'
         }
 
         download_step = DownloadStep(
@@ -235,7 +242,8 @@ class HousingPipeline(EasyPipeline):
             'fridge', 'washing_machine', 'vehicle', 'tv', 'internet', 'computer', 'mobile_phone', 
             'water_pump', 'solar_heater', 'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 
             'motorcycle', 'bicycle', 'tv_service', 'movie_service', 'video_game_console', 'title_deed', 
-            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid']
+            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid', 'national_financial_aid', 
+            'retirement_financial_aid']
         )
         
         return [download_step, read_step, clean_step, transform_step, load_step]
