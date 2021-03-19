@@ -19,7 +19,7 @@ class CleanStep(PipelineStep):
 
         extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
         'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
-        'con_vjuegos', 'escrituras', 'deuda']      
+        'con_vjuegos', 'escrituras', 'deuda', "jefe_sexo", "jefe_edad"]      
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
 
@@ -56,7 +56,9 @@ class CleanStep(PipelineStep):
             'serv_pel_paga': 'int',
             'con_vjuegos': 'int',
             'escrituras': 'int',
-            'deuda': 'int'
+            'deuda': 'int',
+            'jefe_sexo': 'int',
+            'jefe_edad': 'int'
         }
 
         for key, val in dtypes.items():
@@ -74,7 +76,7 @@ class TransformStep(PipelineStep):
 
         # data to replace
         data = {}
-        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda']:
+        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']:
             data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
 
         # location id
@@ -130,7 +132,9 @@ class TransformStep(PipelineStep):
                                 'serv_pel_paga': 'movie_service',
                                 'con_vjuegos': 'video_game_console',
                                 'escrituras': 'title_deed',
-                                'deuda': 'debt'})
+                                'deuda': 'debt',
+                                'jefe_sexo': 'sex',
+                                'jefe_edad': 'age'})
 
         df.replace('temp', pd.np.nan, inplace=True)
         
@@ -193,18 +197,20 @@ class HousingPipeline(EasyPipeline):
             'internet':                 'UInt8',
             'year':                     'UInt16',
             'water_pump':               'UInt8',
-            'solar_heater':         'UInt8',
-            'air_conditioner':                'UInt8',
+            'solar_heater':             'UInt8',
+            'air_conditioner':          'UInt8',
             'solar_panel':              'UInt8',
-            'organic_trash':              'UInt8',
-            'oven':                    'UInt8',
-            'motorcycle':              'UInt8',
-            'bicycle':                'UInt8',
-            'tv_service':             'UInt8',
+            'organic_trash':            'UInt8',
+            'oven':                     'UInt8',
+            'motorcycle':               'UInt8',
+            'bicycle':                  'UInt8',
+            'tv_service':               'UInt8',
             'movie_service':            'UInt8',
-            'video_game_console':              'UInt8',
+            'video_game_console':       'UInt8',
             'title_deed':               'UInt8',
-            'debt':                    'UInt8'
+            'debt':                     'UInt8',
+            'sex':                      'UInt8',
+            'age':                      'UInt8'
         }
 
         download_step = DownloadStep(
