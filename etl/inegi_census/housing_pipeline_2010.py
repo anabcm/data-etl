@@ -196,7 +196,6 @@ class HousingPipeline(EasyPipeline):
             'movie_service':            'UInt8',
             'video_game_console':       'UInt8',
             'title_deed':               'UInt8',
-            'debt':                     'UInt8',
             'sex':                      'UInt8',
             'age':                      'UInt8'
         }
