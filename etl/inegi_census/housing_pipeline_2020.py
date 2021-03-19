@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.steps import LoadStep, DownloadStep
@@ -95,7 +96,7 @@ class TransformStep(PipelineStep):
                     df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[income.shape[0]-1]))
                     break
         df.ingtrhog = df.ingtrhog.astype('int')
-        df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
+        df.ingtrhog.replace(-5, np.nan, inplace=True)
 
         # ids replace
         for col in data.keys():
@@ -136,17 +137,17 @@ class TransformStep(PipelineStep):
                                 'jefe_sexo': 'sex',
                                 'jefe_edad': 'age'})
 
-        df.replace('temp', pd.np.nan, inplace=True)
+        df.replace('temp', np.nan, inplace=True)
         
         # data type conversion
         for col in df.columns:
             df[col] = df[col].astype('float')
         
         df['year'] = 2020
-        df['coverage'] = pd.np.nan
-        df['funding'] = pd.np.nan
-        df['government_financial_aid'] = pd.np.nan
-        df['foreign_financial_aid'] = pd.np.nan
+        df['coverage'] = np.nan
+        df['funding'] = np.nan
+        df['government_financial_aid'] = np.nan
+        df['foreign_financial_aid'] = np.nan
 
         return df
 
