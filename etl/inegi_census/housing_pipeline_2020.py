@@ -16,13 +16,16 @@ class CleanStep(PipelineStep):
         
         labels = ['clavivp', 'forma_adqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
                 'totcuart', 'numpers', 'ingtrhog', 'refrigerador', 'lavadora', 
-                'autoprop', 'televisor', 'internet', 'computadora', 'celular']
+                'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'cobertura', 
+                'financiamiento1', 'ingr_ayugob', 'ingr_perotropais']
 
         extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
         'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
         'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']      
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
+
+        df.rename(columns={'financiamiento1': 'financiamiento'}, inplace=True)
 
         dtypes = {
             'ent': 'str',
@@ -59,7 +62,11 @@ class CleanStep(PipelineStep):
             'escrituras': 'int',
             'deuda': 'int',
             'jefe_sexo': 'int',
-            'jefe_edad': 'int'
+            'jefe_edad': 'int',
+            'cobertura': 'int', 
+            'financiamiento': 'int', 
+            'ingr_ayugob': 'int', 
+            'ingr_perotropais': 'int'
         }
 
         for key, val in dtypes.items():
@@ -77,8 +84,9 @@ class TransformStep(PipelineStep):
 
         # data to replace
         data = {}
-        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']:
+        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais']:
             data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
+            data['financiamiento'] = data.pop('financiamiento_2020')
 
         # location id
         df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
@@ -135,7 +143,11 @@ class TransformStep(PipelineStep):
                                 'escrituras': 'title_deed',
                                 'deuda': 'debt',
                                 'jefe_sexo': 'sex',
-                                'jefe_edad': 'age'})
+                                'jefe_edad': 'age',
+                                'cobertura': 'coverage',
+                                'financiamiento': 'funding',
+                                'ingr_ayugob': 'government_financial_aid', 
+                                'ingr_perotropais': 'foreign_financial_aid'})
 
         df.replace('temp', np.nan, inplace=True)
         
@@ -144,10 +156,6 @@ class TransformStep(PipelineStep):
             df[col] = df[col].astype('float')
         
         df['year'] = 2020
-        df['coverage'] = np.nan
-        df['funding'] = np.nan
-        df['government_financial_aid'] = np.nan
-        df['foreign_financial_aid'] = np.nan
 
         return df
 
