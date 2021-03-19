@@ -156,8 +156,9 @@ class HousingPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=['housing-data', 'labels']
-            connector_path='conns.yaml'
+            connector=["housing-data", "labels"],
+            connector_path="conns.yaml",
+            force=True
         )
 
         read_step = ReadStep()
