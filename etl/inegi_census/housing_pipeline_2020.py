@@ -89,7 +89,7 @@ class TransformStep(PipelineStep):
         data = {}
         for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais']:
             data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
-            data['financiamiento'] = data.pop('financiamiento_2020')
+        data['financiamiento'] = data.pop('financiamiento_2020')
 
         # location id
         df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
