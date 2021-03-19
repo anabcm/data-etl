@@ -228,7 +228,7 @@ class HousingPipeline(EasyPipeline):
             'fridge', 'washing_machine', 'vehicle', 'tv', 'internet', 'computer', 'mobile_phone', 
             'water_pump', 'solar_heater', 'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 
             'motorcycle', 'bicycle', 'tv_service', 'movie_service', 'video_game_console', 'title_deed', 
-            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid']
+            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid', 'sex', 'age']
         )
         
         return [download_step, read_step, clean_step, transform_step, load_step]
