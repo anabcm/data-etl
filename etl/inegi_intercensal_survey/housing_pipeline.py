@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 from bamboo_lib.models import PipelineStep, AdvancedPipelineExecutor
 from bamboo_lib.models import Parameter, EasyPipeline
 from bamboo_lib.connectors.models import Connector
@@ -50,7 +51,7 @@ class TransformStep(PipelineStep):
                     df.ingtrhog = df.ingtrhog.replace(ing, str(income.id[income.shape[0]-1]))
                     break
         df.ingtrhog = df.ingtrhog.astype('int')
-        df.ingtrhog.replace(-5, pd.np.nan, inplace=True)
+        df.ingtrhog.replace(-5, np.nan, inplace=True)
 
         labels = ['loc_id', 'cobertura', 'ingtrhog', 'pisos', 'techos', 'paredes', 'forma_adqui', 
                 'deuda', 'numpers', 'financiamiento', 'totcuart', 'cuadorm', 'clavivp', 
@@ -64,13 +65,28 @@ class TransformStep(PipelineStep):
         df = df.rename(columns={'factor': 'households', 'pisos': 'floor', 'paredes': 'wall', 'techos': 'roof', 'forma_adqui': 'acquisition', 'deuda': 'debt', 'ingtrhog': 'income', 'cobertura': 'coverage', 
                                 'clavivp': 'home_type', 'financiamiento': 'funding', 'ingr_ayugob': 'government_financial_aid', 'ingr_perotropais': 'foreign_financial_aid', 'numpers': 'n_inhabitants', 
                                 'totcuart': 'total_rooms', 'cuadorm': 'bedrooms', 'refrigerador': 'fridge', 'lavadora': 'washing_machine', 'autoprop': 'vehicle', 'televisor': 'tv', 'computadora': 'computer', 'celular': 'mobile_phone'})
-        df.replace('temp', pd.np.nan, inplace=True)
+        df.replace('temp', np.nan, inplace=True)
 
         # data types
         for col in df.columns:
             df[col] = df[col].astype('float')
 
         df['year'] = 2015
+        df['water_pump'] = np.nan
+        df['solar_heater'] = np.nan
+        df['air_conditioner'] = np.nan
+        df['solar_panel'] = np.nan
+        df['organic_trash'] = np.nan
+        df['oven'] = np.nan
+        df['motorcycle'] = np.nan
+        df['bicycle'] = np.nan
+        df['tv_service'] = np.nan
+        df['movie_service'] = np.nan
+        df['video_game_console'] = np.nan
+        df['title_deed'] = np.nan
+        df['debt'] = np.nan
+        df['sex'] = np.nan
+        df['age'] = np.nan
 
         return df
 
@@ -118,7 +134,22 @@ class HousingPipeline(EasyPipeline):
             'computer':                 'UInt8',
             'mobile_phone':             'UInt8',
             'internet':                 'UInt8',
-            'year':                     'UInt16'
+            'year':                     'UInt16',
+            'water_pump':               'UInt8',
+            'solar_heater':             'UInt8',
+            'air_conditioner':          'UInt8',
+            'solar_panel':              'UInt8',
+            'organic_trash':            'UInt8',
+            'oven':                     'UInt8',
+            'motorcycle':               'UInt8',
+            'bicycle':                  'UInt8',
+            'tv_service':               'UInt8',
+            'movie_service':            'UInt8',
+            'video_game_console':       'UInt8',
+            'title_deed':               'UInt8',
+            'debt':                     'UInt8',
+            'sex':                      'UInt8',
+            'age':                      'UInt8'
         }
 
         download_step = DownloadStep(
@@ -135,7 +166,9 @@ class HousingPipeline(EasyPipeline):
             nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
                           'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
-                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet']
+                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet', 'bomba_agua', 'calentador_solar', 
+                          'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 
+                          'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']
         )
 
         return [download_step, read_step, clean_step, transform_step, load_step]
