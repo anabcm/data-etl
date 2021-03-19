@@ -13,11 +13,13 @@ class ReadStep(PipelineStep):
 class CleanStep(PipelineStep):
     def run_step(self, prev, params):
         df, dimension = prev
+
+        df.rename(columns={'financiamiento1': 'financiamiento'}, inplace=True)
         
         labels = ['clavivp', 'forma_adqui', 'paredes', 'techos', 'pisos', 'cuadorm', 
                 'totcuart', 'numpers', 'ingtrhog', 'refrigerador', 'lavadora', 
                 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'cobertura', 
-                'financiamiento1', 'ingr_ayugob', 'ingr_perotropais']
+                'financiamiento', 'ingr_ayugob', 'ingr_perotropais']
 
         extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
         'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
@@ -25,8 +27,6 @@ class CleanStep(PipelineStep):
         'ingr_jubpen']      
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
-
-        df.rename(columns={'financiamiento1': 'financiamiento'}, inplace=True)
 
         dtypes = {
             'ent': 'str',
