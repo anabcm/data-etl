@@ -163,8 +163,7 @@ class HousingPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Index", name="index", dtype=str),
-            Parameter("force", dtype=bool),
+            Parameter(label="Index", name="index", dtype=str)
         ]
 
     @staticmethod
@@ -217,7 +216,7 @@ class HousingPipeline(EasyPipeline):
         download_step = DownloadStep(
             connector=["housing-data-2020", "labels"],
             connector_path="conns.yaml",
-            force=params.get("force", True)
+            force=True
         )
 
         read_step = ReadStep()
