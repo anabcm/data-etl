@@ -20,7 +20,7 @@ class CleanStep(PipelineStep):
 
         extra_labels = ['bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 
         'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 
-        'con_vjuegos', 'escrituras', 'deuda', "jefe_sexo", "jefe_edad"]      
+        'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']      
 
         df = df[['ent', 'mun', 'loc50k', 'factor'] + labels + extra_labels].copy()
 
