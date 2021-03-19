@@ -223,7 +223,7 @@ class HousingPipeline(EasyPipeline):
         clean_step = CleanStep()
         transform_step = TransformStep()
         load_step = LoadStep(
-            'inegi_housing_2020', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
+            'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
             nullable_list=['acquisition', 'wall', 'roof', 'floor', 'bedrooms', 'total_rooms', 'income',
             'fridge', 'washing_machine', 'vehicle', 'tv', 'internet', 'computer', 'mobile_phone', 
             'water_pump', 'solar_heater', 'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 
