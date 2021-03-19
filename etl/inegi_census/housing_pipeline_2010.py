@@ -136,6 +136,8 @@ class TransformStep(PipelineStep):
         df['debt'] = np.nan
         df['sex'] = np.nan
         df['age'] = np.nan
+        df['national_financial_aide'] = np.nan
+        df['retirement_financial_aid'] = np.nan
         
         return df
 
@@ -197,7 +199,9 @@ class HousingPipeline(EasyPipeline):
             'video_game_console':       'UInt8',
             'title_deed':               'UInt8',
             'sex':                      'UInt8',
-            'age':                      'UInt8'
+            'age':                      'UInt8',
+            'national_financial_aid':   'UInt8',
+            'retirement_financial_aid': 'UInt8'
         }
 
         http_dl_step = DownloadStep(
@@ -216,7 +220,8 @@ class HousingPipeline(EasyPipeline):
                           'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
                           'vehicle', 'tv', 'computer', 'mobile_phone', 'internet', 'water_pump', 'solar_heater', 
                           'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 'motorcycle', 'bicycle', 'tv_service', 
-                          'movie_service', 'video_game_console', 'title_deed', 'sex', 'age']
+                          'movie_service', 'video_game_console', 'title_deed', 'sex', 'age', 'national_financial_aid', 
+            'retirement_financial_aid']
         )
         
         return [http_dl_step, read_step, clean_step, transform_step, load_step]
