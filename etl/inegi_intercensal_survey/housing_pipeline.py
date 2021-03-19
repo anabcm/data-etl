@@ -87,7 +87,7 @@ class TransformStep(PipelineStep):
         df['debt'] = np.nan
         df['sex'] = np.nan
         df['age'] = np.nan
-        df['national_financial_aide'] = np.nan
+        df['national_financial_aid'] = np.nan
         df['retirement_financial_aid'] = np.nan
 
         return df
