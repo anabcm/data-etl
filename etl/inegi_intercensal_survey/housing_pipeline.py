@@ -165,9 +165,9 @@ class HousingPipeline(EasyPipeline):
             nullable_list=['households', 'floor', 'wall', 'roof', 'acquisition', 'debt', 'income', 'coverage',
                           'home_type', 'funding', 'government_financial_aid', 'foreign_financial_aid',
                           'n_inhabitants', 'total_rooms', 'bedrooms', 'fridge', 'washing_machine', 
-                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet', 'bomba_agua', 'calentador_solar', 
-                          'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 
-                          'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']
+                          'vehicle', 'tv', 'computer', 'mobile_phone', 'internet', 'water_pump', 'solar_heater', 'air_conditioner', 
+                          'solar_panel', 'organic_trash', 'oven', 'motorcycle', 'bicycle', 'tv_service', 'movie_service', 
+                          'video_game_console', 'title_deed', 'sex', 'age']
         )
 
         return [download_step, read_step, clean_step, transform_step, load_step]
