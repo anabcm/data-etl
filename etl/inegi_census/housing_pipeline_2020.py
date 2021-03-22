@@ -92,7 +92,7 @@ class TransformStep(PipelineStep):
         data['financiamiento'] = data.pop('financiamiento_2020')
 
         # location id
-        df['loc_id'] = (df.ent.astype('str') + df.mun.astype('str') + df.loc50k.astype('str')).astype('int')
+        df['loc_id'] = (df.ent.astype('str').str.zfill(2) + df.mun.astype('str').str.zfill(3) + df.loc50k.astype('str').str.zfill(4)).astype('int')
         df.drop(columns=['ent', 'mun', 'loc50k'], inplace=True)
         df.ingtrhog = df.ingtrhog.fillna(-5).round(0).astype('int64')
 
