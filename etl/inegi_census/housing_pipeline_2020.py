@@ -238,12 +238,13 @@ class HousingPipeline(EasyPipeline):
         transform_step = TransformStep()
         load_step = LoadStep(
             'inegi_housing', db_connector, if_exists='append', pk=['loc_id'], dtype=dtype, 
-            nullable_list=['acquisition', 'wall', 'roof', 'floor', 'bedrooms', 'total_rooms', 'income',
-            'fridge', 'washing_machine', 'vehicle', 'tv', 'internet', 'computer', 'mobile_phone', 
-            'water_pump', 'solar_heater', 'air_conditioner', 'solar_panel', 'organic_trash', 'oven', 
-            'motorcycle', 'bicycle', 'tv_service', 'movie_service', 'video_game_console', 'title_deed', 
-            'debt', 'coverage', 'funding', 'government_financial_aid', 'foreign_financial_aid', 'national_financial_aid', 
-            'retirement_financial_aid']
+            nullable_list=['income', 'computer', 'coverage', 'n_inhabitants', 'foreign_financial_aid', 'tv', 
+                           'wall', 'government_financial_aid', 'video_game_console', 'households', 
+                           'mobile_phone', 'debt', 'washing_machine', 'bedrooms', 'air_conditioner', 
+                           'movie_service', 'tv_service', 'solar_heater', 'retirement_financial_aid', 
+                           'funding', 'organic_trash', 'sex', 'motorcycle', 'fridge', 'oven', 'title_deed', 
+                           'solar_panel', 'national_financial_aid', 'floor', 'home_type', 'water_pump', 
+                           'total_rooms', 'age', 'bicycle', 'internet', 'vehicle', 'acquisition', 'roof']
         )
         
         return [download_step, read_step, clean_step, transform_step, load_step]
