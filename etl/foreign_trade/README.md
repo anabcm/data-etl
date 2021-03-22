@@ -1,6 +1,6 @@
-### SE - Secretaría de Economía, Foreign Trade
+### Foreign Trade ETL
 
-#### Source: directly provided
+#### Source: Secretary of Economy
 
 #### Usage:
 bash console = `python run.py`
