@@ -4,7 +4,7 @@
 - there are folders like ASG 2021 which lead you to the downloads: http://datos.imss.gob.mx/dataset/asg-2021
 - Update GCP with those files:
 
-<img title="a title" alt="Alt text" src="./imss.png">
+<img src="./imss.png">
 
 
 #### Usage:

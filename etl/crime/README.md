@@ -3,7 +3,7 @@
 #### Source: https://www.gob.mx/sesnsp/acciones-y-programas/datos-abiertos-de-incidencia-delictiva?state=published
 - Update GCP with that file:
 
-<img title="a title" alt="Alt text" src="./sesnsp_crimes.png">
+<img src="./sesnsp_crimes.png">
 
 
 #### Usage:
