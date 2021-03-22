@@ -1,6 +1,6 @@
 crimes-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/crime/IDM_NM_dic2020.csv
+  uri: gs://datamexico-data/crime/IDM_NM_ene2021.csv
 
 crimes-ids:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
