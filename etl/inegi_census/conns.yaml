@@ -6,6 +6,10 @@ housing-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_census_2010/Viviendas_<index>.dbf
 
+housing-data-2020:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_census_2020/Viviendas_<index>.csv
+
 labels:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/Intercensal Census IDs.xlsx
