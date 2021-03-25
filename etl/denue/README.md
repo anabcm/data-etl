@@ -1,6 +1,9 @@
 ### DENUE - Directorio Estadístico Nacional de Unidades Económicas
 
 #### Source: https://www.inegi.org.mx/app/descarga/?ti=6
+- Update GCP with the files under **"Actividad Economica"**:
+
+<img src="./denue.png">
 
 #### Usage:
 `python run` and follow the instructions.
