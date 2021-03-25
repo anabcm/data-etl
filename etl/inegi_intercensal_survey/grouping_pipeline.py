@@ -26,8 +26,7 @@ class DimHousingGroupPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Sheet", name="sheet", dtype=str),
-            Parameter(label="Dimension Table Name", name="dim_table_name", dtype=str),
+            Parameter(label="Sheet", name="sheet", dtype=str)
         ]
     
     @staticmethod
