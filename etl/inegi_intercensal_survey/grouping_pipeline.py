@@ -34,7 +34,7 @@ class DimHousingGroupPipeline(EasyPipeline):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
         dtype = {
-            'id':             'UInt8',
+            'id':             'UInt8' if params.get('sheet') == 'totcuart' else 'UInt16',
             'name_es':        'String',
             'name_en':        'String',
             'group_id':       'UInt8',
