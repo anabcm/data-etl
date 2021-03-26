@@ -150,7 +150,7 @@ class HousingPipeline(EasyPipeline):
             'video_game_console':       'UInt8',
             'title_deed':               'UInt8',
             'sex':                      'UInt8',
-            'age':                      'UInt8',
+            'age':                      'UInt16',
             'national_financial_aid':   'UInt8',
             'retirement_financial_aid': 'UInt8'
         }
