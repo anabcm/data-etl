@@ -1,6 +1,8 @@
 
 import os
+import time
 import glob
+import zipfile
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -11,6 +13,7 @@ from bamboo_lib.steps import DownloadStep, LoadStep, UnzipToFolderStep
 from shared import rename_columns, RENAME_COUNTRIES, clean_tables
 from bamboo_lib.helpers import query_to_df
 from dim_time_date import DimTimeDatePipeline
+from dim_time_covid_stats import DimTimeDateCovidStatsPipeline
 from etl.helpers import norm
 
 class TransformStep(PipelineStep):
@@ -156,12 +159,20 @@ class CovidDownload(EasyPipeline):
 if __name__ == '__main__':
     start_time = datetime.now()
 
-    # drop table
-    clean_tables('gobmx_covid')
-
     # download latest data
     pp = CovidDownload()
-    pp.run({})
+    while True:
+        try:
+            pp.run({})
+            break
+
+        except zipfile.BadZipFile:
+            # catch error retry download
+            print('Bad zip file error.')
+            time.sleep(5)
+
+    # drop table
+    clean_tables('gobmx_covid')
 
     # ingest data
     pp = CovidPipeline()
@@ -170,7 +181,6 @@ if __name__ == '__main__':
         pp.run({
             'chunk': chunk
         })
-    print('Duration: {}'.format(datetime.now() - start_time))
 
     # update time dimension
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
@@ -184,3 +194,9 @@ if __name__ == '__main__':
     pp = DimTimeDatePipeline()
     pp.run({'init': min_time,
             'end': max_time})
+
+    # covid stats dim time table
+    pp = DimTimeDateCovidStatsPipeline()
+    pp.run({'init': min_time,
+            'end': max_time})
+    print('Duration: {}'.format(datetime.now() - start_time))
