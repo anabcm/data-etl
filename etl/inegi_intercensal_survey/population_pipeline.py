@@ -15,6 +15,9 @@ class TransformStep(PipelineStep):
         df = pd.read_csv(prev[0], dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
 
+        if "parentesco" in df.columns:
+            df.rename(columns={'parentesco':'parent'}, inplace=True)
+
         # Adding IDs columns
         df["mun_id"] = df["ent"].astype(str).str.zfill(2) + df["mun"].astype(str).str.zfill(3)
         df["mun_id_trab"] = df["ent_pais_trab"] + df["mun_trab"]
@@ -40,10 +43,10 @@ class TransformStep(PipelineStep):
 
         # Turning work places IDs to 0, which are overseas
         df.loc[df["mun_id_trab"] > 33000, "mun_id_trab"] = 0
-        df["mun_id_trab"].replace(pd.np.nan , 0, inplace=True)
+        df["mun_id_trab"].replace(np.nan , 0, inplace=True)
 
         # List of columns for the next df
-        params = ["sexo", "parent", "sersalud", "dhsersal1", 
+        parameters = ["sexo", "parent", "sersalud", "dhsersal1", 
         "conact", "tie_traslado_trab", "med_traslado_trab1",
         "nivacad", "tie_traslado_escu", "med_traslado_esc1",
         "nacionalidad"]
@@ -54,7 +57,7 @@ class TransformStep(PipelineStep):
         "nationality"]
 
         # For cycle in order to change the content of a column from previous id, into the new ones (working for translate too)
-        for sheet in params:
+        for sheet in parameters:
             df_l = pd.read_excel(df_labels, sheet)
             df[sheet] = df[sheet].astype(int)
             df[sheet] = df[sheet].replace(dict(zip(df_l.prev_id, df_l.id)))
@@ -77,13 +80,13 @@ class TransformStep(PipelineStep):
 
         # Turning back NaN values in the respective columns
         for item in li_eng:
-            df[item].replace(0, pd.np.nan, inplace=True)
-        df["academic_degree"].replace(1000, pd.np.nan, inplace=True)
-        df["age"].replace(999, pd.np.nan, inplace=True)
+            df[item].replace(0, np.nan, inplace=True)
+        df["academic_degree"].replace(1000, np.nan, inplace=True)
+        df["age"].replace(999, np.nan, inplace=True)
         df["filtered_age"] = df['age'].apply(lambda x: 1 if x >= 12 else 0)
 
         # Includes year column
-        df["year"] = 2015
+        df["year"] = params.get("year")
 
         # Transforming certains columns to objects
         for col in (params_translated + ["mun_id_trab"]):
@@ -95,7 +98,9 @@ class PopulationPipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Index", name="index", dtype=str)
+            Parameter(label="Index", name="index", dtype=str),
+            Parameter(label="Source", name="source", dtype=str),
+            Parameter(label="Year", name="year", dtype=str)
         ]
 
     @staticmethod
@@ -123,7 +128,7 @@ class PopulationPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["population-data", "labels-2"],
+            connector=[params.get("source"), "labels-2"],
             connector_path="conns.yaml"
         )
         transform_step = TransformStep()

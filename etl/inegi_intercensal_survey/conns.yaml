@@ -2,6 +2,10 @@ population-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_intercensal_census/TR_PERSONA<index>.CSV
 
+population-data-2020:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_census_2020/Personas_<index>.csv
+  
 housing-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_intercensal_census/TR_VIVIENDA<index>.CSV

@@ -10,7 +10,13 @@ from bamboo_lib.steps import LoadStep
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
 
-        df = pd.read_csv(prev, usecols=["entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"])
+        df = pd.read_csv(prev)
+
+        # Standarize column names
+        df.columns = [x.lower() for x in df.columns]
+
+        # Get "entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"
+        df = df[["entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"]]
 
         # Filter of non use rows (totals)
         df = df.loc[(~df['nom_mun'].str.contains('Total')) & (~df['nom_loc'].str.contains('Total')) & (~df['nom_loc'].str.contains('Localidades de '))].copy()
@@ -28,7 +34,7 @@ class TransformStep(PipelineStep):
         # Transforming certains str columns into int values
         df["mun_id"] = df["mun_id"].astype(int)
         df["population"] = df["population"].astype(int)
-        df["year"] = 2010
+        df["year"] = params.get("year")
 
         return df
 
@@ -36,7 +42,8 @@ class Population2010Pipeline(EasyPipeline):
     @staticmethod
     def parameter_list():
         return [
-            Parameter(label="Index", name="index", dtype=str)
+            Parameter(label="Index", name="index", dtype=str),
+            Parameter(label="Year", name="year", dtype=str)
         ]
 
     @staticmethod
