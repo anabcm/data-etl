@@ -22,10 +22,6 @@ economic-census-columns:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_economic_census_2019/diccionario_de_datos_ce2019.csv
 
-economic-census-main-features:
-  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_economic_census_2019/main_features/gennce19_13.xlsx
-
 dim_categories:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/inegi_economic_census_2019/Indicators/categories.csv
