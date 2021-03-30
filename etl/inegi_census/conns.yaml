@@ -13,4 +13,8 @@ housing-data-2020:
 labels:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/shared/Intercensal Census IDs.xlsx
+
+geo-data-census:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/geo/AGEEML_2021330921196.csv
   
