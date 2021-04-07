@@ -87,7 +87,7 @@ class TransformStep(PipelineStep):
 
         # data to replace
         data = {}
-        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais']:
+        for col in ['clavivp', 'paredes', 'techos', 'pisos', 'cuadorm', 'totcuart', 'refrigerador', 'lavadora', 'autoprop', 'televisor', 'internet', 'computadora', 'celular', 'cobertura', 'financiamiento_2020', 'ingr_ayugob', 'ingr_perotropais', 'bomba_agua', 'calentador_solar', 'aire_acon', 'panel_solar', 'separacion1', 'horno', 'motocicleta', 'bicicleta', 'serv_tv_paga', 'serv_pel_paga', 'con_vjuegos', 'escrituras', 'deuda', 'jefe_sexo', 'jefe_edad']:
             data[col] = pd.read_excel(dimension, sheet_name=col, dtype='object')
         data['financiamiento'] = data.pop('financiamiento_2020')
 
