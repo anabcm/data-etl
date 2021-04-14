@@ -4,6 +4,8 @@ from bamboo_lib.helpers import query_to_df
 from bamboo_lib.connectors.models import Connector
 
 def check_update(files, table):
+    """This function check's all the url's (files path in GCP) in clickhouse and compares with the files in GCP.
+    The function returns a list of all new url's (new data), or all the url's because there's no data ingested in clickhouse."""
     db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
     current_files = []
