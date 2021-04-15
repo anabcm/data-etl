@@ -17,4 +17,8 @@ labels:
 geo-data-census:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/geo/AGEEML_2021330921196.csv
+
+people-data:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/inegi_census_2020/Personas_<index>.csv
   
