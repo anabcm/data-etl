@@ -20,5 +20,5 @@ geo-data-census:
 
 people-data:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/inegi_census_2020/Personas_<index>.csv
+  uri: gs://datamexico-data/inegi_census_2020/personas_eumx_loc.csv
   
