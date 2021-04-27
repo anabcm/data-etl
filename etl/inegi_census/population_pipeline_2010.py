@@ -62,7 +62,7 @@ class Population2010Pipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population_total_2010", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype
+            "inegi_population_total", db_connector, if_exists="append", pk=["mun_id"], dtype=dtype
         )
 
         return [download_step, transform_step, load_step]
