@@ -54,7 +54,7 @@ class IndustrialParkPipeline(EasyPipeline):
         }
 
         download_step = DownloadStep(
-            connector=["dataset1_industrial_parks", "names_industrial_paks"],
+            connector=["dataset1_industrial_parks", "names_industrial_parks"],
             connector_path="conns.yaml"
         )
 
