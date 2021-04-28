@@ -1,0 +1,11 @@
+dataset1_industrial_parks:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/industrial_parks/ampip_20201217.xlsx
+
+names_industrial_parks:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/industrial_parks/park_names.csv
+
+types_industrial_parks:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/industrial_parks/park_types.csv
