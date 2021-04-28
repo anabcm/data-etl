@@ -12,10 +12,20 @@ class TransformStep(PipelineStep):
 
         #Create dictionary for park names
         dicto_names = dict(zip(dim_names["park_name"], dim_names["park_id"]))
+        
+        dicto_names_new = {}
+        for park_name, id_val in dicto_names.items():
+            aux_park_name = park_name.replace('\n', '')
+            dicto_names_new[aux_park_name] = id_val
 
+        dicto_missing = {
+            'Carretera Saltillo - Torreon': 793,
+            'CPA Logistics Center Huehuetoca': 838
+        }
+        
         df = industrial_parks
         df = df[["CVEGEO", "NOMBRE", "MASTER_TIPO_DE_ASENTAMIENTO"]].copy()      
-        df = df.drop_duplicates()       
+        df = df.drop_duplicates()   
 
         park_type = {
             "Parque industrial": 1,
@@ -33,11 +43,12 @@ class TransformStep(PipelineStep):
 
         df["MASTER_TIPO_DE_ASENTAMIENTO"] = df["MASTER_TIPO_DE_ASENTAMIENTO"].replace(park_type)
 
-        df["NOMBRE"] = df["NOMBRE"].replace(dicto_names)
+        df["NOMBRE"] = df["NOMBRE"].replace(dicto_names_new)
+        df["NOMBRE"] = df["NOMBRE"].replace(dicto_missing)
         df.columns = ["mun_id", "park_name_id", "park_type_id"]
 
         df["count_parks"] = 1
-        print(df.head())
+
         return df
 
 class IndustrialParkPipeline(EasyPipeline):
@@ -55,7 +66,8 @@ class IndustrialParkPipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector=["dataset1_industrial_parks", "names_industrial_parks"],
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         transform_step = TransformStep()
