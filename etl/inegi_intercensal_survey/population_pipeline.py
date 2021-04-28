@@ -140,7 +140,7 @@ class TransformStep(PipelineStep):
         # Transforming certains columns to objects
         for col in (params_translated + ["mun_id_trab"]):
             df[col] = df[col].astype("object")
-        df.to_csv('output.csv')
+
         return df
 
 class PopulationPipeline(EasyPipeline):
