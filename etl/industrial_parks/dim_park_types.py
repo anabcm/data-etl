@@ -32,7 +32,7 @@ class DimParkTypes(EasyPipeline):
         transform_step = TransformStep()
 
         load_step = LoadStep(
-            "types_industrial_parks", db_connector, dtype=dtype,
+            "dim_types_industrial_parks", db_connector, dtype=dtype,
             if_exists="append", pk=["park_type_id"]
         )
 
