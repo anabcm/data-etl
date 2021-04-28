@@ -211,7 +211,7 @@ class PopulationPipeline(EasyPipeline):
         )
         transform_step = TransformStep()
         load_step = LoadStep(
-            "inegi_population", db_connector, if_exists="drop", pk=["mun_id", "sex"], dtype=dtype, 
+            "inegi_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", 
             "time_to_ed_facilities", "transport_mean_ed_facilities", "laboral_condition", 
             "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id"]
