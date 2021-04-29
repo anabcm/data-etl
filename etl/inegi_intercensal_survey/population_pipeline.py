@@ -223,5 +223,5 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id"]
         )
 
-        return [download_step, transform_step]
+        return [download_step, transform_step, load_step]
 
