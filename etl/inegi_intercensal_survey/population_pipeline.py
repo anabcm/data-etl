@@ -125,6 +125,10 @@ class TransformStep(PipelineStep):
 
         # Condense df around params list, mun_id, and sum over population (factor)
 
+        df.fillna(888888, inplace=True)
+        for col in params_translated_add1:
+            df[col] = df[col].astype(int)
+            
         df = df.groupby(params_translated + params_translated_add1 + ["mun_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
 
         # Turning back NaN values in the respective columns
@@ -133,6 +137,8 @@ class TransformStep(PipelineStep):
         df["academic_degree"].replace(1000, np.nan, inplace=True)
         df["age"].replace(999, np.nan, inplace=True)
         df["filtered_age"] = df['age'].apply(lambda x: 1 if x >= 12 else 0)
+        for column in df.columns:
+            df[column].replace(888888, np.nan, inplace=True)
 
         # Includes year column
         df["year"] = params.get("year")
@@ -217,5 +223,5 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id"]
         )
 
-        return [download_step, transform_step, load_step]
+        return [download_step, transform_step]
 
