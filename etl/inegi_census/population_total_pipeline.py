@@ -19,7 +19,8 @@ class TransformStep(PipelineStep):
         df = df[["entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"]]
 
         # Filter of non use rows (totals)
-        df = df.loc[(~df['nom_mun'].str.contains('Total')) & (~df['nom_loc'].str.contains('Total')) & (~df['nom_loc'].str.contains('Localidades de '))].copy()
+        #df = df.loc[(~df['nom_mun'].str.contains('Total')) & (~df['nom_loc'].str.contains('Total')) & (~df['nom_loc'].str.contains('Localidades de '))].copy()
+        df = df.loc[df['nom_loc'].str.contains('Total del Municipio')].copy()
 
         # Adding zero's to IDs columns
         df["mun"] = df["mun"].astype(str).str.zfill(3)
