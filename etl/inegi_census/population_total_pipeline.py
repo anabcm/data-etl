@@ -6,6 +6,10 @@ from bamboo_lib.models import PipelineStep
 from bamboo_lib.steps import DownloadStep
 from bamboo_lib.steps import LoadStep
 
+sex_dict = {
+     "male_population": 1,
+     "female_population": 2
+}
 
 class TransformStep(PipelineStep):
     def run_step(self, prev, params):
@@ -15,12 +19,16 @@ class TransformStep(PipelineStep):
         # Standarize column names
         df.columns = [x.lower() for x in df.columns]
 
-        # Get "entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"
-        df = df[["entidad", "mun", "loc", "nom_mun", "nom_loc", "pobtot"]]
+        # Get "entidad", "mun", "loc", "nom_mun", "nom_loc", "pobfem", "pobmas"
+        df = df[["entidad", "mun", "loc", "nom_mun", "nom_loc", "pobfem", "pobmas"]]
 
         # Filter of non use rows (totals)
         #df = df.loc[(~df['nom_mun'].str.contains('Total')) & (~df['nom_loc'].str.contains('Total')) & (~df['nom_loc'].str.contains('Localidades de '))].copy()
         df = df.loc[df['nom_loc'].str.contains('Total del Municipio')].copy()
+
+        # Changing population dtype
+        df.pobfem = df.pobfem.astype(int)
+        df.pobmas = df.pobmas.astype(int)
 
         # Adding zero's to IDs columns
         df["mun"] = df["mun"].astype(str).str.zfill(3)
@@ -28,14 +36,17 @@ class TransformStep(PipelineStep):
         # Slicing columns and creating location ID
         df["mun_id"] = df["entidad"].astype(str) + df["mun"]
 
-        df.rename(index=str, columns={"pobtot": "population"}, inplace=True)
+        df.rename(index=str, columns={"pobfem": "female_population", "pobmas": "male_population"}, inplace=True)
 
-        df = df[["mun_id", "population"]].copy()
+        df = df[["mun_id", "female_population", "male_population"]].copy()
 
-        # Transforming certains str columns into int values
+        # Transforming str columns into int values
         df["mun_id"] = df["mun_id"].astype(int)
-        df["population"] = df["population"].astype(int)
         df["year"] = params.get("year")
+
+        # Creating sex column
+        df = df.melt(id_vars=["mun_id", "year"], var_name="sex", value_name="population")
+        df.sex = df.sex.replace(sex_dict)
 
         return df
 
@@ -53,8 +64,9 @@ class Population2010Pipeline(EasyPipeline):
 
         dtype = {
             "mun_id":         "UInt16",
+            "year":           "UInt16",
+            "sex":            "UInt8",
             "population":     "UInt64",
-            "year":           "UInt16"
         }
 
         download_step = DownloadStep(
