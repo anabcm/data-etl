@@ -33,7 +33,8 @@ AGE_RANGE = {
 
     '20 a 49 años': 12,
     '50 a 69 años': 13, 
-    '70 y más años': 14
+    '70 y más años': 14,
+    'C': 99
 }
 
 COMPANY_SIZE = {
@@ -44,7 +45,8 @@ COMPANY_SIZE = {
     'De 21 a 50': 3,
     'De 21 a 50 empleados': 3,
     'Mas de 50': 4,
-    'Más de 50 empleados': 4
+    'Más de 50 empleados': 4,
+    'Mas de 50 empleados': 4
 }
 
 PERSON_TYPE = {
@@ -55,7 +57,8 @@ PERSON_TYPE = {
 SEX = {
     'H': 1,
     'M': 2,
-    'NO_IDENTIFICADO': 0
+    'NO_IDENTIFICADO': 0,
+    'C': 0
 }
 
 MISSING_MUN = {
