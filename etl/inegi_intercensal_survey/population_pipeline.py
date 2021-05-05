@@ -15,7 +15,7 @@ class TransformStep(PipelineStep):
 
         df = pd.read_csv(prev[0], dtype=str, index_col=None, header=0, encoding="latin-1")
         df.columns = df.columns.str.lower()
-        
+
         extra_columns_low = [col.lower() for col in extra_columns]
 
         for column in extra_columns_low:
@@ -122,16 +122,17 @@ class TransformStep(PipelineStep):
                             "hijos_fallecidos": "deceased_children",
                             "tamloc": "location_size"
                             }, inplace=True)
-
+        
         # Condense df around params list, mun_id, and sum over population (factor)
 
         # df.fillna(888888, inplace=True)
         for col in params_translated_add1:
             df[col].fillna(888888, inplace=True)
             df[col] = df[col].astype(int)
-  
-        df = df.groupby(params_translated + params_translated_add1 + ["mun_id", "mun_id_trab", "age"]).sum().reset_index(col_fill="ffill")
 
+        df = df.groupby(params_translated + params_translated_add1 + ["mun_id", "mun_id_trab", "age", "id_persona"]).sum().reset_index(col_fill="ffill")
+        df.drop(columns=['id_persona'], inplace=True)
+        
         # Turning back NaN values in the respective columns
         for item in li_eng:
             df[item].replace(0, np.nan, inplace=True)
@@ -148,7 +149,7 @@ class TransformStep(PipelineStep):
         # Transforming certains columns to objects
         for col in (params_translated + params_translated_add1 + ["mun_id_trab"]):
             df[col] = df[col].astype("object")
-      
+        
         return df
 
 class PopulationPipeline(EasyPipeline):
@@ -225,5 +226,5 @@ class PopulationPipeline(EasyPipeline):
             "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id", "indigenous_speaker"]
         )
 
-        return [download_step, transform_step, load_step]
+        return [download_step, transform_step]
 
