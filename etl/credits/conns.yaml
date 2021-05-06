@@ -26,6 +26,14 @@ dim-weeks:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/credits/credits_weeks.csv
 
+females-ent-total:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/mujeres_solidarias_total_estatal.xlsx
+
+females-mun-total:
+  driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
+  uri: gs://datamexico-data/credits/mujeres_solidarias_total_municipal.xlsx
+
 accomplished-companies-mun-total:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/credits/empresas_cumplidas_total_municipal.xlsx

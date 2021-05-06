@@ -11,7 +11,7 @@ from shared import AGE_RANGE, PERSON_TYPE, SEX
 
 columns_to_rename = {
     "clave_municipal":"mun_id",
-    "conteo_anonimizado":"anonimized_count",
+    "conteo_anonimizado":"count",
     "sexo":"sex",
     "tipo_persona":"person_type",
     "rango_edad_antigüedad":"age_range"
@@ -53,7 +53,7 @@ class AccomplishedCompaniesPipeline(EasyPipeline):
             "sex":              "UInt8",
             "person_type":      "UInt8",
             "age_range":        "UInt8",
-            "anonimized_count": "UInt8"
+            "count": "UInt8"
         }
 
         dl_step = DownloadStep(
@@ -66,7 +66,7 @@ class AccomplishedCompaniesPipeline(EasyPipeline):
         ld_step = LoadStep(
             'accomplished_companies_credits', 
             db_connector, 
-            if_exists="append",
+            if_exists="drop",
             pk=["mun_id", "sex", "age_range"],
             dtype=dtype
             )
