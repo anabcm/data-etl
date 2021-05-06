@@ -66,7 +66,7 @@ class AccomplishedCompaniesPipeline(EasyPipeline):
         ld_step = LoadStep(
             'accomplished_companies_credits', 
             db_connector, 
-            if_exists="drop",
+            if_exists="append",
             pk=["mun_id", "sex", "age_range"],
             dtype=dtype
             )
