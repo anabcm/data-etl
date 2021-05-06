@@ -16,11 +16,11 @@ households-mun-total:
 
 wellness-ent-total:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/credits/bienestar_normal_total_estatal.csv
+  uri: gs://datamexico-data/credits/bienestar_normal_total_estatal.xlsx
 
 wellness-mun-total:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
-  uri: gs://datamexico-data/credits/bienestar_normal_total_municipal.csv
+  uri: gs://datamexico-data/credits/bienestar_normal_total_municipal.xlsx
 
 dim-weeks:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
@@ -37,3 +37,4 @@ females-mun-total:
 accomplished-companies-mun-total:
   driver: bamboo_lib.connectors.drivers.gcs.GCSDriver
   uri: gs://datamexico-data/credits/empresas_cumplidas_total_municipal.xlsx
+
