@@ -3,51 +3,28 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
 from shared import AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm
-from etl.helpers import norm
+from helpers import norm
 
 COLUMNS = {
-    'clave ent.mun': 'clave',
     'clave municipal': 'clave',
-    'nom entidad': 'ent_id',
     'nom ent': 'ent_id',
     'nom mun': 'mun_id',
     'sexo': 'sex',
     'tipo_persona': 'person_type',
-    'empleados': 'employee_range',
-    'rango edad': 'age_range',
     'rango_edad_antigüedad': 'age_range',
-    'conteo_anonimizado': 'count',
-    
-}
-
-EMPLOYEE = {
-    '0': 0,
-    'De 1 a 10 empleados': 1
+    'conteo_anonimizado': 'count'
 }
 
 class ReadStep(PipelineStep):
     def run_step(self, prev, params):
         try:
-            df = pd.read_csv(prev[0], encoding='latin-1')
+            df = pd.read_csv(prev, encoding='latin-1')
         except pd.errors.ParserError:
-            df = pd.read_excel(prev[0])
+            df = pd.read_excel(prev)
 
         df.columns = df.columns.str.lower()
         df.rename(columns=COLUMNS, inplace=True)
-        df['mun_id'] = '0'
-        df['level'] = 'State'
-        df_ent = df.copy()
-
-        try:
-            df = pd.read_csv(prev[1], encoding='latin-1')
-        except pd.errors.ParserError:
-            df = pd.read_excel(prev[1])
-        df.columns = df.columns.str.lower()
-        df.rename(columns=COLUMNS, inplace=True)
-        df['employee_range'] = '0'
         df['level'] = 'Municipality'
-
-        df = df.append(df_ent, sort=False)
 
         return df
 
@@ -55,15 +32,11 @@ class TransformStep(PipelineStep):
     def run_step(self, prev, params):
         df = prev
 
-        # filter confidential values
-        df = df.loc[df['count'].astype(str).str.lower() != 'c'].copy()
-
         # replace members in dimensions
         df['sex'].replace(SEX, inplace=True)
         df['person_type'] = df['person_type'].apply(lambda x: norm(x)).str.lower()
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
-        df['employee_range'].replace(EMPLOYEE, inplace=True)
         
         for col in ['ent_id', 'mun_id']:
             df[col] = df[col].apply(lambda x: norm(x)).str.upper()
@@ -82,9 +55,7 @@ class TransformStep(PipelineStep):
         df.loc[~df['mun_id'].isin(list(mun.values())), 'mun_id'] = \
             df.loc[~df['mun_id'].isin(list(mun.values())), 'ent_id'].astype(str) + '999'
 
-        df.loc[df['level'] == 'Municipality', 'ent_id'] = '0'
-
-        df = df[['ent_id', 'mun_id', 'level', 'sex', 'person_type', 'age_range', 'employee_range', 'count']].copy()
+        df = df[['ent_id', 'mun_id', 'level', 'sex', 'person_type', 'age_range', 'count']].copy()
 
         for col in df.columns[df.columns != 'level']:
             df[col] = df[col].astype(int)
@@ -103,12 +74,11 @@ class FemalesPipeline(EasyPipeline):
             'sex':              'UInt8', 
             'person_type':      'UInt8', 
             'age_range':        'UInt8',
-            'employee_range':   'UInt8', 
             'count':            'UInt32'
         }
 
         download_step = DownloadStep(
-            connector=['females-ent-total', 'females-mun-total'],
+            connector='females-mun-total',
             connector_path='conns.yaml',
             force=True
         )
