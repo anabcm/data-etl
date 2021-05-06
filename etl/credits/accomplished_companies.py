@@ -53,7 +53,7 @@ class AccomplishedCompaniesPipeline(EasyPipeline):
             "sex":              "UInt8",
             "person_type":      "UInt8",
             "age_range":        "UInt8",
-            "count": "UInt8"
+            "count":            "UInt8"
         }
 
         dl_step = DownloadStep(
