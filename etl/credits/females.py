@@ -55,7 +55,7 @@ class TransformStep(PipelineStep):
         df.loc[~df['mun_id'].isin(list(mun.values())), 'mun_id'] = \
             df.loc[~df['mun_id'].isin(list(mun.values())), 'ent_id'].astype(str) + '999'
 
-        df = df[['ent_id', 'mun_id', 'level', 'sex', 'person_type', 'age_range', 'count']].copy()
+        df = df[['mun_id', 'level', 'sex', 'person_type', 'age_range', 'count']].copy()
 
         for col in df.columns[df.columns != 'level']:
             df[col] = df[col].astype(int)
@@ -67,8 +67,7 @@ class FemalesPipeline(EasyPipeline):
     def steps(params):
         db_connector = Connector.fetch('clickhouse-database', open('../conns.yaml'))
 
-        dtype = {
-            'ent_id':           'UInt8', 
+        dtype = { 
             'mun_id':           'UInt16', 
             'level':            'String', 
             'sex':              'UInt8', 
@@ -88,7 +87,7 @@ class FemalesPipeline(EasyPipeline):
 
         load_step = LoadStep(
             'females_credits', db_connector, dtype=dtype, if_exists='drop',
-            pk=['ent_id', 'mun_id', 'level']
+            pk=['mun_id', 'level']
         )
 
         return [download_step, read_step, transform_step, load_step]
