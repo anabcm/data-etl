@@ -3,7 +3,7 @@ from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
 from shared import AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm
-from helpers import norm
+from etl.helpers import norm
 
 COLUMNS = {
     'clave ent.mun': 'clave',
