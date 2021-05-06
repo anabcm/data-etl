@@ -51,7 +51,9 @@ COMPANY_SIZE = {
 
 PERSON_TYPE = {
     'fisica': 1,
-    'moral': 2
+    'Física': 1,
+    'moral': 2,
+    'Moral':2
 }
 
 SEX = {
