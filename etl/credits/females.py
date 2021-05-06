@@ -2,7 +2,7 @@ import pandas as pd
 from bamboo_lib.connectors.models import Connector
 from bamboo_lib.models import Parameter, EasyPipeline, PipelineStep
 from bamboo_lib.steps import DownloadStep, LoadStep
-from shared import COLUMNS, AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm
+from shared import AGE_RANGE, PERSON_TYPE, SEX, MISSING_MUN, replace_geo, norm
 from helpers import norm
 
 COLUMNS = {
@@ -18,6 +18,11 @@ COLUMNS = {
     'rango_edad_antigüedad': 'age_range',
     'conteo_anonimizado': 'count',
     
+}
+
+EMPLOYEE = {
+    '0': 0,
+    'De 1 a 10 empleados': 1
 }
 
 class ReadStep(PipelineStep):
@@ -58,7 +63,8 @@ class TransformStep(PipelineStep):
         df['person_type'] = df['person_type'].apply(lambda x: norm(x)).str.lower()
         df['person_type'].replace(PERSON_TYPE, inplace=True)
         df['age_range'].replace(AGE_RANGE, inplace=True)
-
+        df['employee_range'].replace(EMPLOYEE, inplace=True)
+        
         for col in ['ent_id', 'mun_id']:
             df[col] = df[col].apply(lambda x: norm(x)).str.upper()
 
@@ -75,14 +81,15 @@ class TransformStep(PipelineStep):
 
         df.loc[~df['mun_id'].isin(list(mun.values())), 'mun_id'] = \
             df.loc[~df['mun_id'].isin(list(mun.values())), 'ent_id'].astype(str) + '999'
+
         df.loc[df['level'] == 'Municipality', 'ent_id'] = '0'
 
         df = df[['ent_id', 'mun_id', 'level', 'sex', 'person_type', 'age_range', 'employee_range', 'count']].copy()
 
-        #for col in df.columns[df.columns != 'level']:
-         #   df[col] = df[col].astype(int)
+        for col in df.columns[df.columns != 'level']:
+            df[col] = df[col].astype(int)
 
-        return df, print(df)
+        return df
 
 class FemalesPipeline(EasyPipeline):
     @staticmethod
@@ -114,7 +121,7 @@ class FemalesPipeline(EasyPipeline):
             pk=['ent_id', 'mun_id', 'level']
         )
 
-        return [download_step, read_step, transform_step]
+        return [download_step, read_step, transform_step, load_step]
 
 if __name__ == "__main__":
     pp = FemalesPipeline()
