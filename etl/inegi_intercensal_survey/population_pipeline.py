@@ -59,8 +59,11 @@ class TransformStep(PipelineStep):
         "nivacad", "tie_traslado_escu", "med_traslado_esc1",
         "nacionalidad"]
 
+        # parameters_add1 = ["qdialect_inali", "religion", "alfabet", 
+        # "ent_pais_nac", "ent_pais_res_5a", "asisten", "causa_mig"]
+        
         parameters_add1 = ["qdialect_inali", "religion", "alfabet", 
-        "ent_pais_nac", "ent_pais_res_5a", "asisten", "causa_mig"]
+        "asisten", "causa_mig"]
 
         params_translated = ["sex", "parent", "sersalud", "dhsersal1",
         "laboral_condition", "time_to_work", "transport_mean_work",
@@ -125,7 +128,6 @@ class TransformStep(PipelineStep):
         
         # Condense df around params list, mun_id, and sum over population (factor)
 
-        # df.fillna(888888, inplace=True)
         for col in params_translated_add1:
             df[col].fillna(888888, inplace=True)
             df[col] = df[col].astype(int)
@@ -145,11 +147,26 @@ class TransformStep(PipelineStep):
          
         # Includes year column
         df["year"] = params.get("year")
+        
+        #Changing country id's by its iso3 codes
+        for col in ["state_of_birth", "state_of_residency"]:
+            df_l = pd.read_excel(df_labels, col)
+            df[col] = df[col].replace(dict(zip(df_l.prev_id, df_l.id)))
+
+        df['country_of_residency_5_years'] = df['state_of_residency'].apply(lambda x: x if type(x)==str else np.nan)
+        df['state_of_residency_5_years'] = df['state_of_residency'].apply(lambda x: x if type(x)!=str else np.nan)
+
+        df['country_of_birth'] = df['state_of_birth'].apply(lambda x: x if type(x)==str else np.nan)
+        df['state_of_birth'] = df['state_of_birth'].apply(lambda x: x if type(x)!=str else np.nan)
+
+        extra_params = ["country_of_residency_5_years", "state_of_residency_5_years", "country_of_birth", "state_of_birth"]
 
         # Transforming certains columns to objects
-        for col in (params_translated + params_translated_add1 + ["mun_id_trab"]):
+        for col in (params_translated + params_translated_add1 + extra_params + ["mun_id_trab"]):
             df[col] = df[col].astype("object")
-        
+
+        df.drop(columns=["state_of_residency"], inplace=True)
+
         return df
 
 class PopulationPipeline(EasyPipeline):
@@ -184,7 +201,7 @@ class PopulationPipeline(EasyPipeline):
             "filtered_age":                 "UInt8",
             "year":                         "UInt16",
             "location_key":                 "UInt16", 
-            "state_of_birth":               "UInt16", 
+            "state_of_birth":               "UInt8", 
             "afro_offspring":               "UInt8", 
             "religion":                     "UInt8",
             "indigenous_speaker":           "UInt8", 
@@ -206,12 +223,14 @@ class PopulationPipeline(EasyPipeline):
             "mental_imp_cause":             "UInt8",
             "school_attendance":            "UInt8", 
             "literate":                     "UInt8", 
-            "state_of_residency":           "UInt16", 
             "municipality_of_residency":    "UInt16",
             "migration_cause":              "UInt8", 
             "children_born_alive":          "UInt8", 
             "deceased_children":            "UInt8", 
-            "location_size":                "UInt16"
+            "location_size":                "UInt16",
+            "state_of_residency_5_years":   "UInt8",
+            "country_of_birth":             "String",
+            "country_of_residency_5_years": "String"
         }
 
         download_step = DownloadStep(
@@ -223,7 +242,8 @@ class PopulationPipeline(EasyPipeline):
             "inegi_population", db_connector, if_exists="append", pk=["mun_id", "sex"], dtype=dtype, 
             nullable_list=["age", "time_to_work", "transport_mean_work", "school_attendance", "literate", "children_born_alive",
             "time_to_ed_facilities", "transport_mean_ed_facilities", "laboral_condition", "indigenous_self_ascribing", "deceased_children",
-            "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id", "indigenous_speaker"]
+            "mun_id_trab", "academic_degree", "nationality", "indigenous_language_id", "indigenous_speaker", "state_of_birth", 
+            "country_of_residency_5_years", "state_of_residency_5_years", "country_of_birth"]
         )
 
         return [download_step, transform_step, load_step]
