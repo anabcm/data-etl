@@ -201,7 +201,7 @@ class PopulationPipeline(EasyPipeline):
             "filtered_age":                 "UInt8",
             "year":                         "UInt16",
             "location_key":                 "UInt16", 
-            "state_of_birth":               "UInt16", 
+            "state_of_birth":               "UInt8", 
             "afro_offspring":               "UInt8", 
             "religion":                     "UInt8",
             "indigenous_speaker":           "UInt8", 
@@ -228,7 +228,7 @@ class PopulationPipeline(EasyPipeline):
             "children_born_alive":          "UInt8", 
             "deceased_children":            "UInt8", 
             "location_size":                "UInt16",
-            "state_of_residency_5_years":   "UInt16",
+            "state_of_residency_5_years":   "UInt8",
             "country_of_birth":             "String",
             "country_of_residency_5_years": "String"
         }
