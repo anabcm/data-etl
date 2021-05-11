@@ -26,7 +26,8 @@ class DimAgeRangePipeline(EasyPipeline):
 
         download_step = DownloadStep(
             connector="shared-age",
-            connector_path="conns.yaml"
+            connector_path="conns.yaml",
+            force=True
         )
 
         extract_step = ExtractStep()
