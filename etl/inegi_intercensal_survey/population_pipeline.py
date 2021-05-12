@@ -167,6 +167,8 @@ class TransformStep(PipelineStep):
 
         df.drop(columns=["state_of_residency"], inplace=True)
 
+        df['foreign_migrant'] = df['country_of_residency_5_years'].apply(lambda x: 0 if pd.isnull(x) else 1)
+
         return df
 
 class PopulationPipeline(EasyPipeline):
@@ -230,7 +232,8 @@ class PopulationPipeline(EasyPipeline):
             "location_size":                "UInt16",
             "state_of_residency_5_years":   "UInt8",
             "country_of_birth":             "String",
-            "country_of_residency_5_years": "String"
+            "country_of_residency_5_years": "String",
+            "foreign_migrant":              "UInt8"
         }
 
         download_step = DownloadStep(
