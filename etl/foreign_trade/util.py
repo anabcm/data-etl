@@ -23,7 +23,7 @@ def check_update(files, table):
     else:
         return files
 
-LEVELS = {'National':  ['UInt8',  'ent', 0], 
+LEVELS = {'National':  ['UInt8',  'ent', 3], 
           'State':     ['UInt8',  'ent', 1], 
           'Municipal': ['UInt16', 'mun', 2]}
 
